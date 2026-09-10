@@ -1,0 +1,27 @@
+{
+  "direction": "Precision transport",
+  "selectedBy": "User, September 10 2026",
+  "assets": [
+    {
+      "path": "apps/web/public/brand/road-sculpture.png",
+      "purpose": "Illustrative studio artwork for sign-in, film opening and pitch cover; never operational route evidence",
+      "format": "PNG",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "provider": "Built-in image_gen imagegen",
+      "model": "Tool did not expose model identifier",
+      "generatedAt": "2026-09-10",
+      "source": "/home/zin-kg/.codex/generated_images/01a08cb5-f0e0-76c2-b2ff-a43ffc3bc8a8/exec-226409b1-0b41-4dca-a19a-7a29cd46a0c9.png",
+      "rights": "Original generated artwork under existing tool access; no third-party reference assets copied",
+      "cost": "Built-in tool did not expose per-image metering; no separate cloud provider provisioned",
+      "fallback": "Graphite background, editable title and fully functional form; reduced-motion static image",
+      "editHistory": [
+        "Original copied unchanged into product"
+      ],
+      "promptSummary": "Premium RoadStar carrier operations 3D studio sculpture: graphite elevated road junction on warm ivory architectural plinth, one signal-orange selected route, one tiny realistic unbranded white semi-truck. Wide composition, subject right two-thirds with negative space left, soft directional industrial studio lighting, satin metal and ceramic. No text, logos, neon or fake operational data. Conceptual studio artwork, not geographic route evidence.",
+      "promptProvenance": "Summary of the original image-generation tool input; exact original input is retained in the tool call record."
+    }
+  ]
+}

@@ -45,6 +45,16 @@ const date = (value: string) =>
     timeStyle: "short",
   });
 const label = (value: string) => value.replaceAll("_", " ");
+function BrandMark() {
+  return <svg className="brand-mark" viewBox="0 0 36 40" fill="none" aria-hidden="true"><path d="M7 35V8h10c8 0 11 4 11 9 0 6-5 9-12 9H7" stroke="currentColor" strokeWidth="5"/><path d="m17 26 12 10M16 9v14" stroke="#E65C32" strokeWidth="5"/><path d="M16 3v3M16 30v7" stroke="#E65C32" strokeWidth="2"/></svg>;
+}
+function NavIcon({ name }: { name: string }) {
+  const paths: Record<string, string> = { Recovery: "M5 19V9a4 4 0 0 1 4-4h10m-5-4 5 4-5 4M5 15c0-4 4-6 9-6h5", Planning: "M4 4h16v16H4zM4 10h16M10 10v10", Tracking: "M12 3v3m0 12v3M3 12h3m12 0h3M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10", Fleet: "M3 6h11v11H3zM14 10h4l3 4v3h-7M5 17v3m13-3v3", "Evidence & billing": "M6 3h9l4 4v14H6zM10 11h5m-5 4h5M14 3v5h5", Imports: "M4 15v6h16v-6M12 3v12m-5-5 5 5 5-5", Activity: "M3 12h4l3-7 4 14 3-7h4", Trips: "M5 5h5c5 0 0 14 5 14h4M3 5a2 2 0 1 0 4 0 2 2 0 0 0-4 0m14 14a2 2 0 1 0 4 0 2 2 0 0 0-4 0" };
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[name] || paths.Activity}/></svg>;
+}
+function RouteRail({ load }: { load?: Load }) {
+  return <div className="route-rail"><div className="route-station"><i/><span>ORIGIN<strong>{load?.pickup.name || "Select an active load"}</strong></span></div><div className="route-link" aria-hidden="true"><span/></div><div className="route-station"><i/><span>DESTINATION<strong>{load?.delivery.name || "Rehearse the next assignment"}</strong></span></div></div>;
+}
 function Empty({ children }: { children: ReactNode }) {
   return <div className="empty">{children}</div>;
 }
@@ -96,18 +106,16 @@ function Login({ onLogin }: { onLogin: (session: Session) => void }) {
     <main className="login">
       <div className="login-story">
         <div className="brand">
-          R<span>RoadStar</span>
+          <BrandMark/><span>RoadStar</span>
         </div>
         <p className="eyebrow">CARRIER OPERATIONS</p>
         <h1>
-          Keep the next load
-          <br />
-          moving.
+          Every turn.<br /><em>Accounted for.</em>
         </h1>
         <p>
-          One place to plan a dispatch, review a recovery and keep the evidence
-          together.
+          From the first assignment to the last stop. A clear path through the unexpected.
         </p>
+        <img className="login-sculpture" src="/brand/road-sculpture.png" alt="Sculptural orange road branching through a graphite junction" />
         <div className="login-note">
           Dispatcher approval stays at the center of every consequential change.
         </div>
@@ -378,6 +386,10 @@ export function App() {
   const state = snapshot.data;
   const isDriver =
     state?.actor?.role === "driver" || session.token.startsWith("demo-driver");
+  const navigationItems = !state ? ["Activity"] : isDriver
+    ? ["Trips", "Tracking", "Fleet", "Activity"]
+    : ["Recovery", "Planning", "Tracking", "Fleet", "Evidence & billing", "Imports", "Activity"];
+  const selectedNavigation = isDriver && view === "Recovery" ? "Trips" : view;
   const logout = async () => {
     clearSession();
     if (!localDemo && firebaseConfigured) await signOut(auth());
@@ -386,35 +398,26 @@ export function App() {
     <div className="app">
       <aside className="sidebar">
         <a className="brand" href="#main">
-          R
+          <BrandMark/>
           <span>
-            RoadStar<small>Carrier operations</small>
+            RoadStar<small>TRANSPORT / CONTROL</small>
           </span>
         </a>
+        <label className="mobile-view-picker">
+          <span className="visually-hidden">Workspace view</span>
+          <select aria-label="Workspace view" value={navigationItems.includes(selectedNavigation) ? selectedNavigation : navigationItems[0]} onChange={event => { setView(event.target.value); window.scrollTo({ top: 0, behavior: "instant" }); }}>
+            {navigationItems.map(item => <option key={item} value={item}>{item}</option>)}
+          </select>
+        </label>
         <div className="workspace-label">{session.carrier}</div>
         <nav aria-label="Main navigation">
-          {(!state
-            ? ["Activity"]
-            : isDriver
-              ? ["Trips", "Tracking", "Fleet", "Activity"]
-              : [
-                  "Recovery",
-                  "Planning",
-                  "Tracking",
-                  "Fleet",
-                  "Evidence & billing",
-                  "Imports",
-                  "Activity",
-                ]
-          ).map((item, i) => (
+          {navigationItems.map((item) => (
             <button
               key={item}
-              onClick={() => setView(item)}
-              aria-current={view === item ? "page" : undefined}
+              onClick={() => { setView(item); window.scrollTo({ top: 0, behavior: "instant" }); }}
+              aria-current={view === item || (isDriver && view === "Recovery" && item === "Trips") ? "page" : undefined}
             >
-              <span aria-hidden="true">
-                {["↗", "▤", "⌖", "◉", "▧", "⇥", "≡"][i]}
-              </span>
+              <NavIcon name={item}/>
               {item}
               {item === "Recovery" &&
                 !!state?.proposals.filter((p) => p.status === "pending")
@@ -465,21 +468,23 @@ export function App() {
             </button>
           </div>
         </header>
-        <div className="content">
+        <div className={`content view-${view.toLowerCase().replaceAll(/[^a-z]+/g, "-")}`}>
           <div className="page-heading">
             <div>
-              <p className="eyebrow">DISPATCH WORKSPACE</p>
+              <p className="eyebrow">{isDriver ? "DRIVER WORKSPACE" : "OPERATIONS"} <span className="eyebrow-slash">/</span> {isDriver && view === "Recovery" ? "TODAY’S MANIFEST" : view === "Recovery" ? "RECOVERY CONTROL" : view.toUpperCase()}</p>
               <h1>
                 {isDriver && view === "Recovery"
                   ? "Today’s trips"
                   : view === "Recovery"
-                    ? "A clearer next move."
+                    ? "Recovery control"
                     : view}
               </h1>
               <p>
-                {view === "Recovery"
-                  ? "Rehearse a recovery. Compare the evidence. Approve with confidence."
-                  : "Operational records, synchronized across your carrier."}
+                {isDriver && view === "Recovery"
+                  ? "Your assignments. Your next stop. Your working day."
+                  : view === "Recovery"
+                  ? "Review alternatives before changing a commitment."
+                  : ({ Planning: "Shape the route. Pair your fleet. Review every commitment.", Tracking: "A clear view of the journey, grounded in recorded evidence.", Fleet: "People, equipment and readiness, in one view.", "Evidence & billing": "Every stop has a record. Every charge needs its proof.", Imports: "Bring the source records into your operation.", Activity: "A traceable history of what was requested and confirmed.", Trips: "Your assignments. Your next stop. Your working day." }[view] || "Your carrier operations, connected.")}
               </p>
             </div>
             {state?.scenarios[0] && (
@@ -526,7 +531,7 @@ export function App() {
           )}
           {state && (
             <>
-              <div className="summary">
+              <div className={`summary ${isDriver ? "driver-summary" : ""}`}>
                 <Metric
                   label="Open loads"
                   value={state.loads.filter((l) => l.status === "open").length}
@@ -557,24 +562,17 @@ export function App() {
                 <>
                   <DelayPanel state={state} send={send} disabled={!online} />
                   <div className="recovery-layout">
-                    <section className="panel">
+                    <section className="panel recovery-stage">
                       <div className="panel-heading">
                         <div>
                           <p className="eyebrow">RECOVERY WORKBENCH</p>
-                          <h2>Compare before you commit</h2>
+                          <h2>Compare assignments</h2>
                         </div>
-                        <span className="tag">Approval required</span>
+                        <span className="tag">{state.proposals.some(proposal => proposal.status === "pending") ? "Approval required" : state.proposals.length ? "Reviewed" : "No proposals"}</span>
                       </div>
-                      <p className="fine">
-                        Current assignments stay in place while alternatives are
-                        prepared. A planning screen is not proof of a truck-safe
-                        road route.
-                      </p>
+
                       {!state.proposals.length ? (
-                        <Empty>
-                          No recovery proposals yet. Select a load below to
-                          rehearse another assignment.
-                        </Empty>
+                        <div className="recovery-ready"><RouteRail load={state.loads.find(l => l.status !== "completed")}/><div className="ready-message"><span className="ready-symbol" aria-hidden="true">↗</span><div><h3>Ready to rehearse</h3><p>No recovery proposals yet. Select a load to compare an alternative assignment.</p></div></div></div>
                       ) : (
                         state.proposals
                           .slice()
@@ -589,6 +587,7 @@ export function App() {
                             />
                           ))
                       )}
+                      <details className="recovery-guidance"><summary>Approval & route checks</summary><p>Assignments change only after approval. Route evidence is checked separately.</p></details>
                       <div className="section-footer">
                         {state.loads
                           .filter((l) => l.status !== "completed")
@@ -963,7 +962,8 @@ function Metric({
 }) {
   return (
     <div className="metric">
-      <span>{caption}</span>
+      <span className="metric-caption">{caption}</span>
+      <span className="metric-mobile-caption">{{ "Open loads": "Open", "Driver offers": "Offers", "Recovery reviews": "Reviews", "Open stop visits": "Visits" }[caption] || caption}</span>
       <strong>{value.toString().padStart(2, "0")}</strong>
       <small>{detail}</small>
     </div>
@@ -1057,7 +1057,7 @@ function Recovery({
       <div className="panel-heading">
         <div>
           <strong>{p.load_id}</strong>
-          <p>{p.body.reason}</p>
+
         </div>
         <Status value={stale ? "stale" : p.status} />
       </div>
@@ -1086,17 +1086,30 @@ function Recovery({
           </div>
         </div>
       </div>
+      <div className="recovery-review-action">
+      {p.status === "pending" && (
+        <button
+          className="primary"
+          disabled={disabled || stale}
+          onClick={onApprove}
+        >
+          Review & approve →
+        </button>
+      )}
+      </div>
+      <p className="recovery-reason">{p.body.reason}</p>
+      <RouteRail load={load}/>
       <div className="recovery-detail">
         <span>{p.body.proof.deadheadKm} km estimated deadhead</span>
         <span>
           Load v{p.expected_version} · proposal r{p.revision}
         </span>
       </div>
-      <p className="fine">
+      <details className="recovery-assumptions"><summary>Evidence & modeled assumptions</summary><p className="fine">
         {p.body.assumptions.join(" · ")}. Comparison uses the same appointment
         window. Recorded dock delays and affected commitments appear above;
         travel times remain modeled.
-      </p>
+      </p></details>
       {p.body.proof.reasons.length > 0 && (
         <ul>
           {p.body.proof.reasons.map((r) => (
@@ -1110,15 +1123,7 @@ function Recovery({
           evidence.
         </p>
       )}
-      {p.status === "pending" && (
-        <button
-          className="primary"
-          disabled={disabled || stale}
-          onClick={onApprove}
-        >
-          Review & approve →
-        </button>
-      )}
+
     </article>
   );
 }
@@ -1264,7 +1269,8 @@ function Fleet({ resources }: { resources: Resource[] }) {
     getCoreRowModel: getCoreRowModel(),
   });
   return (
-    <section className="panel">
+    <section className="panel fleet-panel">
+      <div className="fleet-inventory">{(["driver", "truck", "trailer"] as const).map(kind=><div key={kind}><NavIcon name={kind === "driver" ? "Trips" : "Fleet"}/><strong>{resources.filter(resource=>resource.kind===kind).length.toString().padStart(2,"0")}</strong><span>{kind}s in fleet</span></div>)}</div>
       <div className="panel-heading">
         <h2>Fleet & availability</h2>
         <span className="tag">{resources.length} resources</span>
@@ -1326,6 +1332,7 @@ function DelayPanel({
   disabled: boolean;
 }) {
   const [open, setOpen] = useState(false),
+    [historyOpen, setHistoryOpen] = useState(false),
     [assignmentId, setAssignmentId] = useState(""),
     [expectedEnd, setExpectedEnd] = useState(""),
     [reason, setReason] = useState("Dock departure delayed"),
@@ -1333,12 +1340,20 @@ function DelayPanel({
     [error, setError] = useState("");
   const selected = state.assignments.find((a) => a.id === assignmentId);
   const observedAt = state.scenarios[0]?.clock || state.serverTime;
+  const affectedLoads = [...new Set((state.disruptions ?? []).flatMap(disruption => {
+    const trip = state.assignments.find(assignment => assignment.id === disruption.assignment_id);
+    return state.assignments.filter(assignment => trip && assignment.id !== trip.id &&
+      ["offered", "accepted"].includes(assignment.status) &&
+      (assignment.driverId === trip.driverId || assignment.truckId === trip.truckId || assignment.trailerId === trip.trailerId) &&
+      Date.parse(assignment.startAt) < Date.parse(disruption.expected_end) && Date.parse(assignment.endAt) > Date.parse(trip.endAt))
+      .map(assignment => assignment.loadId);
+  }))];
   return (
     <section className="panel delay-panel">
       <div className="panel-heading">
         <div>
           <p className="eyebrow">DISRUPTION MONITOR</p>
-          <h2>Protect the next appointment</h2>
+          <h2>Dock delays</h2>
         </div>
         <button
           onClick={() => setOpen(true)}
@@ -1349,6 +1364,9 @@ function DelayPanel({
           Record dock delay
         </button>
       </div>
+      {affectedLoads.length > 0 && <p className="delay-impact"><strong>{affectedLoads.join(", ")}</strong> · next assignment{affectedLoads.length === 1 ? "" : "s"} at risk</p>}
+      <details className="delay-history" open={historyOpen} onToggle={event => setHistoryOpen(event.currentTarget.open)}>
+        <summary>{state.disruptions?.length ? `${state.disruptions.length} recorded delay${state.disruptions.length === 1 ? "" : "s"} · review affected commitments` : "No dock delays recorded"}</summary>
       {!state.disruptions?.length ? (
         <p className="fine">
           No dock delays recorded. Driver acceptance is required before
@@ -1430,6 +1448,7 @@ function DelayPanel({
           );
         })
       )}
+      </details>
       {open && (
         <Modal
           title="Record a dock delay"
@@ -1448,7 +1467,7 @@ function DelayPanel({
                 selected.version,
               );
               setBusy(false);
-              if (ok) setOpen(false);
+              if (ok) { setOpen(false); setHistoryOpen(true); }
               else
                 setError(
                   "Delay was not recorded. Review command activity for the server reason and refresh the assignment.",

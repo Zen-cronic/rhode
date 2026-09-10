@@ -92,3 +92,16 @@ Later TODOs: physical Android/background/camera and native iOS verification; rea
 ## Private repository follow-up
 
 User explicitly requested a private repository. Created Zen-cronic/roadstar as PRIVATE, pushed build/roadstar-platform and verified matching local/remote e4c74e7. No collaborator invitations or public visibility changes. This supersedes the earlier pending public-source approval; judge access remains a separate unresolved submission check.
+
+
+## Precision transport redesign — September 10, 2026
+
+Requested scope implemented across dispatcher web, native driver/dispatcher roles, four-minute film and 13-slide editable deck. Graphite, ivory and signal orange, shared mark/fonts, original sculptural route artwork, compact recovery comparison and continuous native route review. Source and verification receipts live in `docs/design/`.
+
+**Design checkpoint: NEEDS_REVISION.** Three fresh isolated visual reviews completed (7.5, 7.7, final 7.8/10); the default 9/10 target was not reached within the fixed three-call cap. Final captures remain unchanged after review. Remaining issues: recovery metadata/map emphasis, native appointment/timezone wrapping and technical evidence hierarchy, and film native-app scale relative to headline. This is the best current reviewable candidate, not a passed studio-level design claim. Further visual iteration requires a new operator-authorized pass under the designer workflow.
+
+Functional checks: 22 PostgreSQL/import tests pass, with the separately gated real-road test skipped in this rerun; previous actual-road integration proof retained. Four web tests, production build/typecheck, 22 desktop/mobile states without overflow or page errors. Native 23 tests, both standalone Android ABIs, iOS JavaScript export and actual emulator role/offline-restart/reconnect checks pass. Fresh cloud synthetic `design-final` delay → proposal → approval → receiving driver acceptance all returned 200. Physical native iOS/background/camera/push checks remain deferred.
+
+Final film: 240.096 seconds, 1920×1080, 24fps, H.264/AAC. Full browser playback ended with no errors or dropped frames; 12 final frames inspected. 54 ordered captions fit the movie duration. Audio measured -16.06 LUFS and -1.43 dBTP after encoding. Original narration reused. Final v8 deck: all 13 slides and PDF pages inspected; editable content and 13 speaker notes retained, zero structural/layout findings. Native PowerPoint rendering and human listening/live rehearsal remain unverified.
+
+Local web http://localhost:5174 and PostgreSQL API4010 respond successfully. Existing Android API35 emulator remains visible under the temporary, not boot-enabled user service `roadstar-preview-emulator.service`; D-02's synthetic accepted RS-1043 is visible, delivery uncompleted, GPS off. Private GitHub visibility rechecked. Customer source rows, credentials, signing keys and raw authentication recordings remain excluded.

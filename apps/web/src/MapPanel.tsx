@@ -112,6 +112,7 @@ export function MapPanel({
           center: { lat: 43.75, lng: -79.6 },
           zoom: 8,
           mapTypeControl: true,
+          mapTypeControlOptions: { style: google.maps.MapTypeControlStyle.DROPDOWN_MENU },
           streetViewControl: false,
           fullscreenControl: true,
         });

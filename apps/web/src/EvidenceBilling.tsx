@@ -25,7 +25,7 @@ export function EvidenceBilling({
 }) {
   const [selected, setSelected] = useState<Invoice | null>(null);
   return (
-    <section className="panel">
+    <section className="panel billing-panel">
       <div className="panel-heading">
         <h2>Stop evidence & detention billing</h2>
         <span className="tag">Observed samples</span>
@@ -35,6 +35,7 @@ export function EvidenceBilling({
         through approval. Billing approval records a reviewed revision; it does
         not initiate payment.
       </p>
+      <div className="evidence-ledger"><div><span className="step-index">01</span><strong>Observe</strong><small>{state.visits.length} recorded stop visits</small></div><i aria-hidden="true"/><div><span className="step-index">02</span><strong>Review</strong><small>{state.invoices.filter(invoice=>invoice.status === "draft").length} draft revisions</small></div><i aria-hidden="true"/><div><span className="step-index">03</span><strong>Approve</strong><small>{state.invoices.filter(invoice=>invoice.status === "approved").length} approved revisions</small></div></div>
       {!state.visits.length ? (
         <div className="empty">
           No stop visits have been recorded. Evidence appears when accepted-trip

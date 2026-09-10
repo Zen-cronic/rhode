@@ -1,0 +1,49 @@
+{
+  "date": "2026-09-10",
+  "revision": "v8",
+  "sources": {
+    "recovery": {
+      "file": "/tmp/roadstar-redesign/capture-final/delay-impact.png",
+      "crop": {
+        "left": 260,
+        "top": 407,
+        "width": 1138,
+        "height": 176
+      },
+      "state": "design-final synthetic scenario, actual recorded delay, next pickup at risk"
+    },
+    "approval": {
+      "file": "/tmp/roadstar-redesign/capture-final/approval-review.png",
+      "crop": {
+        "left": 410,
+        "top": 243,
+        "width": 620,
+        "height": 415
+      },
+      "state": "actual explicit approval dialog before user confirmation"
+    },
+    "billing": {
+      "file": "/tmp/roadstar-redesign/cloud-current/web-billing-panel.png",
+      "crop": {
+        "left": 0,
+        "top": 223,
+        "width": 1138,
+        "height": 439
+      },
+      "state": "actual retained synthetic approved revision with original draft"
+    },
+    "planning": {
+      "file": "/tmp/roadstar-redesign/cloud-current/web-completed-manifest.png",
+      "state": "actual retained completed two-load/four-stop manifest"
+    },
+    "mobile": {
+      "file": "/tmp/roadstar-redesign/mobile/41-today-final.png",
+      "state": "actual Android API35 emulator, RS1043 accepted, delivery next"
+    }
+  },
+  "boundaries": [
+    "No screenshot content fabricated or redrawn",
+    "Brand road sculpture is illustrative",
+    "Physical device and native iOS verification remain deferred"
+  ]
+}

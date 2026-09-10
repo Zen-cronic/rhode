@@ -1,0 +1,51 @@
+{
+  "revision": "v8",
+  "slides": 13,
+  "notesParts": 13,
+  "coreSeconds": 600,
+  "appendixSeconds": 300,
+  "artifactSlidesInspected": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "pdfPagesInspected": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "visualFindings": [],
+  "renderDifferences": [
+    "LibreOffice wraps double-count differently on slide 13; both versions remain readable without overlap."
+  ],
+  "pptxSha256": "986b55c4e3f8b08d9d02643f5e4286e678460411afeba9fd12ed08e76868c362",
+  "validation": "build/validation-v8.json",
+  "sourceProvenance": "build/assets-receipt.json",
+  "nativePowerPointRenderingVerified": false,
+  "editableObjects": [
+    "foreground text",
+    "five-sheet native table",
+    "relationship diagrams"
+  ],
+  "claimBoundary": "Visual and package verification; static screenshots do not independently establish new functional verification."
+}

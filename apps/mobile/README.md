@@ -123,3 +123,25 @@ The isolated `native-planning-demo` emulator test approved planning proposal `24
 Automatic action review initially classified plan approval as a real remote dispatch and rejected it. Read-only seed-script and live service checks established an isolated synthetic fixture and `PUSH_ENABLED=false`; the coordinator confirmed the user's authorized emulator verification scope. One explicitly scoped retry was allowed. The original native UI was used throughout, with no API bypass or real-driver notification.
 
 Final native dispatcher readback confirmed approved planning revision 2 and the original version-1 approval command synchronized. The emulator was restored to D-02 in `emulator-demo` with the accepted RS-1043 route visible, software keyboard enabled, work session ended and GPS off. The earlier FTL demo recording remains valid and unchanged.
+
+
+## Precision transport native redesign — September 10, 2026
+
+The native app now shares the graphite, ivory and orange RoadStar identity: bundled Manrope typography, the shared route mark, compact synchronization and consistent native tabs. Today places the next completion action before the route ticket, map and long manifest. Maps retain authenticated truck geometry and expose route evidence on demand. The queue shows compact timestamped rows with separate pending/failed/synchronized states; original command versions remain visible. Dispatcher recovery distinguishes proposed and already-approved revisions, and planning review keeps Close fixed above the ordered stop list. Login remains scrollable above the software keyboard. Native planning transitions respect Reduce Motion. Each tab opens at its own top position. The persistent header uses one row, and planning/manifest stops form a continuous numbered rail with aligned appointments. Only the known `· demo location` suffix is shortened visually for explicitly synthetic loads; source records, full accessible stop names and command payloads remain unchanged.
+
+The redesign changes presentation; Firebase/SecureStore authentication, carrier-scoped SQLite, original idempotency keys/payloads/versions, whole-manifest approval boundaries and synthetic-GPS withholding remain intact. No database or API contract was changed.
+
+Verification: all 23 existing unit/persistence tests passed; TypeScript and the iOS Hermes JavaScript export passed. Standalone Android release builds passed for ARM64 and x86_64. Packaged artifacts contain the cloud API origin and all five source fonts (verified by byte hashes), and preserve the original Maps-restricted preview signing certificate. The x86_64 build was installed and exercised on the existing visible API 35 emulator. No second AVD was created.
+
+Runtime checks covered Driver Today/Trips/Duty/More, dispatcher recovery, the existing approved native-planning-demo record, its completed two-load manifest, and Sign in visible above the software keyboard. A synthetic D-02 off-duty action was queued offline at original version 2, survived process termination together with the encrypted session, and synchronized after reconnect. The driver remains on the accepted RS-1043 trip; delivery was not completed for this redesign test, the work session remains ended and GPS is off. The film clip uses read-only navigation. Physical Android/iPhone, native iOS compilation, camera transfer, push provider delivery and background OS lifecycle remain unverified.
+
+Current build logs and visual evidence live in `/tmp/roadstar-redesign/`; the packaged check report is `dist/precision-transport-verification.json`. Final representative captures include `mobile/41-today-final.png`, `mobile/44-queue-settled-final.png`, `mobile/48-review-route-top-final.png` and `mobile/32-keyboard-empty-fields.png`. Earlier numbered captures document iterations and offline/restart evidence.
+
+The following artifacts supersede earlier preview hashes in this README:
+
+- `roadstar-preview-arm64.apk`: 25,227,448 bytes; SHA-256 `053e8cab07039b50bf39d203b22b2036bfe0d7e08c1d53a7219f9ad45b9a93d2`.
+- `roadstar-preview-x86_64.apk`: 25,712,502 bytes; SHA-256 `55778efa7cad44eea29611367124b788b4de6a5a920ea34f2430f561d393c16e`.
+
+Reference grounding: [Grab Driver action hierarchy](https://mobbin.com/screens/a8f2e305-d713-4008-95e0-922cfd91bb56), [Uber current-trip card](https://mobbin.com/screens/02e52b85-dd21-40b0-b75c-548b35ae2125), and the accepted `docs/design/precision-transport.md` brief.
+
+The final read-only native clip is `/tmp/roadstar-redesign/mobile/roadstar-native-precision-transport-final.mp4` (26.57 seconds, 1080×2400, H.264 at 30 fps). The visible existing AVD runs under the temporary user unit `roadstar-preview-emulator.service` so tool-session cleanup does not close it; this unit is not enabled at boot.

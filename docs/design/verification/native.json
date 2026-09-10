@@ -1,0 +1,43 @@
+{
+  "date": "2026-09-10",
+  "design": "Precision transport",
+  "runtime": "Android API35 x86_64 emulator-5556",
+  "artifacts": [
+    {
+      "file": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/dist/roadstar-preview-arm64.apk",
+      "bytes": 25227448,
+      "sha256": "053e8cab07039b50bf39d203b22b2036bfe0d7e08c1d53a7219f9ad45b9a93d2",
+      "native_abis": [
+        "arm64-v8a"
+      ],
+      "standalone_hermes_bundle": true,
+      "cloud_origin_embedded": true,
+      "bundled_fonts_verified": true,
+      "original_certificate_preserved": true
+    },
+    {
+      "file": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/dist/roadstar-preview-x86_64.apk",
+      "bytes": 25712502,
+      "sha256": "55778efa7cad44eea29611367124b788b4de6a5a920ea34f2430f561d393c16e",
+      "native_abis": [
+        "x86_64"
+      ],
+      "standalone_hermes_bundle": true,
+      "cloud_origin_embedded": true,
+      "bundled_fonts_verified": true,
+      "original_certificate_preserved": true
+    }
+  ],
+  "verification": {
+    "unit_persistence_tests": 23,
+    "typecheck": "passed",
+    "ios_javascript_export": "passed",
+    "native_navigation": "Today, Trips, Duty, More, dispatcher recovery and planning review",
+    "offline_restart": "Synthetic D-02 off-duty action retained original version 2 through offline process termination and synchronized after reconnect",
+    "maps": "Authenticated Valhalla geometry with Google Maps; synthetic GPS withheld"
+  },
+  "limits": [
+    "No physical device or iOS native runtime proof",
+    "No notification provider send, camera capture or background GPS verification in this redesign pass"
+  ]
+}

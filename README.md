@@ -62,4 +62,11 @@ The approved seven-day GCP preview has stop tasks scheduled for September17,2026
 
 ## Demonstration
 
-[Four-minute recording](https://roadstar-web-739889188415.us-central1.run.app/demo/roadstar-demo.mp4) · [Presentation PDF](https://roadstar-web-739889188415.us-central1.run.app/demo/roadstar-pitch.pdf) · [Editable deck](https://roadstar-web-739889188415.us-central1.run.app/demo/roadstar-pitch.pptx). These are hosted on the seven-day preview. The ten-field submission draft remains local, pending repository publication permission, live portal checks and video-host acceptance.
+[Four-minute recording](https://roadstar-web-739889188415.us-central1.run.app/demo/roadstar-demo.mp4) · [Presentation PDF](https://roadstar-web-739889188415.us-central1.run.app/demo/roadstar-pitch.pdf) · [Editable deck](https://roadstar-web-739889188415.us-central1.run.app/demo/roadstar-pitch.pptx). These are hosted on the seven-day preview. The ten-field submission draft remains local, with the private repository URL recorded; judge access, live portal checks and video-host acceptance remain unverified.
+
+
+## Precision transport redesign
+
+The dispatcher web, Android driver/dispatcher views, four-minute film and editable pitch deck share the graphite, ivory and signal-orange identity selected on September 10. The route motif uses actual operational geometry inside maps and clearly illustrative studio artwork in the opening/closing scenes. See [design direction](docs/design/precision-transport.md), [reference study](docs/design/references.md), [film sources](docs/design/demo-source/README.md) and [deck sources](docs/design/deck-source/README.md).
+
+The local web preview is available at http://localhost:5174 while the preview processes are running. The Android API35 emulator uses the standalone x86_64 APK; the temporary user service `roadstar-preview-emulator.service` keeps the existing emulator window open without enabling it at boot. Native iOS and physical-device background tracking remain deferred.
