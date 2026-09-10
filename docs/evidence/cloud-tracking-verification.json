@@ -1,0 +1,67 @@
+[
+  {
+    "stage": "public links",
+    "name": "Watch demonstration",
+    "href": "/demo/roadstar-demo.mp4",
+    "status": 200,
+    "contentType": "video/mp4",
+    "contentLength": "10276093"
+  },
+  {
+    "stage": "public links",
+    "name": "View presentation",
+    "href": "/demo/roadstar-pitch.pdf",
+    "status": 200,
+    "contentType": "application/pdf",
+    "contentLength": "520711"
+  },
+  {
+    "stage": "dispatcher tracking",
+    "status": 200,
+    "pointCount": 4,
+    "dispositions": {
+      "applied": 4
+    },
+    "nullSpeedCount": 0,
+    "nullOdometerCount": 0,
+    "options": [
+      "Choose an assignment",
+      "RS-1042 · D-01 · T-101 · accepted · 2a587ec0",
+      "RS-1043 · D-01 · T-101 · superseded · eb48b9a2",
+      "RS-1043 · D-02 · T-102 · accepted · 44cd486e"
+    ]
+  },
+  {
+    "stage": "selected sample",
+    "selectedText": "Selected sample · Sep 13, 11:19:00 a.m. ET\n\nApplied · synthetic · driving\n\nSpeed 70 km/h · Odometer 4.67 km · Accuracy 5 m\n\nSampled Sep 13, 11:19:00 a.m. ET · Received Sep 10, 4:27:26 p.m. ET\n\nreplay-76ad3d216f7840ac811a0b5286cbf72b\n\nRecorded coordinate: 43.52560775142592, -79.91821631736794. Accuracy radius describes this sample only.\n\nClear selected sample"
+  },
+  {
+    "stage": "offline history",
+    "retainedSamples": 4,
+    "refreshDisabled": true
+  },
+  {
+    "mobileTrackingOverflow": false
+  },
+  {
+    "stage": "driver tracking",
+    "status": 200,
+    "pointCount": 4,
+    "dispositions": {
+      "applied": 4
+    },
+    "nullSpeedCount": 0,
+    "nullOdometerCount": 0,
+    "options": [
+      "Choose an assignment",
+      "RS-1042 · D-01 · T-101 · accepted · 2a587ec0",
+      "RS-1043 · D-01 · T-101 · superseded · eb48b9a2"
+    ]
+  },
+  {
+    "stage": "driver tracking",
+    "allOptionsOwnDriver": true,
+    "mobileOverflow": false,
+    "pageErrors": []
+  }
+]

@@ -51,6 +51,7 @@ export function createApi(store:Store,options:{localDemo?:boolean;verifyToken?:(
   app.get<{Params:{id:string}}>('/api/documents/:id/content',async(req,reply)=>{const doc=await store.getDocument(await auth(req),req.params.id,files);return reply.header('Cache-Control','private, no-store').header('X-Content-Type-Options','nosniff').header('Content-Disposition','attachment').type(doc.mediaType).send(doc.bytes);});
   app.get<{Querystring:{loadId:string;truckId:string}}>('/api/route',async req=>store.route(await auth(req),req.query.loadId,req.query.truckId));
   app.get('/api/health',async()=>{await store.db.query('SELECT 1');return {ok:true,database:'postgresql',auth:options.localDemo?'local-demo':'firebase'};});
+  app.get<{Querystring:{assignmentId:string;before?:string}}>('/api/tracking',async(req,reply)=>{reply.header('Cache-Control','private, no-store');return store.tracking(await auth(req),req.query.assignmentId,req.query.before);});
   app.get('/api/state',async req=>store.snapshot(await auth(req)));
   app.get<{Querystring:{cursor?:string}}>('/api/updates',async req=>store.updates(await auth(req),req.query.cursor??'0'));
   app.get('/api/imports',async req=>store.imports(await auth(req)));

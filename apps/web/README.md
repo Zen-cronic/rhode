@@ -11,10 +11,10 @@ VITE_AUTH_MODE=local-demo npm run dev --workspace @roadstar/web
 npm run typecheck --workspace @roadstar/web
 npm run build --workspace @roadstar/web
 npm run test:routes --workspace @roadstar/web
-node --test apps/web/tests/planning-model.test.mjs
+node --test apps/web/tests/planning-model.test.mjs apps/web/tests/tracking-model.test.mjs
 ```
 
-Vite prefers port 5173 and prints an alternate port if occupied. An empty `VITE_API_URL` uses its development `/api` proxy. Production needs the API origin in `VITE_API_URL`, or an equivalent same-origin reverse proxy; the API must allow the exact web origin in CORS. The current preview is at https://roadstar-web-739889188415.us-central1.run.app.
+Vite prefers port 5173 and prints an alternate port if occupied. An empty `VITE_API_URL` uses its development `/api` proxy. Production needs the API origin in `VITE_API_URL`, or an equivalent same-origin reverse proxy; the API must allow the exact web origin in CORS. The current preview is at https://roadstar-web-739889188415.us-central1.run.app. Login links open the synthetic demonstration video and presentation from `/demo/`; media never autoplays.
 
 `VITE_AUTH_MODE=local-demo` explicitly enables synthetic identity selection. Otherwise, Firebase email/password authentication uses the `VITE_FIREBASE_*` configuration in `.env.example`. API carrier membership controls the actual role. Firebase ID-token changes refresh the application session; sign-out and identity changes clear the prior actor and query cache. State and browser command history are scoped by carrier and authenticated UID. The API independently authorizes requests.
 
@@ -23,6 +23,7 @@ Vite prefers port 5173 and prints an alternate port if occupied. An empty `VITE_
 ## Implemented workflows
 
 - Foreground cursor polling every two seconds, immediate refresh after commands, and explicit loading, empty, error and offline states.
+- Role-scoped tracking history with opaque-cursor pagination, recorded speed/odometer/accuracy, sampled and received times, provenance, and distinct uncertain/out-of-order dispositions. Breadcrumbs use only recorded applied coordinates and break at excluded samples; connecting segments do not establish the traveled path between observations.
 - Load planning, explained feasibility rejections, accepted-trip delay reporting, affected downstream commitments, recovery comparisons and versioned dispatcher approval.
 - OR-Tools planning with up to 20 selected open synthetic loads and eight explicit, distinct driver/truck/trailer pairings. Proposals show real truck-road-matrix stop sequences, modeled driving/duty minutes, unresolved inputs, assumptions and an evidence hash. Approval rechecks current versions, commitments and route evidence before offering manifests.
 - Consolidated driver manifests with one accept/reject action for the whole group, a global ordered stop list, next-stop guidance and versioned completion. Individual grouped-load acceptance controls are suppressed. Standalone trips retain their individual manifest and response actions.

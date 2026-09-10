@@ -301,6 +301,17 @@ export class Store {
     const result=vehicles.length&&shipments.length?await computation('/optimize-roads',request):{status:'no_eligible_inputs',routes:[],infeasible_loads:[]};result.infeasible_loads.push(...rejected);result.assumptions=[...(result.assumptions??[]),'Pickup appointment fixed at supplied start; delivery must finish by supplied end','26-pallet synthetic trailer allowance; verify before live use','Optimization is a proposal; route execution still requires dispatcher approval'];
     await c.query('INSERT INTO planning_runs(carrier_id,id,input,result,created_by) VALUES($1,$2,$3,$4,$5)',[a.carrierId,id,JSON.stringify({...request,versions,commitmentHash:await commitmentHash(c,a.carrierId)}),JSON.stringify(result),a.uid]);return {id,version:1,status:'proposal',result};
   });}
+  async tracking(a:Actor,assignmentId:string,before?:string){
+    demand(a.role==='driver'||a.role==='dispatcher','FORBIDDEN','Tracking history requires an operational identity.',403);
+    demand(typeof assignmentId==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(assignmentId),'INVALID_ASSIGNMENT','Assignment ID required.',400);
+    let cursor:[string,string]|undefined;
+    if(before){try{if(before.length>1024)throw new Error();const value=JSON.parse(Buffer.from(before,'base64url').toString());if(!Array.isArray(value)||value.length!==2||typeof value[0]!=='string'||!Number.isFinite(Date.parse(value[0]))||typeof value[1]!=='string'||value[1].length>128)throw new Error();cursor=value as [string,string];}catch{throw new DomainError('INVALID_CURSOR','Tracking cursor is invalid.',400);}}
+    const c=await this.db.connect();try{
+      const trip=await this.getAssignment(c,a,assignmentId);demand(a.role==='dispatcher'||trip.driverId===a.driverId,'FORBIDDEN','Tracking belongs to another driver.',403);
+      const rows=(await c.query('SELECT id,at,recorded_at,body,disposition FROM telemetry WHERE carrier_id=$1 AND assignment_id=$2 AND ($3::timestamptz IS NULL OR (at,id)<($3::timestamptz,$4::text)) ORDER BY at DESC,id DESC LIMIT 501',[a.carrierId,assignmentId,cursor?.[0]??null,cursor?.[1]??null])).rows;
+      const selected=rows.slice(0,500),last=selected.at(-1);return {assignmentId,points:selected.reverse().map(r=>({...r.body,recordedAt:iso(r.recorded_at),disposition:r.disposition})),nextBefore:rows.length>500?Buffer.from(JSON.stringify([iso(last.at),last.id])).toString('base64url'):null};
+    }finally{c.release();}
+  }
   async snapshot(a:Actor){
     const own=a.role==='driver';demand(own||a.role==='dispatcher','FORBIDDEN','Operational view unavailable for this role.',403);
     // One SQL statement gives a single MVCC snapshot without fifteen network round trips.

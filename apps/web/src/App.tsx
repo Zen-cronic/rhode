@@ -19,6 +19,7 @@ import { EvidenceBilling } from "./EvidenceBilling";
 import { Maintenance } from "./Maintenance";
 import { Planning } from "./Planning";
 import { GroupManifest } from "./GroupManifest";
+import { Tracking } from "./Tracking";
 const localDemo = import.meta.env.VITE_AUTH_MODE === "local-demo";
 const firebaseConfigured = !!import.meta.env.VITE_FIREBASE_API_KEY;
 function auth() {
@@ -109,6 +110,10 @@ function Login({ onLogin }: { onLogin: (session: Session) => void }) {
         </p>
         <div className="login-note">
           Dispatcher approval stays at the center of every consequential change.
+        </div>
+        <div className="login-demo-links">
+          <a href="/demo/roadstar-demo.mp4" target="_blank" rel="noreferrer">Watch demonstration ↗</a>
+          <a href="/demo/roadstar-pitch.pdf" target="_blank" rel="noreferrer">View presentation ↗</a>
         </div>
       </div>
       <section className="login-form panel">
@@ -391,10 +396,11 @@ export function App() {
           {(!state
             ? ["Activity"]
             : isDriver
-              ? ["Trips", "Fleet", "Activity"]
+              ? ["Trips", "Tracking", "Fleet", "Activity"]
               : [
                   "Recovery",
                   "Planning",
+                  "Tracking",
                   "Fleet",
                   "Evidence & billing",
                   "Imports",
@@ -407,7 +413,7 @@ export function App() {
               aria-current={view === item ? "page" : undefined}
             >
               <span aria-hidden="true">
-                {["↗", "▤", "◉", "▧", "⇥", "≡"][i]}
+                {["↗", "▤", "⌖", "◉", "▧", "⇥", "≡"][i]}
               </span>
               {item}
               {item === "Recovery" &&
@@ -614,6 +620,7 @@ export function App() {
                 </>
               )}
               {view === "Imports" && <Imports session={session} />}
+              {view === "Tracking" && <Tracking state={state} session={session} online={online}/>}
               {view === "Fleet" && (
                 <>
                   <Fleet resources={state.resources} />

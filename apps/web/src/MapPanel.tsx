@@ -4,7 +4,7 @@ import { request } from "./api";
 import type { Session, State } from "./api";
 import { validateRouteEvidence } from "./route-evidence";
 let loader: Promise<void> | undefined;
-function loadMaps(key: string) {
+export function loadMaps(key: string) {
   return (loader ??= new Promise<void>((resolve, reject) => {
     if (window.google?.maps) {
       resolve();

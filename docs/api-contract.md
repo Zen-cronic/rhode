@@ -52,3 +52,10 @@ Snapshot data comes from one PostgreSQL statement for a consistent MVCC view. In
 Firebase revocation checks may be cached for at most10 seconds, bounded by token expiry. Carrier membership is re-read on every request. Foreground two-second polling does not guarantee delivery within two seconds: the recorded131-driver cloud burst measured approximately5.4 seconds p95 acknowledgement-to-snapshot lag.
 
 Native clients persist immutable command keys, payloads and expected versions. Retry only transient errors automatically; conflicts require human review. Local demonstration authentication is loopback-only and forbidden on Cloud Run.
+
+
+## Recorded tracking history
+
+`GET /api/tracking?assignmentId=<uuid>&before=<opaque-cursor>` requires a dispatcher or the assignment's driver. The response is `{assignmentId,points,nextBefore}` with up to500 points ordered by sampled time. `nextBefore` is null when finished; otherwise pass it unchanged, URL-encoded, to fetch older samples. Cursor ordering uses both time and event ID. Invalid cursors return400 and unauthorized ownership403.
+
+Each point retains original sampled `at`, server `recordedAt`, coordinates, accuracy, speed, odometer, duty, provenance and disposition. Null speed/odometer remain unknown. Out-of-order and uncertain samples remain inspectable and never become an applied breadcrumb. A line between samples is a visual connection, not a measured or certified route between them. Stop billing uses its separate same-stop evidence review.
