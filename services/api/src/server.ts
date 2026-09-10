@@ -1,3 +1,4 @@
+import {createHash} from 'node:crypto';
 import {schemas} from '../../../packages/domain/src/commands.ts';
 import {OAuth2Client} from 'google-auth-library';
 import {claimDocumentJob,finishDocumentJob,drainOutbox,drainNotifications} from './jobs.ts';
@@ -14,12 +15,21 @@ import {z} from 'zod';
 export function createApi(store:Store,options:{localDemo?:boolean;verifyToken?:(token:string)=>Promise<string>}={}){
   const app=Fastify({logger:process.env.NODE_ENV!=='test',bodyLimit:128000,trustProxy:false});
   app.register(cors,{origin:(process.env.WEB_ORIGIN??'http://localhost:5173').split(','),allowedHeaders:['Content-Type','Authorization','X-Carrier-Id','Idempotency-Key','If-Match']});
+  const verifiedTokens=new Map<string,{uid:string;until:number}>();
   const auth=async(request:any):Promise<Actor>=>{
     const token=String(request.headers.authorization??'').replace(/^Bearer /,'');demand(token,'UNAUTHENTICATED','Sign in to continue.',401);
     let uid:string;
     if(options.verifyToken)uid=await options.verifyToken(token);
     else if(options.localDemo){demand(['demo-dispatcher','demo-driver-1','demo-driver-2','demo-simulator'].includes(token),'UNAUTHENTICATED','Unknown local demo identity.',401);uid=token;}
-    else {try{if(!getApps().length)initializeApp({credential:applicationDefault()});uid=(await getAuth().verifyIdToken(token,true)).uid;}catch{throw new DomainError('UNAUTHENTICATED','Session expired. Sign in again.',401);}}
+    else {try{
+      const fingerprint=createHash('sha256').update(token).digest('hex'),cached=verifiedTokens.get(fingerprint);
+      if(cached&&cached.until>Date.now())uid=cached.uid;
+      else{if(!getApps().length)initializeApp({credential:applicationDefault()});const verified=await getAuth().verifyIdToken(token,true);uid=verified.uid;
+        if(verifiedTokens.size>=1000)verifiedTokens.delete(verifiedTokens.keys().next().value!);
+        // Bounded ten-second revocation-check cache; carrier membership is still read every request.
+        verifiedTokens.set(fingerprint,{uid,until:Math.min(Date.now()+10000,verified.exp*1000)});
+      }
+    }catch{throw new DomainError('UNAUTHENTICATED','Session expired. Sign in again.',401);}}
     return store.membership(uid,String(request.headers['x-carrier-id']??''));
   };
   const internal=async(req:any)=>{
@@ -49,7 +59,7 @@ export function createApi(store:Store,options:{localDemo?:boolean;verifyToken?:(
     const a=await auth(req);const result=schema.safeParse(req.body);demand(result.success,'INVALID_BODY',result.success?'':result.error.issues.map(x=>`${x.path.join('.')}: ${x.message}`).join('; '),400);
     const raw=req.headers['if-match'];demand(typeof raw==='string'&&/^\d+$/.test(raw),'INVALID_VERSION','If-Match must contain the expected version.',400);
     const cmd:Command={key:String(req.headers['idempotency-key']??''),expectedVersion:Number(raw)},b=result.data as any;
-    switch(route){case 'push-token':return store.pushToken(a,cmd,b);case 'document':return store.document(a,cmd,b);case 'delay':return store.delay(a,cmd,b);case 'duty':return store.duty(a,cmd,b);case 'complete-stop':return store.completeStop(a,cmd,b);case 'dispatch':return store.dispatch(a,cmd,b);case 'propose':return store.propose(a,cmd,b);case 'approve':return store.approve(a,cmd,b);case 'respond':return store.respond(a,cmd,b);case 'work-session':return store.workSession(a,cmd,b);case 'telemetry':return store.ingest(a,cmd,b);case 'detention':return store.detentionDraft(a,cmd,b);}
+    switch(route){case 'approve-plan':return store.approvePlan(a,cmd,b);case 'optimize':return store.optimize(a,cmd,b);case 'review-document':return store.reviewDocument(a,cmd,b);case 'approve-invoice':return store.approveInvoice(a,cmd,b);case 'facility-note':return store.facilityNote(a,cmd,b);case 'maintenance':return store.maintenance(a,cmd,b);case 'push-token':return store.pushToken(a,cmd,b);case 'document':return store.document(a,cmd,b);case 'delay':return store.delay(a,cmd,b);case 'duty':return store.duty(a,cmd,b);case 'complete-stop':return store.completeStop(a,cmd,b);case 'dispatch':return store.dispatch(a,cmd,b);case 'propose':return store.propose(a,cmd,b);case 'approve':return store.approve(a,cmd,b);case 'respond':return store.respond(a,cmd,b);case 'work-session':return store.workSession(a,cmd,b);case 'telemetry':return store.ingest(a,cmd,b);case 'detention':return store.detentionDraft(a,cmd,b);}
   });
   app.setErrorHandler((e,req,reply)=>{
     if(e instanceof z.ZodError)return reply.code(400).send({error:{code:'INVALID_BODY',message:'Invalid internal job payload.',requestId:req.id}});

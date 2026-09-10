@@ -1,9 +1,8 @@
 # RoadStar build checkpoint
 
 Updated: 2026-09-10. Status: AUTHENTICATED_CLOUD_PREVIEW; FULL_PLATFORM_BUILD_IN_PROGRESS.
-Current accepted state: Fastify/PostgreSQL 16/PostGIS backend; 14 real-database integration tests, web browser recovery proof, 9 mobile persistence/policy tests and Android/iOS Hermes exports. Cloud infrastructure provisioning under explicit US$85 seven-day approval. Physical device and complete cloud workflow proof remain pending.
-Read this first when resuming. Branch: build/roadstar-platform. No remote or deployment yet.
-
+Current accepted state: authenticated GCP preview, PostgreSQL16/PostGIS, actual Ontario Valhalla routing and OR-Tools proposals, atomic consolidated manifests, recovery approval, reviewed documents/facility notes and detention revisions. Backend21 tests pass plus a separately enabled real-road consolidated-trip test; Python7 tests pass. Web planning UI built, cloud verification underway. Android emulator installed and runtime/offline verification underway; physical Android and native iOS testing explicitly deferred by user.
+Read this first when resuming. Branch: build/roadstar-platform. No Git remote yet. Web: https://roadstar-web-739889188415.us-central1.run.app . Local preview: http://localhost:5174 (demo dispatcher, demo-carrier); API4010.
 ## Authorized objective
 
 Build the complete all-in-one RoadStar platform end to end in this repository; then run demo-director, prepare submission-devpost against the custom RoadStar portal, and prepare the in-person finale demo. Preserve fleet/load matching/dispatch, routing/optimization, driver scheduling, driver/dispatcher apps, integrations, separated simulation, satellite mapping and auditable detention billing.
@@ -27,9 +26,9 @@ Approved stack: React dispatcher web + Expo driver/dispatcher Android/iOS, share
 ## Open dependencies and gates
 
 - Official noon/2 PM deadline and missing rubric 5% remain unresolved. Build authorized by user; no claim that organizer clarified them. Prepare by noon.
-- Map/satellite provider licensing and actual access need verification before adopting a service; do not substitute a schematic for requirement completion.
+- Restricted Google web/Android Maps keys and actual road/satellite rendering verified. iOS native Maps remains unverified.
 - Full terms/pre-existing code/data publication unknown. Write new code; keep source workbook private to local import and use labeled synthetic fixtures for public preview until publication permission is established.
-- Native device/toolchain and preview host access not inspected yet. Record exact actionable fix when a concrete dependency fails.
+- User has no Android phone, iPhone or Mac/Xcode available and explicitly deferred physical-device testing. API35 x86_64 Android emulator installed and running; runtime verification in progress. Do not claim physical background-location reliability or native iOS verification.
 - User approved US$85 estimated seven-day preview in new roadstar-2026-kzh project on My Billing Account, and reiterated approval based on GCP credits. No organizer messages or final submission authorized.
 
 ## Ledger
@@ -66,3 +65,12 @@ Approved stack: React dispatcher web + Expo driver/dispatcher Android/iOS, share
 - Sixteen PostgreSQL/import tests pass, including leases/idempotency and incomplete-driver membership rejection.
 - Actual road integration code added: required dimensions/evidence, private optimizer calls, route cache/provenance, route travel-time screening; live dispatch refuses missing routing. Ontario graph compiling; this new path still awaits real route verification.
 - One-time stop tasks scheduled Sept17 20:00UTC for routing/SQL compute; storage retained/billable.
+
+## September10 local preview and emulator update (~21:05UTC)
+
+- User requested Android emulator instead of unavailable physical phones, and local app launch. Official emulator/API35 Google APIs x86_64 installed with existing SDK licenses; KVM usable. Development-signed standalone app launched without Metro and signed into isolated emulator-demo. Native runtime bugs discovered in SQLite handle concurrency, session persistence and Android insets are being repaired and retested.
+- Local web refreshed at http://localhost:5174 with synthetic demo authentication and restricted Maps key. API4010 migrated/current, actual routing via local optimizer4040 and IAP tunnel48002. HTTP web/API checks passed; rendered verification pending. Keep these processes running for user preview.
+- Cloud API revision00008 includes planning/group commands. Real Valhalla/OR-Tools integration verifies two LTL loads in one manifest, one set of three resource reservations, stale/idempotent approval, whole-manifest acceptance, enforced stop order and final release. Web planning deployment/isolated cloud verification in progress.
+- Cloud131-driver burst:524 telemetry +524 synchronization pairs, zero failures; latest telemetry p95 3053ms, sync p95 4075ms, own-ack-to-snapshot lag p95 5448ms. Does not meet a2s end-to-end target under this burst; barrier/warm-data assumptions recorded with artifacts. SQL observed CPU max8.53%, memory50.99%, connections max40. No production capacity claim.
+- Human document review/source-linked facility instructions, observed-sample detention approval preserving draft, and maintenance hold/release verified in actual cloud browser. Original private workbook stays local.
+- Remaining: complete emulator runtime checks, verify planning UI in cloud, native grouped-manifest UI, reproducible deployment/docs, demo film/deck/ten-field submission draft, broader acceptance gaps. Physical phone/iOS testing deferred, final submission remains separate.

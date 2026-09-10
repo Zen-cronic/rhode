@@ -1,0 +1,35 @@
+{
+  "startedAt": "2026-09-10T20:33:15.129532+00:00",
+  "completedAt": "2026-09-10T20:33:57.134768+00:00",
+  "environment": "Actual Cloud Run Firebase-authenticated API + dedicated Cloud SQL PostgreSQL16, HTTPS from operator workstation",
+  "project": "roadstar-2026-kzh",
+  "clients": 131,
+  "cycles": 4,
+  "pollIntervalMs": 2000,
+  "telemetry": {
+    "count": 524,
+    "p50Ms": 3565,
+    "p95Ms": 6337,
+    "maxMs": 7829
+  },
+  "syncRequests": {
+    "count": 524,
+    "p50Ms": 2881,
+    "p95Ms": 3915,
+    "maxMs": 4144
+  },
+  "commitToSnapshotLag": {
+    "count": 524,
+    "p50Ms": 5714,
+    "p95Ms": 8653,
+    "maxMs": 10537
+  },
+  "failures": [],
+  "assumptions": [
+    "Four synchronized131-client bursts, not a soak test or physical mobile-radio test",
+    "One accepted synthetic trip per driver; direct fixture seeding, reservation invariants tested separately",
+    "Includes TLS/WAN and Firebase revoked-token checks",
+    "At most2 Cloud Run API instances; 20 PostgreSQL connections per instance",
+    "Synchronization latency measured from each own successful telemetry response to its next scoped snapshot; acknowledged commit precedes this timer"
+  ]
+}

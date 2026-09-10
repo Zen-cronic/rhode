@@ -1,0 +1,386 @@
+[
+  {
+    "stage": "load and vehicle selection",
+    "checkboxWidth": 350.65625
+  },
+  {
+    "stage": "optimization",
+    "command": "optimize",
+    "request": {
+      "loadIds": [
+        "RS-1042",
+        "RS-1044"
+      ],
+      "vehicles": [
+        {
+          "driverId": "D-01",
+          "truckId": "T-101",
+          "trailerId": "V-101"
+        }
+      ]
+    },
+    "status": 200,
+    "body": {
+      "id": "272f56cc-857a-46cb-a41c-9746c4be6c13",
+      "version": 1,
+      "status": "proposal",
+      "result": {
+        "status": "proposal",
+        "routes": [
+          {
+            "vehicle_id": "T-101",
+            "stops": [
+              {
+                "load_id": "RS-1042",
+                "stop": "pickup",
+                "minute": 30
+              },
+              {
+                "load_id": "RS-1044",
+                "stop": "pickup",
+                "minute": 40
+              },
+              {
+                "load_id": "RS-1042",
+                "stop": "delivery",
+                "minute": 148
+              },
+              {
+                "load_id": "RS-1044",
+                "stop": "delivery",
+                "minute": 158
+              }
+            ],
+            "driving_minutes": 98,
+            "duty_minutes": 138
+          }
+        ],
+        "infeasible_loads": [],
+        "input_hash": "8aa3de2ca10ab8461699b0a64fe29f1241d4c3fa0133cf3a693b79780ea905be",
+        "routing_evidence": "valhalla-truck",
+        "evidence_ref": "272f56cc-857a-46cb-a41c-9746c4be6c13",
+        "assumptions": [
+          "Declared HOS budgets, not certified ELD",
+          "No legal break/rest scheduling",
+          "Open routes; no forced depot return",
+          "No independent dispatch authority",
+          "Pickup appointment fixed at supplied start; delivery must finish by supplied end",
+          "26-pallet synthetic trailer allowance; verify before live use",
+          "Optimization is a proposal; route execution still requires dispatcher approval"
+        ],
+        "modeled": true,
+        "dataset": "ontario-260909.osm.pbf-sha256-b853e364f7af75ed5b6cb5ebbd6e41735b7209eb59aa3acfe5598349389ca8d9",
+        "vehicle_profiles": [
+          {
+            "height": 4.1,
+            "width": 2.6,
+            "length": 23,
+            "weight": 40,
+            "axle_load": 9,
+            "hazmat": false,
+            "evidence": "synthetic-scenario"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "stage": "approval review",
+    "disabledBeforeAcknowledgement": true,
+    "review": "Review shared-route proposal\n\nPlanning revision 1 · proposal. Times below are scenario appointments in Eastern time.\n\nRoute 1 · T-101\n\nD-01 · T-101 · V-101\n\n98 driving minutes · 138 duty minutes · modeled plan\n\nRS-1042 · pickup\nMilton terminal · demo location\nSep 13, 8:30 a.m. ET\nRS-1044 · pickup\nMilton terminal · demo location\nSep 13, 8:40 a.m. ET\nRS-1042 · delivery\nLondon distribution dock · demo location\nSep 13, 10:28 a.m. ET\nRS-1044 · delivery\nLondon distribution dock · demo location\nSep 13, 10:38 a.m. ET\nEvidence and assumptions\n\nvalhalla-truck\n\n8aa3de2ca10ab8461699b0a64fe29f1241d4c3fa0133cf3a693b79780ea905be\nDeclared HOS budgets, not certified ELD\nNo legal break/rest scheduling\nOpen routes; no forced depot return\nNo independent dispatch authority\nPickup appointment fixed at supplied start; delivery must finish by supplied end\n26-pallet synthetic trailer allowance; verify before live use\nOptimization is a proposal; route execution still requires dispatcher approval\nSupplied service duration is split between pickup and delivery.\nI reviewed the vehicle pairings, ordered stops, unresolved loads and modeled assumptions.\nApprove plan and offer manifests\n\nThe server rechecks versions, current commitments and the road matrix before reserving all resources atomically. Drivers must accept the resulting manifests.\n\n×"
+  },
+  {
+    "stage": "plan approval",
+    "command": "approve-plan",
+    "request": {
+      "planId": "272f56cc-857a-46cb-a41c-9746c4be6c13"
+    },
+    "status": 200,
+    "body": {
+      "planId": "272f56cc-857a-46cb-a41c-9746c4be6c13",
+      "status": "approved",
+      "version": 2,
+      "groups": [
+        {
+          "groupId": "0ebdf1f8-eaa8-4f18-8cea-bedc8f33abf4",
+          "planningRunId": "272f56cc-857a-46cb-a41c-9746c4be6c13",
+          "driverId": "D-01",
+          "truckId": "T-101",
+          "trailerId": "V-101",
+          "startAt": "2026-09-13T12:00:00.000Z",
+          "endAt": "2026-09-13T14:48:00.000Z",
+          "stops": [
+            {
+              "assignmentId": "6a3239f4-041b-4cde-8ea3-a426cf2df991",
+              "loadId": "RS-1042",
+              "stop": "pickup",
+              "stopId": "milton-yard",
+              "point": {
+                "id": "milton-yard",
+                "lat": 43.5183,
+                "lng": -79.8774,
+                "name": "Milton terminal · demo location",
+                "radiusM": 200
+              },
+              "minute": 30,
+              "customer": "Synthetic consolidation scenario",
+              "weightLb": 10000,
+              "pallets": 8,
+              "mode": "LTL"
+            },
+            {
+              "assignmentId": "937ead37-780f-4b05-a71c-396ec228fbf0",
+              "loadId": "RS-1044",
+              "stop": "pickup",
+              "stopId": "milton-yard",
+              "point": {
+                "id": "milton-yard",
+                "lat": 43.5183,
+                "lng": -79.8774,
+                "name": "Milton terminal · demo location",
+                "radiusM": 200
+              },
+              "minute": 40,
+              "customer": "Synthetic consolidation scenario",
+              "weightLb": 9000,
+              "pallets": 8,
+              "mode": "LTL"
+            },
+            {
+              "assignmentId": "6a3239f4-041b-4cde-8ea3-a426cf2df991",
+              "loadId": "RS-1042",
+              "stop": "delivery",
+              "stopId": "london-dock",
+              "point": {
+                "id": "london-dock",
+                "lat": 42.987,
+                "lng": -81.176,
+                "name": "London distribution dock · demo location",
+                "radiusM": 180
+              },
+              "minute": 148,
+              "customer": "Synthetic consolidation scenario",
+              "weightLb": 10000,
+              "pallets": 8,
+              "mode": "LTL"
+            },
+            {
+              "assignmentId": "937ead37-780f-4b05-a71c-396ec228fbf0",
+              "loadId": "RS-1044",
+              "stop": "delivery",
+              "stopId": "london-dock",
+              "point": {
+                "id": "london-dock",
+                "lat": 42.987,
+                "lng": -81.176,
+                "name": "London distribution dock · demo location",
+                "radiusM": 180
+              },
+              "minute": 158,
+              "customer": "Synthetic consolidation scenario",
+              "weightLb": 9000,
+              "pallets": 8,
+              "mode": "LTL"
+            }
+          ],
+          "drivingMinutes": 98,
+          "dutyMinutes": 138,
+          "routingEvidence": "valhalla-truck",
+          "inputHash": "8aa3de2ca10ab8461699b0a64fe29f1241d4c3fa0133cf3a693b79780ea905be",
+          "resourceVersions": [
+            {
+              "id": "D-01",
+              "version": 1
+            },
+            {
+              "id": "T-101",
+              "version": 1
+            },
+            {
+              "id": "V-101",
+              "version": 1
+            }
+          ],
+          "assumptions": [
+            "Declared HOS budgets, not certified ELD",
+            "No legal break/rest scheduling",
+            "Open routes; no forced depot return",
+            "No independent dispatch authority",
+            "Pickup appointment fixed at supplied start; delivery must finish by supplied end",
+            "26-pallet synthetic trailer allowance; verify before live use",
+            "Optimization is a proposal; route execution still requires dispatcher approval"
+          ],
+          "provenance": "synthetic"
+        }
+      ]
+    }
+  },
+  {
+    "stage": "driver manifest",
+    "groupCount": 1,
+    "individualAcceptCount": 0,
+    "orderedStops": [
+      "1. RS-1042 · pickupMilton terminal · demo locationAwaiting execution",
+      "2. RS-1044 · pickupMilton terminal · demo locationAwaiting execution",
+      "3. RS-1042 · deliveryLondon distribution dock · demo locationAwaiting execution",
+      "4. RS-1044 · deliveryLondon distribution dock · demo locationAwaiting execution"
+    ],
+    "mobileOverflow": false
+  },
+  {
+    "stage": "whole manifest acceptance",
+    "command": "respond",
+    "request": {
+      "assignmentId": "6a3239f4-041b-4cde-8ea3-a426cf2df991",
+      "action": "accept"
+    },
+    "status": 200,
+    "body": {
+      "id": "6a3239f4-041b-4cde-8ea3-a426cf2df991",
+      "loadId": "RS-1042",
+      "driverId": "D-01",
+      "truckId": "T-101",
+      "trailerId": "V-101",
+      "startAt": "2026-09-13T12:00:00.000Z",
+      "endAt": "2026-09-13T14:48:00.000Z",
+      "status": "accepted",
+      "version": 2,
+      "tripGroupId": "0ebdf1f8-eaa8-4f18-8cea-bedc8f33abf4",
+      "affectedAssignments": [
+        "6a3239f4-041b-4cde-8ea3-a426cf2df991",
+        "937ead37-780f-4b05-a71c-396ec228fbf0"
+      ]
+    }
+  },
+  {
+    "stage": "ordered stop 1",
+    "command": "complete-stop",
+    "request": {
+      "assignmentId": "6a3239f4-041b-4cde-8ea3-a426cf2df991",
+      "stopId": "milton-yard",
+      "note": "Synthetic ordered-manifest verification; no live arrival or billing timestamp asserted."
+    },
+    "status": 200,
+    "body": {
+      "id": "260d2ecb-3efe-49bf-aef9-4ccc6a6e9479",
+      "stopId": "milton-yard",
+      "assignment": {
+        "id": "6a3239f4-041b-4cde-8ea3-a426cf2df991",
+        "loadId": "RS-1042",
+        "driverId": "D-01",
+        "truckId": "T-101",
+        "trailerId": "V-101",
+        "startAt": "2026-09-13T12:00:00.000Z",
+        "endAt": "2026-09-13T14:48:00.000Z",
+        "status": "accepted",
+        "version": 3
+      },
+      "billingTimestamp": false
+    }
+  },
+  {
+    "stage": "ordered stop 1",
+    "nextText": "Next action\n\nPick up RS-1042\n\nMilton terminal · demo location\n\nReview next stop completion",
+    "resultStop": "milton-yard"
+  },
+  {
+    "stage": "ordered stop 2",
+    "command": "complete-stop",
+    "request": {
+      "assignmentId": "937ead37-780f-4b05-a71c-396ec228fbf0",
+      "stopId": "milton-yard",
+      "note": "Synthetic ordered-manifest verification; no live arrival or billing timestamp asserted."
+    },
+    "status": 200,
+    "body": {
+      "id": "12b3444b-8be4-4916-968f-2393a47dbe19",
+      "stopId": "milton-yard",
+      "assignment": {
+        "id": "937ead37-780f-4b05-a71c-396ec228fbf0",
+        "loadId": "RS-1044",
+        "driverId": "D-01",
+        "truckId": "T-101",
+        "trailerId": "V-101",
+        "startAt": "2026-09-13T12:00:00.000Z",
+        "endAt": "2026-09-13T14:48:00.000Z",
+        "status": "accepted",
+        "version": 3
+      },
+      "billingTimestamp": false
+    }
+  },
+  {
+    "stage": "ordered stop 2",
+    "nextText": "Next action\n\nPick up RS-1044\n\nMilton terminal · demo location\n\nReview next stop completion",
+    "resultStop": "milton-yard"
+  },
+  {
+    "stage": "ordered stop 3",
+    "command": "complete-stop",
+    "request": {
+      "assignmentId": "6a3239f4-041b-4cde-8ea3-a426cf2df991",
+      "stopId": "london-dock",
+      "note": "Synthetic ordered-manifest verification; no live arrival or billing timestamp asserted."
+    },
+    "status": 200,
+    "body": {
+      "id": "7eed21f1-e399-4664-90b6-2135aa41f79c",
+      "stopId": "london-dock",
+      "assignment": {
+        "id": "6a3239f4-041b-4cde-8ea3-a426cf2df991",
+        "loadId": "RS-1042",
+        "driverId": "D-01",
+        "truckId": "T-101",
+        "trailerId": "V-101",
+        "startAt": "2026-09-13T12:00:00.000Z",
+        "endAt": "2026-09-13T14:48:00.000Z",
+        "status": "completed",
+        "version": 4
+      },
+      "billingTimestamp": false
+    }
+  },
+  {
+    "stage": "ordered stop 3",
+    "nextText": "Next action\n\nDeliver RS-1042\n\nLondon distribution dock · demo location\n\nReview next stop completion",
+    "resultStop": "london-dock"
+  },
+  {
+    "stage": "ordered stop 4",
+    "command": "complete-stop",
+    "request": {
+      "assignmentId": "937ead37-780f-4b05-a71c-396ec228fbf0",
+      "stopId": "london-dock",
+      "note": "Synthetic ordered-manifest verification; no live arrival or billing timestamp asserted."
+    },
+    "status": 200,
+    "body": {
+      "id": "edd2fdd5-d7b8-4138-8ec4-5853030b9d75",
+      "stopId": "london-dock",
+      "assignment": {
+        "id": "937ead37-780f-4b05-a71c-396ec228fbf0",
+        "loadId": "RS-1044",
+        "driverId": "D-01",
+        "truckId": "T-101",
+        "trailerId": "V-101",
+        "startAt": "2026-09-13T12:00:00.000Z",
+        "endAt": "2026-09-13T14:48:00.000Z",
+        "status": "completed",
+        "version": 4
+      },
+      "billingTimestamp": false
+    }
+  },
+  {
+    "stage": "ordered stop 4",
+    "nextText": "Next action\n\nDeliver RS-1044\n\nLondon distribution dock · demo location\n\nReview next stop completion",
+    "resultStop": "london-dock"
+  },
+  {
+    "stage": "completed manifest",
+    "completedStops": 4,
+    "nextCompletionButtons": 0,
+    "pageErrors": [],
+    "mobileOverflow": false
+  }
+]

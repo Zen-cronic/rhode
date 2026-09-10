@@ -1,0 +1,145 @@
+{
+  "input": {
+    "now": "2026-09-13T12:00:00Z",
+    "vehicles": [
+      {
+        "id": "T-101",
+        "equipment": "Dry Van",
+        "capacity_lb": 44500,
+        "pallet_capacity": 26,
+        "driving_minutes": 360,
+        "duty_minutes": 420,
+        "shift_minutes": 480,
+        "cycle_minutes": 750,
+        "available_at": 0,
+        "evidence_at": "2026-09-13T12:00:00Z"
+      }
+    ],
+    "loads": [
+      {
+        "id": "LTL-A",
+        "equipment": "Dry Van",
+        "weight_lb": 10000,
+        "pallets": 8,
+        "mode": "LTL",
+        "pickup_window": [
+          30,
+          60
+        ],
+        "delivery_window": [
+          90,
+          240
+        ],
+        "pickup_service": 10,
+        "delivery_service": 10
+      },
+      {
+        "id": "LTL-B",
+        "equipment": "Dry Van",
+        "weight_lb": 9000,
+        "pallets": 8,
+        "mode": "LTL",
+        "pickup_window": [
+          30,
+          60
+        ],
+        "delivery_window": [
+          90,
+          240
+        ],
+        "pickup_service": 10,
+        "delivery_service": 10
+      }
+    ],
+    "locations": [
+      {
+        "lat": 43.5183,
+        "lon": -79.8774
+      },
+      {
+        "lat": 43.5183,
+        "lon": -79.8774
+      },
+      {
+        "lat": 42.987,
+        "lon": -81.176
+      },
+      {
+        "lat": 43.5183,
+        "lon": -79.8774
+      },
+      {
+        "lat": 42.987,
+        "lon": -81.176
+      }
+    ],
+    "profiles": [
+      {
+        "height": 4.1,
+        "width": 2.6,
+        "length": 23,
+        "weight": 40,
+        "axle_load": 9,
+        "hazmat": false,
+        "evidence": "synthetic-scenario"
+      }
+    ],
+    "evidence_ref": "synthetic-road-matrix-ltl-20260910",
+    "time_limit_seconds": 3
+  },
+  "result": {
+    "status": "proposal",
+    "routes": [
+      {
+        "vehicle_id": "T-101",
+        "stops": [
+          {
+            "load_id": "LTL-B",
+            "stop": "pickup",
+            "minute": 30
+          },
+          {
+            "load_id": "LTL-A",
+            "stop": "pickup",
+            "minute": 40
+          },
+          {
+            "load_id": "LTL-B",
+            "stop": "delivery",
+            "minute": 148
+          },
+          {
+            "load_id": "LTL-A",
+            "stop": "delivery",
+            "minute": 158
+          }
+        ],
+        "driving_minutes": 98,
+        "duty_minutes": 138
+      }
+    ],
+    "infeasible_loads": [],
+    "input_hash": "13deee1a351ad736980a7e7348b3c1281a2f484028f28685aaa358f29af6ab00",
+    "routing_evidence": "valhalla-truck",
+    "evidence_ref": "synthetic-road-matrix-ltl-20260910",
+    "assumptions": [
+      "Declared HOS budgets, not certified ELD",
+      "No legal break/rest scheduling",
+      "Open routes; no forced depot return",
+      "No independent dispatch authority"
+    ],
+    "modeled": true,
+    "dataset": "ontario-260909.osm.pbf-sha256-b853e364f7af75ed5b6cb5ebbd6e41735b7209eb59aa3acfe5598349389ca8d9",
+    "vehicle_profiles": [
+      {
+        "height": 4.1,
+        "width": 2.6,
+        "length": 23.0,
+        "weight": 40.0,
+        "axle_load": 9.0,
+        "hazmat": false,
+        "evidence": "synthetic-scenario"
+      }
+    ]
+  }
+}

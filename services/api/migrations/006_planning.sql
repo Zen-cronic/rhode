@@ -1,0 +1,1 @@
+CREATE TABLE planning_runs(carrier_id text REFERENCES carriers(id),id uuid,version integer NOT NULL DEFAULT 1,status text NOT NULL DEFAULT 'proposal',input jsonb NOT NULL,result jsonb NOT NULL,created_by text NOT NULL,recorded_at timestamptz NOT NULL DEFAULT now(),PRIMARY KEY(carrier_id,id));

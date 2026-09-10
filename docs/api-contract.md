@@ -14,7 +14,41 @@ POST /api/work-session {action:start}, If-Match 0. Returns {id,version,status:ac
 POST /api/telemetry {id,assignmentId,sessionId?,at,position:{lat,lng},accuracyM,speedKph,odometerKm,duty,provenance}. Only accepted trips; simulator synthetic trips, driver live trips. No fabricated device GPS for synthetic trips.
 POST /api/detention {visitId,contractId}, If-Match latest invoice revision or 0. Synthetic configured contract demo-ftl. Returns draft only, never invoice approval.
 
-Not implemented yet: stop completion, duty event command, file transfer, importer viewer, optimizer, simulator controls, cloud push. Do not create fake working buttons for these. Coordinate additions with root. Loading/empty/offline/error states and signed-in identity selection matter. Native app must persist downloaded state and queued actions in expo-sqlite; pending/failed/synchronized labels survive app restart. Only retry network/transient failures automatically; conflicts require review.
+The routes below implement stop completion, duty events, evidence transfer, import lineage and planning. Push registration exists, but delivery is disabled until native push credentials are configured. Simulator controls belong to the independent Python process, not the operational clock. Loading/empty/offline/error states and signed-in identity selection matter. Native app must persist downloaded state and queued actions in expo-sqlite; pending/failed/synchronized labels survive app restart. Only retry network/transient failures automatically; conflicts require review.
 
 Execution additions: GET state includes actor {role,driverId?,carrierId}, workSessions,dutyEvents,stopCompletions,disruptions,documents. POST duty {duty,at,note?}, If-Match driver resource version; POST complete-stop {assignmentId,stopId,note?}, If-Match assignment.version. POST delay {assignmentId,expectedEnd,observedAt,reason}, If-Match accepted assignment version; returns impactedLoads. GET imports and source-rows provide historical source lineage to dispatchers only. Nullable odometerKm/speedKph preserve unknown device values.
 Documents: POST document {loadId,mediaType,kind,filename}, If-Match load.version registers pending upload. PUT documents/:id/content authenticates raw JPEG/PNG/PDF bytes (max12MB), If-Match document.version + stable command key; GET same path downloads authorized evidence. Stored bytes immutable by object UUID; corrections require a new revision.
+
+
+## Reviews and resource holds
+
+All commands below use the same idempotency/version headers. Dispatcher role is required.
+
+| Command | Body | Expected version |
+| --- | --- | --- |
+| `POST /api/review-document` | `{documentId,fields:{billNumber,signedBy,observedDate,notes},reason}`; four fields string or null, reason at least10 characters | Document version |
+| `POST /api/facility-note` | `{documentId,stopId,instructions}`; source must be reviewed and stop belong to the same load | Document version |
+| `POST /api/approve-invoice` | `{invoiceId,acknowledgeObservedSamples:true,evidenceNote}`; note at least20 characters | Draft revision |
+| `POST /api/maintenance` | `{action:"hold",resourceId,startAt,endAt,reason}` or `{action:"release",resourceId,holdId}` | Resource version |
+
+Document corrections retain original source bytes, source hash and model output. Reviewed fields are separate; late worker results cannot replace human review. Invoice approval appends an approved revision, preserving its draft, and rechecks the current contract and same-stop visit evidence. It does not charge a customer. Maintenance release retains hold history.
+
+## Routing and consolidated planning
+
+`GET /api/route?loadId=...&truckId=...` returns actual Valhalla truck route geometry and provenance. Driver access is restricted to assigned resources. Missing dimensions, invalid input, unavailable routing and forbidden access are distinct failure states. Do not draw a straight-line fallback as a verified truck route.
+
+`POST /api/optimize` accepts `{loadIds:[...],vehicles:[{driverId,truckId,trailerId}]}`, with expected version0. Limits are20 loads and8 vehicles; every load/resource choice must be distinct. Current consolidation uses explicitly synthetic capacity assumptions; live planning is rejected until verified pallet capacity exists. Already assigned, unsupported horizon and missing-input loads remain listed with explanations.
+
+The result is `{id,version:1,status:"proposal",result:{routes,infeasible_loads,input_hash,routing_evidence,assumptions}}`. Each route contains `vehicle_id`, ordered `{load_id,stop:"pickup"|"delivery",minute}` stops and driving/duty minutes relative to the preserved scenario clock. Store and display assumptions alongside the plan.
+
+`POST /api/approve-plan {planId}` uses the planning version. The API rechecks load/resource versions, current commitments, scenario clock and recomputed route-matrix/solver input hash. Approval creates assignments, one reservation set for each vehicle trip, group membership, manifests, approval evidence and notification outbox atomically.
+
+Snapshot includes `planningRuns`, `tripGroups`, `manifests` and `stopCompletions`. A trip group body contains the ordered stops with both assignment and load IDs. `POST /api/respond` on any offered member accepts/rejects the whole group. `POST /api/complete-stop` enforces the next global manifest stop. Completing one member retains vehicle reservations until every member is complete. Same facility IDs across loads are not interchangeable; use assignment ID plus stop ID. Individual reassignment of a consolidated member is rejected with `GROUP_RECOVERY_REQUIRED`.
+
+## Synchronization and authentication bounds
+
+Snapshot data comes from one PostgreSQL statement for a consistent MVCC view. Independent telemetry trips use shared carrier locks; consequential commands use an exclusive carrier lock. Event insertion is serialized through transaction commit so cursor polling cannot skip a late-committing event.
+
+Firebase revocation checks may be cached for at most10 seconds, bounded by token expiry. Carrier membership is re-read on every request. Foreground two-second polling does not guarantee delivery within two seconds: the recorded131-driver cloud burst measured approximately5.4 seconds p95 acknowledgement-to-snapshot lag.
+
+Native clients persist immutable command keys, payloads and expected versions. Retry only transient errors automatically; conflicts require human review. Local demonstration authentication is loopback-only and forbidden on Cloud Run.
