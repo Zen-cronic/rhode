@@ -1,0 +1,37 @@
+# RoadStar build checkpoint
+
+Updated: 2026-09-10. Status: PACKET_001_IN_PROGRESS.
+Current accepted state: new isolated project repository, no product proof accepted yet.
+Read this first when resuming. Branch: build/roadstar-platform. No remote or deployment yet.
+
+## Authorized objective
+
+Build the complete all-in-one RoadStar platform end to end in this repository; then run demo-director, prepare submission-devpost against the custom RoadStar portal, and prepare the in-person finale demo. Preserve fleet/load matching/dispatch, routing/optimization, driver scheduling, driver/dispatcher apps, integrations, separated simulation, satellite mapping and auditable detention billing.
+
+Stack recommendation: React dispatcher web + Expo driver Android/iOS, shared TypeScript domain/API; user preference question pending at start. Proceeding with stated recommendation unless steered. Jammi inspected: shared KMP targets Android/iOS/desktop, no web target; recorded iOS proof remains pending in its checkpoint. No Jammi code copied.
+
+## Task graph and required proof
+
+1. Persistent core/API: reservations, version checks, acceptance, telemetry dedup/order, geofences/detention, HOS and capacity screening. Packet 001 in progress.
+2. Workbook importer: all five sheets, string IDs, duplicated rows, null/sentinel normalization, source-row lineage, quarantine; imported historical records never relabeled live. Actual-data path must be verified locally.
+3. Routing/optimization: Southern Ontario road geometry, supported truck constraints, backhauls and LTL grouping; schedule conflict propagation and feasible recovery; unknown axle/routing evidence visible.
+4. Independent simulator: separate process with routes, driver duty, speeds/odometer, dock waits, deterministic pause/reset/replay and duplicate/out-of-order cases.
+5. Design-direction before UI: grounded brief; dispatcher map/satellite, load/driver/schedule views, exception explanation, trace and detention evidence. Inspect built artifact in browser at desktop/mobile widths, loading/empty/error/success/recovery states.
+6. Expo driver: Android/iOS native surfaces plus accessible web route, accept/reject assignment, route/stops, duty logs, offline retry with no duplicated events. Native bundle and actual runtime/device proof required; source presence does not establish iOS/Android success.
+7. Integrations: import + scoped adapter endpoints for TMS/ELD/telemetry, authentication/role boundaries, observability, docs. Show fixture versus live adapter clearly.
+8. Stable preview: persistent always-on backend, protected writes, shareable web and driver preview. Production release is separate from authorized preview.
+9. Demo-director: verified 3–5 minute film, target 4 minutes; actual app recordings, narration, export/probe and visual/audio verification. No fabricated runtime claims.
+10. In-person finale: 10–15 minute presentation, rehearsed two-screen/phone handoff, local replay, offline video/deck, setup and Q&A plan. Venue Sept 13 SPUR, Waterloo; noon setup, 2 PM presentations. Operator attendance not yet personally confirmed.
+11. Submission-devpost Draft mode: all ten actual portal fields, plain text, actual URLs/evidence, counts/unknown limits; no generic Markdown Story template. Deck/video URLs and final submission remain unverified until produced. Final submit requires explicit operator action.
+
+## Open dependencies and gates
+
+- Official noon/2 PM deadline and missing rubric 5% remain unresolved. Build authorized by user; no claim that organizer clarified them. Prepare by noon.
+- Map/satellite provider licensing and actual access need verification before adopting a service; do not substitute a schematic for requirement completion.
+- Full terms/pre-existing code/data publication unknown. Write new code; keep source workbook private to local import and use labeled synthetic fixtures for public preview until publication permission is established.
+- Native device/toolchain and preview host access not inspected yet. Record exact actionable fix when a concrete dependency fails.
+- No paid actions or new accounts approved. No organizer messages authorized.
+
+## Ledger
+
+- 001: initialized repository and recorded complete task graph. Implementation/verification pending.
