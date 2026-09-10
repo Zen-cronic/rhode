@@ -1,14 +1,14 @@
 # RoadStar build checkpoint
 
-Updated: 2026-09-10. Status: PACKET_001_IN_PROGRESS.
-Current accepted state: new isolated project repository, no product proof accepted yet.
+Updated: 2026-09-10. Status: POSTGRESQL_CORE_VERIFIED; FULL_PLATFORM_BUILD_IN_PROGRESS.
+Current accepted state: Fastify/PostgreSQL 16/PostGIS backend; nine real-database integration tests and strict TypeScript pass. No web/native/cloud proof yet.
 Read this first when resuming. Branch: build/roadstar-platform. No remote or deployment yet.
 
 ## Authorized objective
 
 Build the complete all-in-one RoadStar platform end to end in this repository; then run demo-director, prepare submission-devpost against the custom RoadStar portal, and prepare the in-person finale demo. Preserve fleet/load matching/dispatch, routing/optimization, driver scheduling, driver/dispatcher apps, integrations, separated simulation, satellite mapping and auditable detention billing.
 
-Stack recommendation: React dispatcher web + Expo driver Android/iOS, shared TypeScript domain/API; user preference question pending at start. Proceeding with stated recommendation unless steered. Jammi inspected: shared KMP targets Android/iOS/desktop, no web target; recorded iOS proof remains pending in its checkpoint. No Jammi code copied.
+Approved stack: React dispatcher web + Expo driver/dispatcher Android/iOS, shared TypeScript domain/API, Fastify, dedicated Cloud SQL PostgreSQL/PostGIS, Python OR-Tools, Valhalla VM, Firebase, Cloud Tasks/Storage and Vertex. User implementation-plan instruction supersedes previous pause and stack question. Jammi inspected: shared KMP targets Android/iOS/desktop, no web target; recorded iOS proof remains pending in its checkpoint. No Jammi code copied.
 
 ## Task graph and required proof
 
@@ -35,3 +35,12 @@ Stack recommendation: React dispatcher web + Expo driver Android/iOS, shared Typ
 ## Ledger
 
 - 001: initialized repository and recorded complete task graph. Implementation/verification pending.
+
+## September 10 accepted packet PB-RS-002
+
+- SQLite spike preserved at c35fdef. Server now requires DATABASE_URL. Migrations use checksums and transaction/advisory locking. PostgreSQL exclusion constraints enforce driver/truck/trailer/dock reservations.
+- Fastify API: carrier membership, dispatcher approvals, driver responses, command idempotency/version checks, cursor invalidations, explicit work sessions, telemetry dedup/order/accuracy handling, same-stop detention drafts against configured terms. Recovery supersedes and offers atomically; driver notifications currently queued in outbox, not delivered.
+- Verification: npm run typecheck passes; TEST_DATABASE_URL=postgresql://roadstar:local-roadstar-only@127.0.0.1:55432/roadstar NODE_ENV=test npm run test:integration passes 9/9 against postgis/postgis:16-3.5. Local database: docker compose -p roadstar -f infra/compose.yaml up -d --wait. Credentials are local fixture values only.
+- Operational truth uses real server recorded_at; synthetic clock isolated in scenarios and never advanced by telemetry. Remaining limitations: straight-line screening until Valhalla; full recovery risk propagation/optimizer/simulator, import, actual document/cloud jobs, mobile offline/device proof and web all pending. Firebase code present but live token verification not tested.
+- Local Docker/GCP auth verified. Cloud/model spend $0. No resources provisioned or customer data published. Need concrete cost approval plus target GCP project before provisioning. Native Android SDK is present; no physical-device or iOS proof.
+- Design brief and current API contract in docs/design-direction.md and docs/api-contract.md; design execution can now proceed.

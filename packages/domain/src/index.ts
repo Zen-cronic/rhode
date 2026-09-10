@@ -18,7 +18,7 @@ export type Truck = {id: string; axleClearance: 'verified' | 'unknown'; provenan
 export type Trailer = {id: string; equipment: Equipment; capacityLb: number; provenance: Provenance};
 export type Assignment = {
   id: string; loadId: string; driverId: string; truckId: string; trailerId: string;
-  startAt: string; endAt: string; status: 'offered' | 'accepted' | 'rejected' | 'completed'; version: number;
+  startAt: string; endAt: string; status: 'offered' | 'accepted' | 'rejected' | 'completed' | 'superseded'; version: number;
 };
 export type Telemetry = {
   id: string; assignmentId: string; at: string; position: Point; speedKph: number;
@@ -69,7 +69,7 @@ export function screen(load: Load, driver: Driver, truck: Truck, trailer: Traile
     const waitMinutes = Math.max(0, (timestamp(load.startAt)-timestamp(now))/60_000);
     if (waitMinutes+workMinutes > driver.budget.shiftMinutes) reasons.push('Elapsed shift window would be exceeded.');
   }
-  const conflict = assignments.find(a => a.status !== 'rejected' && a.status !== 'completed' && overlaps(a,load) &&
+  const conflict = assignments.find(a => a.status !== 'rejected' && a.status !== 'completed' && a.status !== 'superseded' && overlaps(a,load) &&
     (a.driverId===driver.id || a.truckId===truck.id || a.trailerId===trailer.id));
   if (conflict) reasons.push(`Resource reserved by ${conflict.loadId}.`);
   return {eligible: reasons.length===0, reasons, deadheadKm: Math.round(deadheadKm*10)/10,

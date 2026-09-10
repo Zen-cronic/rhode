@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgis/postgis:16-3.5
+    environment:
+      POSTGRES_DB: roadstar
+      POSTGRES_USER: roadstar
+      POSTGRES_PASSWORD: local-roadstar-only
+    ports: ['127.0.0.1:55432:5432']
+    volumes: [roadstar-db:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U roadstar -d roadstar]
+      interval: 2s
+      retries: 30
+volumes:
+  roadstar-db:
