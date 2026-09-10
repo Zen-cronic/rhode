@@ -1,0 +1,4 @@
+CREATE TABLE route_evidence(carrier_id text REFERENCES carriers(id), fingerprint text, load_id text, truck_id text, body jsonb NOT NULL, recorded_at timestamptz NOT NULL DEFAULT now(), PRIMARY KEY(carrier_id,fingerprint), FOREIGN KEY(carrier_id,load_id) REFERENCES loads(carrier_id,id), FOREIGN KEY(carrier_id,truck_id) REFERENCES resources(carrier_id,id));
+CREATE INDEX route_evidence_load ON route_evidence(carrier_id,load_id,recorded_at DESC);
+-- Explicit synthetic vehicle scenarios; these values never repair imported/live evidence.
+UPDATE resources SET body=body || '{"routingProfile":{"height":4.1,"width":2.6,"length":23,"weight":40,"axle_load":9,"hazmat":false,"evidence":"synthetic-scenario"}}'::jsonb,version=version+1 WHERE kind='truck' AND body->>'provenance'='synthetic' AND id IN ('T-101','T-102') AND NOT body ? 'routingProfile';

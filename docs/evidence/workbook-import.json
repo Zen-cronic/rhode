@@ -1,0 +1,39 @@
+{
+  "id": "158d1250-372a-43a8-997c-531f33de7fb6",
+  "duplicate": false,
+  "sha256": "8ee7e47e545bcda92aaa8ba71dae4b472bdf2d7db950ade20c1089ed0dd4b19c",
+  "sheets": [
+    {
+      "name": "Tlorder",
+      "rows": 4031,
+      "columns": 33,
+      "duplicates": 0
+    },
+    {
+      "name": "Dispatch",
+      "rows": 10479,
+      "columns": 57,
+      "duplicates": 82
+    },
+    {
+      "name": "Driver",
+      "rows": 131,
+      "columns": 50,
+      "duplicates": 0
+    },
+    {
+      "name": "Trucks",
+      "rows": 131,
+      "columns": 1,
+      "duplicates": 0
+    },
+    {
+      "name": "Trailers",
+      "rows": 425,
+      "columns": 6,
+      "duplicates": 0
+    }
+  ],
+  "provenance": "imported-historical",
+  "operationalStatus": "requires_reconciliation"
+}

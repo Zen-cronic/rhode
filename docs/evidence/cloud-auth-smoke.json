@@ -1,0 +1,37 @@
+{
+  "base": "https://roadstar-api-739889188415.us-central1.run.app",
+  "checks": [
+    {
+      "role": "dispatcher",
+      "driverId": null,
+      "loads": 3,
+      "assignments": 2,
+      "actor": {
+        "role": "dispatcher",
+        "carrierId": "demo-carrier"
+      }
+    },
+    {
+      "role": "driver",
+      "driverId": "D-01",
+      "loads": 2,
+      "assignments": 2,
+      "actor": {
+        "role": "driver",
+        "driverId": "D-01",
+        "carrierId": "demo-carrier"
+      }
+    },
+    {
+      "role": "driver",
+      "driverId": "D-02",
+      "loads": 0,
+      "assignments": 0,
+      "actor": {
+        "role": "driver",
+        "driverId": "D-02",
+        "carrierId": "demo-carrier"
+      }
+    }
+  ]
+}

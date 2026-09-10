@@ -1,0 +1,12 @@
+FROM node:24-bookworm-slim
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --workspaces=false && npm cache clean --force
+COPY packages ./packages
+COPY services/api ./services/api
+COPY services/documents ./services/documents
+RUN mkdir -p /app/data/private-documents && chown -R node:node /app/data
+USER node
+ENV PORT=8080 AUTH_MODE=firebase
+EXPOSE 8080
+CMD ["node", "services/api/src/server.ts"]

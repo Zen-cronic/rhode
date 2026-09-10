@@ -1,0 +1,14 @@
+FROM python:3.12-slim
+ENV POETRY_HOME=/opt/poetry
+ENV PATH=/opt/poetry/bin:$PATH
+WORKDIR /app
+ADD https://install.python-poetry.org /tmp/install-poetry.py
+RUN python /tmp/install-poetry.py --version 2.2.1
+COPY services/optimizer/pyproject.toml services/optimizer/poetry.lock ./
+COPY services/optimizer/roadstar_optimizer ./roadstar_optimizer
+RUN poetry config virtualenvs.create false && poetry install --only main --no-interaction
+RUN useradd --create-home roadstar
+USER roadstar
+ENV PORT=8080
+EXPOSE 8080
+CMD ["poetry", "run", "uvicorn", "roadstar_optimizer.app:app", "--host", "0.0.0.0", "--port", "8080"]

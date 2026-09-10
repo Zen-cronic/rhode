@@ -1,7 +1,7 @@
 # RoadStar build checkpoint
 
-Updated: 2026-09-10. Status: POSTGRESQL_CORE_VERIFIED; FULL_PLATFORM_BUILD_IN_PROGRESS.
-Current accepted state: Fastify/PostgreSQL 16/PostGIS backend; nine real-database integration tests and strict TypeScript pass. No web/native/cloud proof yet.
+Updated: 2026-09-10. Status: AUTHENTICATED_CLOUD_PREVIEW; FULL_PLATFORM_BUILD_IN_PROGRESS.
+Current accepted state: Fastify/PostgreSQL 16/PostGIS backend; 14 real-database integration tests, web browser recovery proof, 9 mobile persistence/policy tests and Android/iOS Hermes exports. Cloud infrastructure provisioning under explicit US$85 seven-day approval. Physical device and complete cloud workflow proof remain pending.
 Read this first when resuming. Branch: build/roadstar-platform. No remote or deployment yet.
 
 ## Authorized objective
@@ -30,7 +30,7 @@ Approved stack: React dispatcher web + Expo driver/dispatcher Android/iOS, share
 - Map/satellite provider licensing and actual access need verification before adopting a service; do not substitute a schematic for requirement completion.
 - Full terms/pre-existing code/data publication unknown. Write new code; keep source workbook private to local import and use labeled synthetic fixtures for public preview until publication permission is established.
 - Native device/toolchain and preview host access not inspected yet. Record exact actionable fix when a concrete dependency fails.
-- No paid actions or new accounts approved. No organizer messages authorized.
+- User approved US$85 estimated seven-day preview in new roadstar-2026-kzh project on My Billing Account, and reiterated approval based on GCP credits. No organizer messages or final submission authorized.
 
 ## Ledger
 
@@ -44,3 +44,25 @@ Approved stack: React dispatcher web + Expo driver/dispatcher Android/iOS, share
 - Operational truth uses real server recorded_at; synthetic clock isolated in scenarios and never advanced by telemetry. Remaining limitations: straight-line screening until Valhalla; full recovery risk propagation/optimizer/simulator, import, actual document/cloud jobs, mobile offline/device proof and web all pending. Firebase code present but live token verification not tested.
 - Local Docker/GCP auth verified. Cloud/model spend $0. No resources provisioned or customer data published. Need concrete cost approval plus target GCP project before provisioning. Native Android SDK is present; no physical-device or iOS proof.
 - Design brief and current API contract in docs/design-direction.md and docs/api-contract.md; design execution can now proceed.
+
+## September 10 cloud and execution packet PB-RS-003 (in progress)
+
+- Cloud approval: US$85 estimated seven-day preview; not a billing cap. Dedicated project roadstar-2026-kzh (739889188415), billing linked. Terraform reviewed 42 additions / 0 changes / 0 destruction; apply in progress. State/plans/credentials ignored. `infra/gcp/cost-estimate.md` holds estimate and assumptions.
+- Backend: 14 integration checks pass, including delay propagation, ordered stop completion, document content/idempotency, roles and all four resource exclusion types. Separate document worker and internal lease/result endpoints recently added; their new checks still pending.
+- Imported all five private workbook sheets: 15,197 rows, 82 exact duplicate dispatch rows; historical sources stay in isolated local private-import carrier. Public cloud seed must contain synthetic data only. `docs/evidence/workbook-import.json`.
+- Web: real browser delay → proposal → dispatcher approval → driver acceptance; stale proposal conflict and PNG upload/download verified. Responsive/offline screenshots exist in /tmp awaiting evidence copy.
+- Mobile: driver/dispatcher, persistent SQLite drafts/actions/documents, consented session-bound background tracking, push registration. Nine persistence/policy checks, typecheck, both Hermes platform exports pass. Android native development APK compilation underway. No physical device attached, no iOS native build proof.
+- Optimization: real OR-Tools standalone worker supports capacity/pickup-delivery/time windows/equipment/duty budgets/FTL separation/LTL; five Python tests pass including deterministic route replay. Operational API integration with real Valhalla still pending; current approval uses explicitly modeled distance screening.
+- Local 131-driver burst: 524 telemetry and 524 synchronization pairs, zero failures; telemetry p95 1,800ms, synchronization p95 309ms, own-commit-to-snapshot lag p95 2,064ms. Local fixture benchmark, not Cloud SQL capacity proof. `docs/evidence/load-test-131.json`.
+- Cloud work next: finish infrastructure, actual Ontario routing tiles, Firebase identities/Maps restrictions, build/push/deploy services, migrate synthetic cloud database, verify authenticated hero journey and task worker.
+- Scope still open: actual route matrices integrated into approvals/optimizer/UI, reviewed facility/document corrections, invoice approval/revisions, native phone proof, cloud load measurements, complete demo/deck/submission artifacts. Do not claim complete platform.
+
+## Cloud verification update (September10, ~20:15UTC)
+
+- Infrastructure provisioned; web/API/private optimizer/document worker deployed, synthetic Cloud SQL seed and real Firebase sign-in verified. `infra/gcp/README.md` inventories resources and expiry.
+- Cloud browser recovery + satellite passed. Cross-tab Firebase logout bug reproduced; web worker fixing it before final redeploy.
+- Actual synthetic PDF extraction pipeline passed with Gemini2.5Flash; source hash retained and fields unreviewed. New global300-attempt guard deployed.
+- Standalone ARM64 Android APK built with embedded Hermes/config, development certificate; no Metro dependency. Native device checks and iOS native compilation still pending.
+- Sixteen PostgreSQL/import tests pass, including leases/idempotency and incomplete-driver membership rejection.
+- Actual road integration code added: required dimensions/evidence, private optimizer calls, route cache/provenance, route travel-time screening; live dispatch refuses missing routing. Ontario graph compiling; this new path still awaits real route verification.
+- One-time stop tasks scheduled Sept17 20:00UTC for routing/SQL compute; storage retained/billable.

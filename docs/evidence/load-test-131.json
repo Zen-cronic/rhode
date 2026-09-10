@@ -1,0 +1,33 @@
+{
+  "measuredAt": "2026-09-10T19:45:10.769Z",
+  "environment": "Local Docker PostgreSQL16/PostGIS + Node24 Fastify over loopback HTTP; not Cloud SQL capacity proof",
+  "clients": 131,
+  "cycles": 4,
+  "pollIntervalMs": 2000,
+  "telemetry": {
+    "count": 524,
+    "p50Ms": 877,
+    "p95Ms": 1800,
+    "maxMs": 2030
+  },
+  "syncRequests": {
+    "count": 524,
+    "p50Ms": 232,
+    "p95Ms": 309,
+    "maxMs": 320
+  },
+  "commitToSnapshotLag": {
+    "count": 524,
+    "p50Ms": 1380,
+    "p95Ms": 2064,
+    "maxMs": 2225
+  },
+  "failures": 0,
+  "databaseBytes": "73396707",
+  "assumptions": [
+    "131 synthetic drivers, one accepted trip each",
+    "4 synchronized bursts; no WAN or mobile radio latency",
+    "Database includes separate private workbook import and other test carriers",
+    "Fixture setup directly inserted accepted records; assignment integrity tested separately"
+  ]
+}

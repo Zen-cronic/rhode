@@ -11,3 +11,11 @@ artifacts/
 .claude/
 .codex/
 *.sqlite*
+
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.terraform/
+*.tfstate*
+*.tfplan
+*.tfvars

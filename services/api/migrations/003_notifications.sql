@@ -1,0 +1,1 @@
+CREATE TABLE push_tokens(carrier_id text, uid text, token_hash text, token text NOT NULL, platform text NOT NULL CHECK(platform IN ('android','ios')), registered_at timestamptz NOT NULL DEFAULT now(), PRIMARY KEY(carrier_id,uid,token_hash), FOREIGN KEY(carrier_id,uid) REFERENCES memberships(carrier_id,uid));

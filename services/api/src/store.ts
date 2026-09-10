@@ -1,6 +1,8 @@
+import {roadRoute} from './planning.ts';
+import {Files,sha256} from './files.ts';
 import type pg from 'pg';
 import {createHash,randomUUID} from 'node:crypto';
-import {demand,DomainError,screen,timestamp} from '../../../packages/domain/src/index.ts';
+import {demand,DomainError,screen,timestamp,distanceKm} from '../../../packages/domain/src/index.ts';
 import type {Load,Driver,Truck,Trailer,Assignment,Telemetry} from '../../../packages/domain/src/index.ts';
 import {fixtures,DEMO_NOW} from './fixtures.ts';
 export type Actor={uid:string;carrierId:string;role:'dispatcher'|'driver'|'simulator'|'worker';driverId?:string};
@@ -15,6 +17,7 @@ export class Store {
   async membership(uid:string,carrierId:string):Promise<Actor> {
     const {rows}=await this.db.query('SELECT * FROM memberships WHERE carrier_id=$1 AND uid=$2',[carrierId,uid]);
     demand(rows[0],'FORBIDDEN','Carrier membership required.',403);
+    demand(rows[0].role!=='driver'||rows[0].driver_id,'FORBIDDEN','Driver membership requires a linked driver.',403);
     return {uid,carrierId,role:rows[0].role,driverId:rows[0].driver_id??undefined};
   }
   async command(a:Actor,cmd:Command,kind:string,input:unknown,work:(c:pg.PoolClient)=>Promise<unknown>) {
@@ -51,9 +54,23 @@ export class Store {
     const r=await c.query("SELECT clock FROM scenarios WHERE carrier_id=$1 AND id='recovery'",[a.carrierId]);demand(r.rows[0],'NO_SCENARIO','Scenario clock is unavailable.');return iso(r.rows[0].clock);
   }
   async check(c:pg.PoolClient,a:Actor,load:Load,input:Row,ignoreId?:string){
-    const driver=await this.resource<Driver>(c,a,input.driverId,'driver'),truck=await this.resource<Truck>(c,a,input.truckId,'truck'),trailer=await this.resource<Trailer>(c,a,input.trailerId,'trailer');
-    const rows=await c.query("SELECT * FROM assignments WHERE carrier_id=$1 AND status IN ('offered','accepted')",[a.carrierId]);
-    const result=screen({...load,status:'open'},driver,truck,trailer,rows.rows.map(assignment).filter(x=>x.id!==ignoreId),await this.now(c,a,load.provenance));
+    let driver=await this.resource<Driver>(c,a,input.driverId,'driver'),truck=await this.resource<Truck>(c,a,input.truckId,'truck'),trailer=await this.resource<Trailer>(c,a,input.trailerId,'trailer');
+    const rows=await c.query("SELECT a.*,greatest(a.end_at,coalesce((SELECT max(d.expected_end) FROM disruptions d WHERE d.carrier_id=a.carrier_id AND d.assignment_id=a.id),a.end_at)) AS end_at FROM assignments a WHERE carrier_id=$1 AND status IN ('offered','accepted')",[a.carrierId]);
+    const now=await this.now(c,a,load.provenance);
+    const previous=rows.rows.filter(r=>r.id!==ignoreId&&r.driver_id===driver.id&&new Date(r.end_at).getTime()<=timestamp(load.startAt)&&new Date(r.end_at).getTime()>timestamp(now)).sort((x,y)=>new Date(x.end_at).getTime()-new Date(y.end_at).getTime());
+    let availableAt=now;
+    for(const prior of previous){
+      const priorLoad=await this.load(c,a,prior.load_id);
+      if(driver.budget)driver={...driver,position:priorLoad.delivery,budget:{...driver.budget,drivingMinutes:driver.budget.drivingMinutes-priorLoad.drivingMinutes,onDutyMinutes:driver.budget.onDutyMinutes-priorLoad.drivingMinutes-priorLoad.serviceMinutes,cycleMinutes:driver.budget.cycleMinutes-priorLoad.drivingMinutes-priorLoad.serviceMinutes}};
+      availableAt=iso(prior.end_at);
+    }
+    demand(load.provenance==='synthetic'||process.env.OPTIMIZER_URL,'ROUTING_UNAVAILABLE','Live dispatch requires verified truck routing.',503);
+    const road=process.env.OPTIMIZER_URL?await roadRoute(c,a.carrierId,load,truck,driver.position):undefined;
+    const result=screen({...load,status:'open'},driver,truck,trailer,rows.rows.map(assignment).filter(x=>x.id!==ignoreId),now,road);
+    if(road&&road.drivingMinutes+load.serviceMinutes>(timestamp(load.endAt)-timestamp(load.startAt))/60000)result.reasons.push('Truck travel and service exceed the reserved appointment window.');
+    if(timestamp(availableAt)+(road?.deadheadMinutes??Math.ceil(distanceKm(driver.position,load.pickup)/50*60))*60000>timestamp(load.startAt))result.reasons.push('Driver cannot reach pickup after prior committed work under the current planning estimate.');
+    if(road){result.routeFingerprint=road.fingerprint;result.routingEvidence=road.routing_evidence;}
+    if(previous.length)result.note+=' Position and remaining work budgets projected from preceding committed deliveries.';
     const holds=await c.query('SELECT reason FROM maintenance_holds WHERE carrier_id=$1 AND resource_id=ANY($2::text[]) AND period && tstzrange($3,$4,\'[)\')',[a.carrierId,[input.driverId,input.truckId,input.trailerId],load.startAt,load.endAt]);
     result.reasons.push(...holds.rows.map(r=>`Maintenance hold: ${r.reason}`)); result.eligible=result.reasons.length===0;return result;
   }
@@ -77,7 +94,7 @@ export class Store {
     demand(!old||old.status!=='accepted'||load.status!=='in_transit','IN_PROGRESS','An in-transit load needs a reviewed physical handoff; automatic reassignment is unavailable.');
     const proof=await this.check(c,a,load,input,old?.id);demand(proof.eligible,'INELIGIBLE',proof.reasons.join(' '));
     const resources=await c.query('SELECT id,version FROM resources WHERE carrier_id=$1 AND id=ANY($2::text[])',[a.carrierId,[input.driverId,input.truckId,input.trailerId]]);
-    const id=randomUUID(),body={...input,currentAssignmentId:old?.id,currentAssignmentVersion:old?.version,resources:resources.rows,proof,assumptions:['Declared HOS budgets','Straight-line deadhead estimate until Valhalla integration'],reason:String(input.reason??'Dispatcher recovery rehearsal')};
+    const id=randomUUID(),body={...input,currentAssignmentId:old?.id,currentAssignmentVersion:old?.version,resources:resources.rows,proof,assumptions:['Declared HOS budgets',proof.routingEvidence?'Valhalla truck route with supplied dimensions; OSM restriction coverage applies':'Synthetic straight-line deadhead estimate'],reason:String(input.reason??'Dispatcher recovery rehearsal')};
     await c.query("INSERT INTO proposals(carrier_id,id,load_id,expected_version,status,body) VALUES($1,$2,$3,$4,'pending',$5)",[a.carrierId,id,load.id,load.version,JSON.stringify(body)]);
     return {id,revision:1,status:'pending',loadId:load.id,body};
   });}
@@ -116,7 +133,7 @@ export class Store {
     demand(a.role==='driver'||a.role==='simulator','FORBIDDEN','Tracking identity required.',403);
     demand(event&&typeof event.id==='string'&&event.id.length>0,'INVALID_EVENT','Event ID required.',400);timestamp(event.at);
     demand(event.position&&Number.isFinite(event.position.lat)&&Math.abs(event.position.lat)<=90&&Number.isFinite(event.position.lng)&&Math.abs(event.position.lng)<=180,'INVALID_POSITION','Invalid coordinates.',400);
-    demand(Number.isFinite(event.accuracyM)&&event.accuracyM>=0&&Number.isFinite(event.speedKph)&&event.speedKph>=0&&event.speedKph<=160&&Number.isFinite(event.odometerKm)&&event.odometerKm>=0,'INVALID_TELEMETRY','Valid accuracy, speed and odometer required.',400);
+    demand(Number.isFinite(event.accuracyM)&&event.accuracyM>=0&&(event.speedKph===null||(Number.isFinite(event.speedKph)&&event.speedKph>=0&&event.speedKph<=160))&&(event.odometerKm===null||(Number.isFinite(event.odometerKm)&&event.odometerKm>=0)),'INVALID_TELEMETRY','Valid accuracy, speed and odometer required.',400);
     demand(['off_duty','on_duty','driving','sleeper'].includes(event.duty),'INVALID_DUTY','Unknown duty state.',400);
     const v=await this.getAssignment(c,a,event.assignmentId);demand(a.role==='simulator'||v.driverId===a.driverId,'FORBIDDEN','Wrong driver.',403);
     const load=await this.load(c,a,v.loadId);demand((a.role==='simulator'&&event.provenance==='synthetic'&&load.provenance==='synthetic')||(a.role==='driver'&&event.provenance==='live'&&load.provenance==='live'),'PROVENANCE_MISMATCH','Tracking provenance does not match trip and identity.',403);
@@ -129,7 +146,7 @@ export class Store {
     demand(v.status==='accepted','NOT_ACCEPTED','Driver acceptance required.');
     const last=await c.query("SELECT body FROM telemetry WHERE carrier_id=$1 AND assignment_id=$2 AND disposition='applied' ORDER BY at DESC LIMIT 1",[a.carrierId,v.id]);
     const previous=last.rows[0]?.body,stale=previous&&timestamp(event.at)<=timestamp(previous.at);
-    if(previous&&!stale)demand(event.odometerKm>=previous.odometerKm,'ODOMETER_REWIND','Odometer cannot decrease.');
+    if(previous&&!stale&&event.odometerKm!==null&&previous.odometerKm!==null)demand(event.odometerKm>=previous.odometerKm,'ODOMETER_REWIND','Odometer cannot decrease.');
     const disposition=stale?'retained_out_of_order':event.accuracyM>100?'uncertain':'applied';
     await c.query('INSERT INTO telemetry(carrier_id,id,assignment_id,session_id,at,location,accuracy_m,body,disposition) VALUES($1,$2,$3,$4,$5,ST_SetSRID(ST_MakePoint($6,$7),4326)::geography,$8,$9,$10)',[a.carrierId,event.id,v.id,event.sessionId??null,event.at,event.position.lng,event.position.lat,event.accuracyM,JSON.stringify(event),disposition]);
     if(disposition!=='applied')return {duplicate:false,disposition};
@@ -152,6 +169,66 @@ export class Store {
     const body={dwellMinutes,billableMinutes,amountCents:Math.round(billableMinutes*contract.rate_cents_per_hour/60),currency:contract.currency,evidence:[visit.arrival_event,visit.departure_event],contract,precision:'observed_samples',requiresEvidenceReview:true};
     const id=randomUUID();await c.query("INSERT INTO invoice_revisions(carrier_id,id,visit_id,revision,contract_id,contract_version,status,body) VALUES($1,$2,$3,$4,$5,$6,'draft',$7)",[a.carrierId,id,visit.id,version+1,contract.id,contract.version,JSON.stringify(body)]);return {id,revision:version+1,status:'draft',...body};
   });}
+  delay(a:Actor,cmd:Command,input:Row){demand(a.role==='dispatcher'||a.role==='simulator','FORBIDDEN','Dispatcher or simulator identity required.',403);return this.command(a,cmd,'disruption.recorded',input,async c=>{
+    const v=await this.getAssignment(c,a,input.assignmentId);demand(v.version===cmd.expectedVersion,'STALE_VERSION','Assignment changed.');demand(v.status==='accepted','INVALID_TRANSITION','Only accepted trips can report a delay.');const load=await this.load(c,a,v.loadId);
+    demand(a.role!=='simulator'||load.provenance==='synthetic','FORBIDDEN','Simulator can only change synthetic trips.',403);timestamp(input.expectedEnd);timestamp(input.observedAt);demand(timestamp(input.expectedEnd)>timestamp(v.endAt),'INVALID_DELAY','Expected end must extend the planned end.',400);
+    const id=randomUUID();await c.query('INSERT INTO disruptions VALUES($1,$2,$3,$4,$5,$6,$7)',[a.carrierId,id,v.id,input.expectedEnd,input.reason,input.observedAt,load.provenance]);
+    await c.query('UPDATE assignments SET version=version+1 WHERE carrier_id=$1 AND id=$2',[a.carrierId,v.id]);
+    await c.query('UPDATE resources SET version=version+1 WHERE carrier_id=$1 AND id=ANY($2::text[])',[a.carrierId,[v.driverId,v.truckId,v.trailerId]]);
+    const impacted=await c.query("SELECT id,load_id,start_at,end_at FROM assignments WHERE carrier_id=$1 AND id<>$2 AND status IN ('offered','accepted') AND (driver_id=$3 OR truck_id=$4 OR trailer_id=$5) AND start_at<$6 AND end_at>$7",[a.carrierId,v.id,v.driverId,v.truckId,v.trailerId,input.expectedEnd,v.endAt]);
+    return {id,assignmentId:v.id,expectedEnd:input.expectedEnd,impactedLoads:impacted.rows,provenance:load.provenance,status:'awaiting_recovery',note:'Observed delay retained; planned reservations remain visible until a feasible recovery is approved.'};
+  });}
+  duty(a:Actor,cmd:Command,input:Row){return this.command(a,cmd,'driver.duty',input,async c=>{
+    demand(a.role==='driver'&&a.driverId,'FORBIDDEN','Driver identity required.',403);const r=await c.query("SELECT version,body FROM resources WHERE carrier_id=$1 AND id=$2 AND kind='driver'",[a.carrierId,a.driverId]);const driver=r.rows[0];demand(driver?.version===cmd.expectedVersion,'STALE_VERSION','Driver record changed.');
+    demand(['off_duty','on_duty','driving','sleeper'].includes(input.duty),'INVALID_DUTY','Unknown duty state.',400);timestamp(input.at);
+    const id=randomUUID();await c.query('INSERT INTO duty_events VALUES($1,$2,$3,$4,$5,$6)',[a.carrierId,id,a.driverId,input.at,input.duty,input.note??'']);
+    const latest=await c.query('SELECT max(at) AS at FROM duty_events WHERE carrier_id=$1 AND driver_id=$2',[a.carrierId,a.driverId]);
+    // Manual duty entries are evidence, not enough to recompute a certified HOS budget.
+    const body={...driver.body,duty:new Date(latest.rows[0].at).getTime()===timestamp(input.at)?input.duty:driver.body.duty};
+    await c.query('UPDATE resources SET version=version+1,body=$3 WHERE carrier_id=$1 AND id=$2',[a.carrierId,a.driverId,JSON.stringify(body)]);return {id,driverId:a.driverId,version:driver.version+1,duty:body.duty,certifiedELD:false};
+  });}
+  completeStop(a:Actor,cmd:Command,input:Row){return this.command(a,cmd,'stop.completed',input,async c=>{
+    demand(a.role==='driver','FORBIDDEN','Driver identity required.',403);const v=await this.getAssignment(c,a,input.assignmentId);demand(v.driverId===a.driverId,'FORBIDDEN','Wrong driver.',403);demand(v.version===cmd.expectedVersion,'STALE_VERSION','Assignment changed.');demand(v.status==='accepted','INVALID_TRANSITION','Accepted trip required.');
+    const load=await this.load(c,a,v.loadId);demand([load.pickup.id,load.delivery.id].includes(input.stopId),'NOT_FOUND','Stop not part of this trip.',404);
+    if(input.stopId===load.delivery.id){const pickup=await c.query('SELECT 1 FROM stop_completions WHERE carrier_id=$1 AND assignment_id=$2 AND stop_id=$3',[a.carrierId,v.id,load.pickup.id]);demand(pickup.rows.length,'STOP_ORDER','Complete pickup before delivery.');}
+    const id=randomUUID();await c.query('INSERT INTO stop_completions(carrier_id,id,assignment_id,load_id,stop_id,uid,note) VALUES($1,$2,$3,$4,$5,$6,$7)',[a.carrierId,id,v.id,load.id,input.stopId,a.uid,input.note??'']);
+    const completed=input.stopId===load.delivery.id;
+    await c.query('UPDATE assignments SET version=version+1,status=$3 WHERE carrier_id=$1 AND id=$2',[a.carrierId,v.id,completed?'completed':'accepted']);
+    await c.query('UPDATE loads SET version=version+1,status=$3 WHERE carrier_id=$1 AND id=$2',[a.carrierId,load.id,completed?'completed':'in_transit']);
+    if(completed)await c.query('UPDATE reservations SET active=false WHERE carrier_id=$1 AND assignment_id=$2',[a.carrierId,v.id]);
+    return {id,stopId:input.stopId,assignment:await this.getAssignment(c,a,v.id),billingTimestamp:false};
+  });}
+  async imports(a:Actor){this.dispatcher(a);return (await this.db.query('SELECT i.id,i.filename,i.sha256,i.created_at,r.sheet,count(*)::integer AS rows,count(*) FILTER(WHERE duplicate_of IS NOT NULL)::integer AS duplicates FROM source_imports i JOIN source_rows r ON r.carrier_id=i.carrier_id AND r.import_id=i.id WHERE i.carrier_id=$1 GROUP BY i.id,i.filename,i.sha256,i.created_at,r.sheet ORDER BY i.created_at DESC,r.sheet',[a.carrierId])).rows;}
+  async sourceRows(a:Actor,importId:string,sheet:string,offset=0){this.dispatcher(a);demand(Number.isSafeInteger(offset)&&offset>=0,'INVALID_OFFSET','Invalid source row offset.',400);return (await this.db.query('SELECT * FROM source_rows WHERE carrier_id=$1 AND import_id=$2 AND sheet=$3 ORDER BY row_number LIMIT 100 OFFSET $4',[a.carrierId,importId,sheet,offset])).rows;}
+
+  async authorizeLoad(c:pg.PoolClient,a:Actor,loadId:string){
+    demand(a.role==='dispatcher'||a.role==='driver','FORBIDDEN','Operational identity required.',403);
+    if(a.role==='driver'){const r=await c.query("SELECT 1 FROM assignments WHERE carrier_id=$1 AND load_id=$2 AND driver_id=$3 AND status IN ('offered','accepted','completed')",[a.carrierId,loadId,a.driverId]);demand(r.rows.length,'FORBIDDEN','Load is not assigned to this driver.',403);}
+  }
+  document(a:Actor,cmd:Command,input:Row){return this.command(a,cmd,'document.registered',input,async c=>{
+    await this.authorizeLoad(c,a,input.loadId);const load=await this.load(c,a,input.loadId);demand(load.version===cmd.expectedVersion,'STALE_VERSION','Load changed.');
+    demand(['image/jpeg','image/png','application/pdf'].includes(input.mediaType),'INVALID_MEDIA','Use JPEG, PNG or PDF.',400);
+    const id=randomUUID();await c.query("INSERT INTO documents(carrier_id,id,load_id,object_name,media_type,status,extraction) VALUES($1,$2::uuid,$3,$2::text,$4,'pending_upload',$5)",[a.carrierId,id,load.id,input.mediaType,JSON.stringify({kind:input.kind,filename:input.filename,provenance:load.provenance})]);return {id,version:1,status:'pending_upload'};
+  });}
+  uploadDocument(a:Actor,cmd:Command,id:string,bytes:Buffer,mediaType:string,files:Files){return this.command(a,cmd,'document.stored',{id,sha256:sha256(bytes),mediaType},async c=>{
+    const r=await c.query('SELECT * FROM documents WHERE carrier_id=$1 AND id=$2',[a.carrierId,id]);const doc=r.rows[0];demand(doc,'NOT_FOUND','Document not found.',404);await this.authorizeLoad(c,a,doc.load_id);
+    demand(doc.version===cmd.expectedVersion&&doc.status==='pending_upload','STALE_VERSION','Document already changed.');demand(doc.media_type===mediaType,'INVALID_MEDIA','Content type must match registered document.',400);demand(bytes.length>0&&bytes.length<=12*1024*1024,'INVALID_SIZE','Document must be 1 byte to 12 MB.',400);
+    const signature=mediaType==='image/jpeg'?bytes[0]===0xff&&bytes[1]===0xd8:mediaType==='image/png'?bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])):bytes.subarray(0,5).toString()==='%PDF-';demand(signature,'INVALID_MEDIA','File signature does not match declared type.',400);
+    await files.put(doc.object_name,bytes,mediaType);const hash=sha256(bytes);
+    await c.query("UPDATE documents SET status='stored',sha256=$3,version=version+1 WHERE carrier_id=$1 AND id=$2",[a.carrierId,id,hash]);
+    const jobId=randomUUID();await c.query("INSERT INTO jobs(carrier_id,id,kind,status,payload) VALUES($1,$2,'document.extract','pending',$3)",[a.carrierId,jobId,JSON.stringify({documentId:id,sha256:hash})]);await c.query("INSERT INTO outbox(carrier_id,id,kind,payload) VALUES($1,$2,'job.enqueue',$3)",[a.carrierId,randomUUID(),JSON.stringify({jobId})]);
+    return {id,version:doc.version+1,status:'stored',sha256:hash,extractionStatus:'pending'};
+  });}
+  async getDocument(a:Actor,id:string,files:Files){const c=await this.db.connect();try{const r=await c.query('SELECT * FROM documents WHERE carrier_id=$1 AND id=$2',[a.carrierId,id]);const doc=r.rows[0];demand(doc?.sha256,'NOT_FOUND','Stored document not found.',404);await this.authorizeLoad(c,a,doc.load_id);return {bytes:await files.get(doc.object_name),mediaType:doc.media_type};}finally{c.release();}}
+
+  pushToken(a:Actor,cmd:Command,input:Row){return this.command(a,cmd,'notification.registration',{platform:input.platform,tokenHash:sha256(Buffer.from(input.token)),enabled:input.enabled!==false},async c=>{
+    demand(a.role==='driver'||a.role==='dispatcher','FORBIDDEN','User identity required.',403);demand(cmd.expectedVersion===0,'INVALID_VERSION','Push registration uses version zero.',400);
+    const hash=sha256(Buffer.from(input.token));if(input.enabled===false)await c.query('DELETE FROM push_tokens WHERE carrier_id=$1 AND uid=$2 AND token_hash=$3',[a.carrierId,a.uid,hash]);
+    else await c.query('INSERT INTO push_tokens(carrier_id,uid,token_hash,token,platform) VALUES($1,$2,$3,$4,$5) ON CONFLICT(carrier_id,uid,token_hash) DO UPDATE SET registered_at=now()',[a.carrierId,a.uid,hash,input.token,input.platform]);
+    return {status:input.enabled===false?'disabled':'registered',platform:input.platform};
+  });}
+
+  async route(a:Actor,loadId:string,truckId:string){const c=await this.db.connect();try{await this.authorizeLoad(c,a,loadId);if(a.role==='driver')demand((await c.query("SELECT 1 FROM assignments WHERE carrier_id=$1 AND load_id=$2 AND driver_id=$3 AND truck_id=$4 AND status IN ('offered','accepted','completed')",[a.carrierId,loadId,a.driverId,truckId])).rows.length,'FORBIDDEN','Assigned vehicle required.',403);return await roadRoute(c,a.carrierId,await this.load(c,a,loadId),await this.resource<Truck>(c,a,truckId,'truck'));}finally{c.release();}}
   async snapshot(a:Actor){
     const c=await this.db.connect();try{
       await c.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
@@ -161,8 +238,12 @@ export class Store {
       const resources=await c.query('SELECT * FROM resources WHERE carrier_id=$1 AND ($2::text[] IS NULL OR id=ANY($2))',[a.carrierId,own?[a.driverId,...rows.rows.flatMap(r=>[r.truck_id,r.trailer_id])]:null]);
       const scoped=async(table:string)=>own?[]:(await c.query(`SELECT * FROM ${table} WHERE carrier_id=$1`,[a.carrierId])).rows;
       const scenarios=await scoped('scenarios'),proposals=await scoped('proposals'),visits=await scoped('stop_visits'),invoices=await scoped('invoice_revisions');
+      const ownRows=async(table:string,driverColumn:string)=> (await c.query(`SELECT * FROM ${table} WHERE carrier_id=$1 AND ($2::text IS NULL OR ${driverColumn}=$2)`,[a.carrierId,own?a.driverId:null])).rows;
+      const documents=(await c.query('SELECT * FROM documents WHERE carrier_id=$1 AND ($2::text[] IS NULL OR load_id=ANY($2))',[a.carrierId,own?rows.rows.map(r=>r.load_id):null])).rows;
+      const workSessions=await ownRows('work_sessions','driver_id'),dutyEvents=await ownRows('duty_events','driver_id'),disruptions=await scoped('disruptions');
+      const stopCompletions=(await c.query('SELECT * FROM stop_completions WHERE carrier_id=$1 AND ($2::uuid[] IS NULL OR assignment_id=ANY($2))',[a.carrierId,own?rows.rows.map(r=>r.id):null])).rows;
       const cursor=(await c.query('SELECT coalesce(max(cursor),0)::text AS cursor FROM events WHERE carrier_id=$1',[a.carrierId])).rows[0].cursor;
-      await c.query('COMMIT');return {serverTime:new Date().toISOString(),cursor,scenarios,loads:loads.rows.map(r=>({...r.body,version:r.version,status:r.status})),assignments:rows.rows.map(assignment),resources:resources.rows.map(r=>({...r.body,kind:r.kind,version:r.version})),proposals,visits,invoices};
+      await c.query('COMMIT');return {actor:{role:a.role,driverId:a.driverId,carrierId:a.carrierId},serverTime:new Date().toISOString(),cursor,scenarios,workSessions,dutyEvents,disruptions,stopCompletions,documents,loads:loads.rows.map(r=>({...r.body,version:r.version,status:r.status})),assignments:rows.rows.map(assignment),resources:resources.rows.map(r=>({...r.body,kind:r.kind,version:r.version})),proposals,visits,invoices};
     }catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
   }
   async updates(a:Actor,cursor:string){

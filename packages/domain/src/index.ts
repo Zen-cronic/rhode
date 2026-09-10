@@ -14,15 +14,15 @@ export type Driver = {
   position: Point; budget: {drivingMinutes: number; onDutyMinutes: number; shiftMinutes: number; cycleMinutes: number} | null;
   budgetAsOf: string | null; provenance: Provenance;
 };
-export type Truck = {id: string; axleClearance: 'verified' | 'unknown'; provenance: Provenance};
+export type Truck = {id: string; axleClearance: 'verified' | 'unknown'; provenance: Provenance; routingProfile?: {height:number;width:number;length:number;weight:number;axle_load:number;hazmat:boolean;evidence:'operator-verified'|'synthetic-scenario'}};
 export type Trailer = {id: string; equipment: Equipment; capacityLb: number; provenance: Provenance};
 export type Assignment = {
   id: string; loadId: string; driverId: string; truckId: string; trailerId: string;
   startAt: string; endAt: string; status: 'offered' | 'accepted' | 'rejected' | 'completed' | 'superseded'; version: number;
 };
 export type Telemetry = {
-  id: string; assignmentId: string; at: string; position: Point; speedKph: number;
-  odometerKm: number; duty: Driver['duty']; provenance: Provenance;
+  id: string; assignmentId: string; at: string; position: Point; speedKph: number | null;
+  odometerKm: number | null; duty: Driver['duty']; provenance: Provenance;
 };
 export class DomainError extends Error {
   code: string; status: number;
@@ -46,8 +46,8 @@ export function distanceKm(a: Point, b: Point): number {
 export function overlaps(a: {startAt: string; endAt: string}, b: {startAt: string; endAt: string}) {
   return timestamp(a.startAt) < timestamp(b.endAt) && timestamp(b.startAt) < timestamp(a.endAt);
 }
-export type Screening = {eligible: boolean; reasons: string[]; deadheadKm: number; note: string};
-export function screen(load: Load, driver: Driver, truck: Truck, trailer: Trailer, assignments: Assignment[], now: string): Screening {
+export type Screening = {eligible: boolean; reasons: string[]; deadheadKm: number; note: string;routeFingerprint?:string;routingEvidence?:string};
+export function screen(load: Load, driver: Driver, truck: Truck, trailer: Trailer, assignments: Assignment[], now: string, road?:{drivingMinutes:number;deadheadMinutes:number;deadheadKm:number}): Screening {
   const reasons: string[] = [];
   if (load.status !== 'open') reasons.push('Load is already dispatched.');
   if (timestamp(load.endAt) <= timestamp(load.startAt)) reasons.push('Invalid appointment window.');
@@ -56,9 +56,10 @@ export function screen(load: Load, driver: Driver, truck: Truck, trailer: Traile
   else if (load.weightLb > trailer.capacityLb) reasons.push('Trailer payload capacity exceeded.');
   if (load.equipment !== trailer.equipment) reasons.push('Trailer equipment does not match.');
   if (truck.axleClearance !== 'verified') reasons.push('Truck and axle clearance is unverified.');
-  const deadheadKm = distanceKm(driver.position, load.pickup);
+  const deadheadKm = road?.deadheadKm ?? distanceKm(driver.position, load.pickup);
   // A conservative planning estimate, not road travel-time proof. Routing packet replaces this input.
-  const driveMinutes = load.drivingMinutes + Math.ceil(deadheadKm / 50 * 60);
+  const deadheadMinutes=road?.deadheadMinutes??Math.ceil(deadheadKm / 50 * 60);
+  const driveMinutes = (road?.drivingMinutes??load.drivingMinutes) + deadheadMinutes;
   const workMinutes = driveMinutes + load.serviceMinutes;
   if (!driver.budget || !driver.budgetAsOf || timestamp(now)-timestamp(driver.budgetAsOf) > 15*60_000 || timestamp(driver.budgetAsOf) > timestamp(now)) {
     reasons.push('Current HOS evidence is missing or stale.');
@@ -66,14 +67,14 @@ export function screen(load: Load, driver: Driver, truck: Truck, trailer: Traile
     if (driveMinutes > driver.budget.drivingMinutes) reasons.push('Insufficient driving budget.');
     if (workMinutes > driver.budget.onDutyMinutes) reasons.push('Insufficient on-duty budget.');
     if (workMinutes > driver.budget.cycleMinutes) reasons.push('Insufficient cycle budget.');
-    const waitMinutes = Math.max(0, (timestamp(load.startAt)-timestamp(now))/60_000);
+    const waitMinutes = Math.max(0, (timestamp(load.startAt)-timestamp(now))/60_000-deadheadMinutes);
     if (waitMinutes+workMinutes > driver.budget.shiftMinutes) reasons.push('Elapsed shift window would be exceeded.');
   }
   const conflict = assignments.find(a => a.status !== 'rejected' && a.status !== 'completed' && a.status !== 'superseded' && overlaps(a,load) &&
     (a.driverId===driver.id || a.truckId===truck.id || a.trailerId===trailer.id));
   if (conflict) reasons.push(`Resource reserved by ${conflict.loadId}.`);
   return {eligible: reasons.length===0, reasons, deadheadKm: Math.round(deadheadKm*10)/10,
-    note: 'Planning screen using declared budgets; not full HOS/ELD or axle certification. Deadhead is an estimated straight-line planning allowance until road routing is connected.'};
+    note: road ? 'Truck-route travel times with declared work budgets. OSM restrictions and supplied dimensions require review; not certified ELD or legal clearance.' : 'Planning screen using declared budgets; not full HOS/ELD or axle certification. Deadhead is an estimated straight-line planning allowance until road routing is connected.'};
 }
 export function detention(arrival: string, departure: string, mode: Load['mode'], rateCentsPerHour: number | null) {
   const elapsed = timestamp(departure)-timestamp(arrival);

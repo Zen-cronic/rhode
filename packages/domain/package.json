@@ -1,1 +1,13 @@
-{"name":"@roadstar/domain","version":"0.1.0","private":true,"type":"module","exports":"./src/index.ts"}
+{
+  "name": "@roadstar/domain",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./commands": "./src/commands.ts"
+  },
+  "dependencies": {
+    "zod": "^4.0.0"
+  }
+}

@@ -24,8 +24,13 @@
   },
   "dependencies": {
     "@fastify/cors": "^11.3.0",
+    "@google-cloud/storage": "^8.1.0",
+    "@google-cloud/tasks": "^7.1.0",
+    "@google/genai": "^2.21.0",
+    "exceljs": "^4.4.0",
     "fastify": "^5.12.3",
     "firebase-admin": "^14.4.0",
+    "google-auth-library": "^11.0.2",
     "pg": "^8.23.0",
     "zod": "^4.6.1"
   }

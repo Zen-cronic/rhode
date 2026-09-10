@@ -1,0 +1,24 @@
+{
+  "carrier_id": "demo-carrier",
+  "id": "8334f928-07ef-4df3-b048-3aa6d6d64cd1",
+  "load_id": "RS-1042",
+  "object_name": "8334f928-07ef-4df3-b048-3aa6d6d64cd1",
+  "sha256": "1e263e7003ebf692ef0a77c25796f9426648e38eb40950cc249a639b5f475f11",
+  "media_type": "application/pdf",
+  "status": "stored",
+  "extraction": {
+    "kind": "pod",
+    "model": "gemini-2.5-flash",
+    "fields": {
+      "notes": "Not a customer or billing record.",
+      "signedBy": "Taylor Sample",
+      "billNumber": "RS-DEMO-1042",
+      "observedDate": "2026-09-13"
+    },
+    "filename": "synthetic-demo-pod.pdf",
+    "provenance": "synthetic",
+    "reviewStatus": "unreviewed",
+    "sourceSha256": "1e263e7003ebf692ef0a77c25796f9426648e38eb40950cc249a639b5f475f11"
+  },
+  "version": 3
+}

@@ -11,10 +11,11 @@ export function fixtures() {
   ];
   const drivers: Driver[] = [
     {id:'D-01',name:'Alex Chen · demo',duty:'on_duty',position:milton,budget:{drivingMinutes:420,onDutyMinutes:480,shiftMinutes:540,cycleMinutes:900},budgetAsOf:DEMO_NOW,provenance:'synthetic'},
-    {id:'D-02',name:'Morgan Singh · demo',duty:'on_duty',position:milton,budget:{drivingMinutes:360,onDutyMinutes:420,shiftMinutes:480,cycleMinutes:750},budgetAsOf:DEMO_NOW,provenance:'synthetic'},
+    {id:'D-02',name:'Morgan Singh · demo',duty:'on_duty',position:milton,budget:{drivingMinutes:360,onDutyMinutes:420,shiftMinutes:720,cycleMinutes:750},budgetAsOf:DEMO_NOW,provenance:'synthetic'},
     {id:'D-03',name:'Taylor Roy · demo',duty:'off_duty',position:london,budget:null,budgetAsOf:null,provenance:'synthetic'}
   ];
-  const trucks: Truck[] = [{id:'T-101',axleClearance:'verified',provenance:'synthetic'},{id:'T-102',axleClearance:'verified',provenance:'synthetic'},{id:'T-103',axleClearance:'unknown',provenance:'synthetic'}];
+  const profile:NonNullable<Truck['routingProfile']>={height:4.1,width:2.6,length:23,weight:40,axle_load:9,hazmat:false,evidence:'synthetic-scenario'};
+  const trucks: Truck[] = [{id:'T-101',axleClearance:'verified',provenance:'synthetic',routingProfile:profile},{id:'T-102',axleClearance:'verified',provenance:'synthetic',routingProfile:profile},{id:'T-103',axleClearance:'unknown',provenance:'synthetic'}];
   const trailers: Trailer[] = [{id:'V-101',equipment:'Dry Van',capacityLb:44500,provenance:'synthetic'},{id:'V-102',equipment:'Dry Van',capacityLb:44500,provenance:'synthetic'},{id:'R-101',equipment:'Reefer',capacityLb:43500,provenance:'synthetic'}];
   return {loads,drivers,trucks,trailers};
 }

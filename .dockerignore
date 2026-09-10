@@ -1,0 +1,17 @@
+.git
+**/node_modules
+**/dist
+**/.expo
+**/.terraform
+**/*.tfstate*
+**/*.tfplan
+**/.env*
+data
+artifacts
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+.agents
+.claude
+.codex
+docs/spike-tests
