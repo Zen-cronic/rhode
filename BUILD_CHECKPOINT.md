@@ -4,7 +4,7 @@ Updated: 2026-09-10. Status: AUTHENTICATED_CLOUD_PREVIEW; FULL_PLATFORM_BUILD_IN
 Current accepted state: authenticated GCP preview, actual Ontario truck routing, OR-Tools consolidated dispatch, atomic reservations, web/native recovery and ordered execution, source-linked document/facility/detention review, and role-scoped tracking history. Backend22 tests pass (one real-road test opt-in), separately enabled real-road consolidated/backhaul check passes; Python7; native23. Web cloud planning and tracking, Android API35 offline termination/reconnect and complete four-stop consolidated execution passed. Physical Android/native iOS explicitly deferred.
 Branch: build/roadstar-platform. Local preview http://localhost:5174 (Demo dispatcher, demo-carrier); API4010 and optimizer4040. Visible Chrome and Android emulator remain open.
 Cloud: https://roadstar-web-739889188415.us-central1.run.app ; API00010-t58, web00008-mxq.
-Four-minute film and editable13-slide deck/PDF complete and publicly served under /demo/. Ten-field local draft prepared. Source repository publication requires explicit approval after automatic review rejected public GitHub egress; no remote exists. Final submission remains separate. Recorded audio transcript checked, human listening pending.
+Four-minute film and editable13-slide deck/PDF complete and publicly served under /demo/. Ten-field local draft prepared. Private source repository https://github.com/Zen-cronic/roadstar created and pushed after explicit user instruction; GitHub PRIVATE visibility verified. Final submission remains separate. Recorded audio transcript checked, human listening pending.
 
 ## Authorized objective
 
@@ -88,3 +88,7 @@ Approved stack: React dispatcher web + Expo driver/dispatcher Android/iOS, share
 - Local browser/API healthy21:39UTC. Keep all user preview processes and emulator running.
 
 Later TODOs: physical Android/background/camera and native iOS verification; real push provider setup; verified live capacity/HOS inputs; full consolidated-trip recovery and combined route display; commercial TMS/ELD connectors; self-serve fleet billing/onboarding and owner-operator mode; ClickHouse only after measured need. RevenueCat eligibility/rights remains a separate later decision.
+
+## Private repository follow-up
+
+User explicitly requested a private repository. Created Zen-cronic/roadstar as PRIVATE, pushed build/roadstar-platform and verified matching local/remote e4c74e7. No collaborator invitations or public visibility changes. This supersedes the earlier pending public-source approval; judge access remains a separate unresolved submission check.
