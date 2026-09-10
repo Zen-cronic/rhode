@@ -9,7 +9,7 @@ Provisioned September 10, 2026 under explicit US$85 estimated seven-day approval
 - Dedicated PostgreSQL16: `roadstar-postgres16`, connection `roadstar-2026-kzh:us-central1:roadstar-postgres16`, PostGIS/btree_gist; secret `roadstar-database-url`.
 - Private files: `gs://roadstar-2026-kzh-roadstar-documents`. Synthetic demonstration only.
 - Routing VM: `roadstar-valhalla`, us-central1-a, private 10.42.0.2:8002, e2-standard-4, persistent 100GB tiles. SSH through IAP; no public routing ingress.
-- Valhalla image: `ghcr.io/valhalla/valhalla-scripted@sha256:6c5a521b76c3b6e2ae4797964572d4ec0f1ae778e4ff37de513ddef828a43c74` (3.8.3). Ontario source `ontario-260909.osm.pbf`, SHA256 `b853e364f7af75ed5b6cb5ebbd6e41735b7209eb59aa3acfe5598349389ca8d9`. Tile compilation underway; route verification remains pending until evidence is recorded.
+- Valhalla image: `ghcr.io/valhalla/valhalla-scripted@sha256:6c5a521b76c3b6e2ae4797964572d4ec0f1ae778e4ff37de513ddef828a43c74` (3.8.3). Ontario source `ontario-260909.osm.pbf`, SHA256 `b853e364f7af75ed5b6cb5ebbd6e41735b7209eb59aa3acfe5598349389ca8d9`. Ontario tiles are built and serving. Verified Milton–London route:138.882km, about98 minutes,864 coordinates with the supplied synthetic dimensions. No live traffic feed is configured.
 - Firebase email/password with four synthetic app identities. Operator-only credentials: ignored `data/preview-credentials.json`, mode0600. Never publish that file. Server memberships, not client roles, authorize operations.
 - Separate Maps web referrer and Android package/certificate restrictions. Public client identifiers in ignored app `.env.production`; Firebase key is a public app identifier, not an admin credential.
 - Cloud Tasks `roadstar-jobs`, Scheduler `roadstar-recover-jobs` every minute, OIDC identities on worker/API internal endpoints. Global extraction allowance <=300 attempts, <=10,000 input tokens +1,000 output tokens per attempt. No automatic approval of extraction/billing.
@@ -31,5 +31,16 @@ Build with `infra/Dockerfile.api`, `.optimizer`, `.web`. Web build requires its 
 - Real Firebase dispatcher and driver-scoped reads: `docs/evidence/cloud-auth-smoke.json`.
 - Browser cloud recovery and Google road/satellite screenshots: `docs/evidence/roadstar-cloud-*.png`.
 - Synthetic PDF → Storage → Scheduler/Tasks → Gemini2.5Flash → API result: `docs/evidence/cloud-document-extraction.json`; status unreviewed and source SHA preserved.
-- Android standalone development-signed APK built, physical execution still pending.
-- Local131-driver benchmark is explicitly not a Cloud SQL load-test result.
+- Android development-signed standalone APK installed and exercised on API35 x86_64 emulator: login, offline termination/reconnect, recovery approval/acceptance, duty and work-session controls. Physical Android and native iOS testing were explicitly deferred.
+- Cloud131-driver burst:524 telemetry and524 sync pairs, zero failures; p95 acknowledgement-to-snapshot lag5448ms. SQL maxobserved CPU8.53%, memory50.99%, connections40. See cloud-load-test-131.json and cloud-database-metrics.json for limits and methodology.
+
+
+## Current revisions and local operation
+
+API00010-t58 includes ordered consolidated manifests, reviewed documents/invoices and paginated tracking history. Web00008-mxq includes tracking, planning and public demonstration artifacts. Inspect current revisions before redeploying because later checkpoints may advance these values.
+
+Use `scripts/deploy-preview.sh` to rebuild and update the existing approved services. It does not provision projects, databases, identities or keys. Configuration changes and complete Terraform import remain separate work. Client keys are loaded from ignored apps/web/.env.production as public build arguments; private account passwords never enter the image.
+
+Use `scripts/preview-local.sh` to launch local synthetic web/API after installing dependencies and starting the local PostgreSQL container. Pass OPTIMIZER_URL for an available local worker. The running session uses optimizer4040 and an IAP tunnel48002 to the existing routing VM. Keep local-demo bound to loopback.
+
+Extra one-off Cloud Run jobs seeded emulator-demo, planning-demo, film-demo and native-planning-demo. They contain only synthetic data and do not keep a running instance after execution. The first film seed's direct private routing call failed because jobs do not have K_SERVICE; initialization was completed through the authenticated operational API. Do not rerun a seed against a carrier already being demonstrated.

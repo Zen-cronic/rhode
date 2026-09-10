@@ -20,3 +20,10 @@ Fixed compute baseline is about $6.46/day before disks and usage, roughly $197/m
 Model arithmetic at reference rates: 1M input tokens×$0.30/M +0.1M output×$2.50/M = $0.55; $3 allowance covers retries and token variation. Code caps output at1000 and job attempts at3; input bytes limit12MB is not a token guarantee. Confirm exact available model and token cost before enabling any call; AI remains disabled. Model output never approves dispatch or billing.
 
 Official sources checked Sept10: [Cloud SQL CPU/memory](https://cloud.google.com/sql/pricing?authuser=1), [Cloud SQL storage](https://cloud.google.com/sql/pricing), [Compute E2 rates](https://cloud.google.com/products/compute/pricing/general-purpose?hl=es-419), [disk pricing](https://cloud.google.com/compute/disks-image-pricing), [Cloud Run](https://cloud.google.com/run/pricing), [Maps](https://developers.google.com/maps/billing-and-pricing/pricing), [Vertex model pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing). Allowance lines are estimates, not quoted SKU totals. Final selected project/region/billing account may change taxes, currency conversion, quota and rates.
+
+
+## Demo narration estimate, September10
+
+Within the already approved US$85 preview envelope, reserve at most US$1 for two four-minute Gemini2.5 Flash TTS narration takes plus short retries on the existing Vertex project. Official listed pricing is US$0.50 per million input text tokens and US$10 per million output audio tokens. Conservatively allowing40 audio tokens/second for600 total seconds plus10,000 text tokens estimates US$0.245; US$1 provides headroom. Forty tokens/second is an estimating assumption, not a metered claim. No new persistent compute resource or subscription is required. Record actual usage metadata when returned. Stop after two full takes or the US$1 allocation.
+
+Sources: https://cloud.google.com/text-to-speech/pricing and https://docs.cloud.google.com/text-to-speech/docs/gemini-tts . Narration contains public synthetic-demo copy only.

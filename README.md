@@ -23,6 +23,8 @@ VITE_AUTH_MODE=local-demo npm run dev --workspace @roadstar/web -- --port 5174 -
 
 Open http://localhost:5174, choose Demo dispatcher and carrier `demo-carrier`. Local fixture authentication binds the API to loopback and is rejected on Cloud Run. These credentials are only for the local database. Optional `VITE_GOOGLE_MAPS_KEY` must allow the local referrer. Set `OPTIMIZER_URL` on the API to the Python worker for actual truck routing and consolidated planning; missing routing remains visible.
 
+Run `scripts/preview-local.sh` to start the API and web together after the database is available. It accepts `OPTIMIZER_URL` from your shell.
+
 The current development session runs the API on4010, web on5174 and optimizer on4040. The optimizer reaches the approved Ontario routing VM through a local IAP tunnel. Restarting the machine requires restarting these processes/tunnel.
 
 ## Implemented architecture
@@ -54,6 +56,10 @@ This is an implementation preview. HOS checks declared budgets and is not a cert
 
 The measured131-driver cloud burst had zero failed commands but p95 acknowledgement-to-snapshot lag about5.4s; two-second polling is not a two-second delivery guarantee. The benchmark includes a burst barrier and disclosed warm-data conditions.
 
-Android standalone builds exist and API35 emulator verification is underway. Physical Android and native iOS testing are deferred because devices/Mac are unavailable. Background push is not configured. Satellite tiles are not an offline navigation cache. Invoice approval preserves a reviewed revision; it does not collect payment. GPS uncertainty is never silently promoted to an authoritative billing timestamp.
+Android ARM64/x86_64 standalone builds pass. API35 emulator verification passed Firebase login, satellite/truck routes, offline acceptance across force-stop/restart/reconnect, recovery approval and the four-stop consolidated manifest. Mobile has23 passing tests. Physical Android and native iOS testing are deferred because devices/Mac are unavailable. Background push is not configured. Satellite tiles are not an offline navigation cache. Invoice approval preserves a reviewed revision; it does not collect payment. GPS uncertainty is never silently promoted to an authoritative billing timestamp.
 
 The approved seven-day GCP preview has stop tasks scheduled for September17,2026 at20:00UTC. Retained storage continues charging; task execution must be checked. The cost estimate is not a billing cap.
+
+## Demonstration
+
+[Four-minute recording](https://roadstar-web-739889188415.us-central1.run.app/demo/roadstar-demo.mp4) · [Presentation PDF](https://roadstar-web-739889188415.us-central1.run.app/demo/roadstar-pitch.pdf) · [Editable deck](https://roadstar-web-739889188415.us-central1.run.app/demo/roadstar-pitch.pptx). These are hosted on the seven-day preview. The ten-field submission draft remains local, pending repository publication permission, live portal checks and video-host acceptance.

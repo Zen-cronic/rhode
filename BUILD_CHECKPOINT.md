@@ -1,8 +1,11 @@
 # RoadStar build checkpoint
 
 Updated: 2026-09-10. Status: AUTHENTICATED_CLOUD_PREVIEW; FULL_PLATFORM_BUILD_IN_PROGRESS.
-Current accepted state: authenticated GCP preview, PostgreSQL16/PostGIS, actual Ontario Valhalla routing and OR-Tools proposals, atomic consolidated manifests, recovery approval, reviewed documents/facility notes and detention revisions. Backend21 tests pass plus a separately enabled real-road consolidated-trip test; Python7 tests pass. Web planning UI built, cloud verification underway. Android emulator installed and runtime/offline verification underway; physical Android and native iOS testing explicitly deferred by user.
-Read this first when resuming. Branch: build/roadstar-platform. No Git remote yet. Web: https://roadstar-web-739889188415.us-central1.run.app . Local preview: http://localhost:5174 (demo dispatcher, demo-carrier); API4010.
+Current accepted state: authenticated GCP preview, actual Ontario truck routing, OR-Tools consolidated dispatch, atomic reservations, web/native recovery and ordered execution, source-linked document/facility/detention review, and role-scoped tracking history. Backend22 tests pass (one real-road test opt-in), separately enabled real-road consolidated/backhaul check passes; Python7; native23. Web cloud planning and tracking, Android API35 offline termination/reconnect and complete four-stop consolidated execution passed. Physical Android/native iOS explicitly deferred.
+Branch: build/roadstar-platform. Local preview http://localhost:5174 (Demo dispatcher, demo-carrier); API4010 and optimizer4040. Visible Chrome and Android emulator remain open.
+Cloud: https://roadstar-web-739889188415.us-central1.run.app ; API00010-t58, web00008-mxq.
+Four-minute film and editable13-slide deck/PDF complete and publicly served under /demo/. Ten-field local draft prepared. Source repository publication requires explicit approval after automatic review rejected public GitHub egress; no remote exists. Final submission remains separate. Recorded audio transcript checked, human listening pending.
+
 ## Authorized objective
 
 Build the complete all-in-one RoadStar platform end to end in this repository; then run demo-director, prepare submission-devpost against the custom RoadStar portal, and prepare the in-person finale demo. Preserve fleet/load matching/dispatch, routing/optimization, driver scheduling, driver/dispatcher apps, integrations, separated simulation, satellite mapping and auditable detention billing.
@@ -74,3 +77,14 @@ Approved stack: React dispatcher web + Expo driver/dispatcher Android/iOS, share
 - Cloud131-driver burst:524 telemetry +524 synchronization pairs, zero failures; latest telemetry p95 3053ms, sync p95 4075ms, own-ack-to-snapshot lag p95 5448ms. Does not meet a2s end-to-end target under this burst; barrier/warm-data assumptions recorded with artifacts. SQL observed CPU max8.53%, memory50.99%, connections max40. No production capacity claim.
 - Human document review/source-linked facility instructions, observed-sample detention approval preserving draft, and maintenance hold/release verified in actual cloud browser. Original private workbook stays local.
 - Remaining: complete emulator runtime checks, verify planning UI in cloud, native grouped-manifest UI, reproducible deployment/docs, demo film/deck/ten-field submission draft, broader acceptance gaps. Physical phone/iOS testing deferred, final submission remains separate.
+
+## Accepted checkpoint September10 21:40UTC
+
+- Real Android API35 KVM emulator: encrypted sign-in/cache/draft/idempotency command survive offline force-stop and relaunch; reconnect creates one accepted assignment. Dispatcher recovery → receiving driver acceptance passed. Separate two-LTL plan approved, whole manifest accepted and four ordered stops completed; all command versions synchronized. Final emulator remains visible on emulator-demo D02 accepted route. See docs/evidence/android-*.json and apps/mobile/README.md. No physical background/camera/push or iOS runtime proof.
+- Tracking API paginates immutable sampled/received timestamps and disposition with carrier/role scope. Web keeps null measurements unknown, breaks uncertain/out-of-order trail segments and retains downloaded history offline. Cloud dispatcher/own-driver checks pass.
+- Cloud load benchmark remains about5.4s p95 acknowledgement-to-snapshot lag; zero failed commands across524 telemetry/snapshot pairs. Not a2s end-to-end guarantee.
+- Demo240.096s H264/AAC, captions,13-slide deck with speaker notes and PDF verified. Direct video/PDF URLs200. Public host acceptance and live portal limits remain unverified. Human listening/live rehearsal pending.
+- Source publication to Zen-cronic/roadstar was rejected by automatic approval review for missing explicit public-source authorization. No repository created; prepare final commit and request permission. Source data, passwords and generated native signing material excluded.
+- Local browser/API healthy21:39UTC. Keep all user preview processes and emulator running.
+
+Later TODOs: physical Android/background/camera and native iOS verification; real push provider setup; verified live capacity/HOS inputs; full consolidated-trip recovery and combined route display; commercial TMS/ELD connectors; self-serve fleet billing/onboarding and owner-operator mode; ClickHouse only after measured need. RevenueCat eligibility/rights remains a separate later decision.
