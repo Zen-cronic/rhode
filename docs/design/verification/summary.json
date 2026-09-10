@@ -50,5 +50,12 @@
       "bytes": 6242,
       "sha256": "f39241c893c0818500e4c498338bbf53002fe75b708a47c856ccfca605e7fedb"
     }
+  },
+  "deployment": {
+    "webRevision": "roadstar-web-00014-rs2",
+    "imageDigest": "sha256:ecd0f44e2bff9ca42eea26d311ce74f51b4797b1163ba48c40945001697f436d",
+    "url": "https://roadstar-web-739889188415.us-central1.run.app",
+    "artifactHashesVerified": true,
+    "repositoryVisibility": "PRIVATE"
   }
 }
