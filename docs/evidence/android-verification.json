@@ -1,0 +1,56 @@
+{
+  "date": "2026-09-10",
+  "environment": {
+    "emulator": "37.1.11",
+    "android_api": 35,
+    "system_image": "google_apis;x86_64",
+    "avd": "roadstar_api35",
+    "device": "Pixel 6",
+    "serial": "emulator-5556",
+    "acceleration": "KVM",
+    "visible": true,
+    "carrier": "emulator-demo"
+  },
+  "passed": [
+    "Standalone release APK install and launch without Metro",
+    "Firebase driver and dispatcher sign-in",
+    "Certificate-restricted Google satellite map and Valhalla route overlay",
+    "Offline pending acceptance and draft saved",
+    "Force-stop/relaunch offline restores encrypted auth, cache, draft and original version-1 command",
+    "Reconnect synchronizes once; independent server read confirms one accepted RS-1042 assignment at version 2",
+    "Native dispatcher confirmation approves recovery revision 1 to 2",
+    "Receiving D-02 sees and accepts reassigned RS-1043",
+    "Manual pickup completion synchronizes",
+    "Explicit work-session start/end synchronizes with synthetic GPS withheld",
+    "Manual on-duty event synchronizes",
+    "18 tests and TypeScript passed"
+  ],
+  "proof_screens": [
+    "04-driver-synchronized.png",
+    "06-route-detail.png",
+    "07-offline-pending.png",
+    "08-offline-restart.png",
+    "09-offline-restored-note.png",
+    "10-offline-restored-queue.png",
+    "11-reconnected-queue.png",
+    "25-dispatcher-proposal.png",
+    "29-confirm-visible.png",
+    "30-approved.png",
+    "31-reassigned-driver.png",
+    "32-driver-accepted.png",
+    "34-completion-confirm.png",
+    "35-pickup-completed.png",
+    "37-session-active.png",
+    "38-session-ended.png",
+    "39-synchronized-execution.png",
+    "40-final-preview.png"
+  ],
+  "limitations": [
+    "No physical device or native iOS runtime test",
+    "No real GPS ingest for synthetic assignments",
+    "No physical background lifecycle or revoked-permission test",
+    "No push provider delivery or camera capture/upload test",
+    "Native group-planning UI remains separate from web implementation"
+  ],
+  "final_state": "D-02 RS-1043 accepted; pickup manually completed; work session ended; GPS off; emulator visible"
+}

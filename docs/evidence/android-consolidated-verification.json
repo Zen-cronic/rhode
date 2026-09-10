@@ -1,0 +1,53 @@
+{
+  "date": "2026-09-10",
+  "carrier": "native-planning-demo",
+  "planId": "242db740-b67c-47a3-8fde-36971b0926f2",
+  "groupId": "56326f3f-2552-4de9-b33e-fbddc2f028a2",
+  "passed": [
+    "Read-only existing planning-demo completed manifest",
+    "Android software keyboard open with submit visible after scrolling",
+    "Native dispatcher plan review, acknowledgment and approve-plan",
+    "Native whole-manifest acceptance",
+    "RS-1042 pickup then RS-1044 pickup despite shared facility ID",
+    "RS-1042 delivery then RS-1044 delivery despite shared facility ID",
+    "Group remains accepted after first member completed",
+    "Final group completed revision3 with two member records",
+    "Immutable acceptance version1, pickups version2, deliveries version3 all synchronized",
+    "23 unit/persistence tests",
+    "Final TypeScript and iOS JavaScript export",
+    "Both standalone native Android ABI builds",
+    "Original dispatcher approve-plan command synchronized at version1; approved record revision2"
+  ],
+  "screens": [
+    "43-completed-planning-manifest.png",
+    "44-global-completed-stops.png",
+    "48-keyboard-submit-visible.png",
+    "49-native-planning-list.png",
+    "50-native-plan-review.png",
+    "51-native-plan-approval-controls.png",
+    "53-offered-consolidated-manifest.png",
+    "55-whole-manifest-confirm.png",
+    "56-manifest-accepted.png",
+    "57-first-stop-confirm.png",
+    "58-second-pickup-next.png",
+    "59-second-stop-confirm.png",
+    "60-first-delivery-next.png",
+    "61-third-stop-confirm.png",
+    "62-last-delivery-next.png",
+    "63-final-stop-confirm.png",
+    "64-native-group-completed.png",
+    "65-all-four-stops-completed.png",
+    "66-consolidated-command-versions.png",
+    "67-approved-planning-record.png",
+    "68-approved-plan-command.png",
+    "69-restored-visible-trip.png"
+  ],
+  "limitations": [
+    "No physical device or native iOS runtime",
+    "No actual push provider delivery",
+    "Combined route geometry not rendered; individual load map explicitly labeled",
+    "Optimization proposal creation remains web workflow"
+  ],
+  "approval_review": "Initial automated rejection resolved through read-only synthetic fixture and disabled push evidence; one scoped same-UI retry allowed.",
+  "final_visible_preview": "emulator-demo, D-02 accepted RS-1043, native map, software keyboard enabled; previous completed group evidence preserved"
+}

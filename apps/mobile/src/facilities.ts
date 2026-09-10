@@ -1,0 +1,2 @@
+export type FacilityNote={load_id:string;stop_id:string;instructions:string;reviewed_by:string|null;document_id:string|null};
+export function reviewedFacilityNotes(notes:FacilityNote[],loadId:string,stopId:string){return notes.filter(note=>note.load_id===loadId&&note.stop_id===stopId&&typeof note.reviewed_by==='string'&&note.reviewed_by.trim().length>0&&typeof note.instructions==='string'&&note.instructions.trim().length>0);}
