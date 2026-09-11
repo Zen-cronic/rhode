@@ -1,0 +1,38 @@
+{
+  "cloud": true,
+  "carrierId": "native-current-20260911",
+  "overflow": false,
+  "errors": [],
+  "assertions": [
+    "Receiving telemetry after producer receipt",
+    "Feed quiet after real-time threshold without further telemetry",
+    "Google attribution rendered"
+  ],
+  "apiRevision": "roadstar-api-00012-p2f",
+  "webRevision": "roadstar-web-00027-bzz",
+  "screenshotsInspected": true,
+  "tests": {
+    "postgres": 29,
+    "webPassed": 14,
+    "webConfigSkips": 2,
+    "typecheck": "pass",
+    "productionBuild": "pass"
+  },
+  "localClockInvariant": {
+    "builtArtifact": true,
+    "fixture": {
+      "carrier": "tracking-gap-d89852db-8a47-4605-8d9a-422783bbce9e",
+      "assignmentId": "d6526c57-b86a-4969-8810-26123ba29470"
+    },
+    "overflow": false,
+    "errors": [],
+    "assertions": [
+      "standalone emitter exited after one receipt",
+      "receiving transitions to quiet after30real seconds",
+      "cursor and scenario clock unchanged"
+    ],
+    "cursor": "16584",
+    "scenarioClock": "2026-09-13T12:00:00+00:00"
+  },
+  "limitation": "Receipt activity is not position accuracy or proof that the source is physically moving. Local5175 Maps authorization failed; hosted actual Google map/attribution passed."
+}
