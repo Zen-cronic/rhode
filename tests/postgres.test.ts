@@ -249,3 +249,13 @@ test('in-progress dispatch projects remaining route without consuming completed 
  const futureCompletion=await store.check(c,dispatcher,target,{...input,loadId:target.id});assert.equal(futureCompletion.eligible,false);assert.ok(futureCompletion.reasons.includes('Insufficient driving budget.'));
  }finally{c.release();}
 });
+
+test('cached GPS duty context does not overwrite declared duty or grant back consumed driving',async()=>{
+ const {dispatcher,driver,simulator,carrierId}=await setup();const trip:any=await store.dispatch(dispatcher,command(),input);await store.respond(driver,command(),{assignmentId:trip.id,action:'accept'});await store.duty(driver,command(),{at:DEMO_NOW,duty:'driving'});
+ const app=createApi(store,{localDemo:true});try{
+ const payload={id:randomUUID(),assignmentId:trip.id,at:'2026-09-13T13:00:00Z',position:milton,accuracyM:5,speedKph:0,odometerKm:null,duty:'off_duty',dutyEvidence:'cached-declaration',provenance:'synthetic'};
+ const result=await app.inject({method:'POST',url:'/api/telemetry',headers:{Authorization:'Bearer demo-simulator','X-Carrier-Id':carrierId,'Idempotency-Key':randomUUID(),'If-Match':'0'},payload});assert.equal(result.statusCode,200,result.body);
+ assert.equal((await db.query('SELECT body FROM telemetry WHERE carrier_id=$1 AND id=$2',[carrierId,payload.id])).rows[0].body.dutyEvidence,'cached-declaration');
+ await store.advanceSimulationClock(simulator,command(),{at:'2026-09-13T14:00:00Z'});const state=await store.snapshot(dispatcher);const d=state.resources.find(x=>x.id==='D-01')!;assert.equal(d.duty,'driving');assert.equal(d.budget.drivingMinutes,300);assert.equal(state.capabilities.cachedDutyTelemetry,true);
+ }finally{await app.close();}
+});

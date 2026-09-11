@@ -22,7 +22,7 @@ export type Assignment = {
 };
 export type Telemetry = {
   id: string; assignmentId: string; at: string; position: Point; speedKph: number | null;
-  odometerKm: number | null; duty: Driver['duty']; provenance: Provenance;
+  odometerKm: number | null; duty: Driver['duty']; dutyEvidence?: 'cached-declaration'; provenance: Provenance;
 };
 export class DomainError extends Error {
   code: string; status: number;

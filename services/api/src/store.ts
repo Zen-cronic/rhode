@@ -203,7 +203,7 @@ export class Store {
     // Keep ingestion proportional to one observation; snapshots/planning derive duty budgets.
     const driver=(await c.query("SELECT body FROM resources WHERE carrier_id=$1 AND id=$2 AND kind='driver' FOR UPDATE",[a.carrierId,v.driverId])).rows[0].body;
     const newer=(await c.query("SELECT 1 FROM telemetry t JOIN assignments a ON a.carrier_id=t.carrier_id AND a.id=t.assignment_id WHERE t.carrier_id=$1 AND a.driver_id=$2 AND t.disposition='applied' AND t.at>$3 LIMIT 1",[a.carrierId,v.driverId,event.at])).rows.length>0;
-    await c.query('UPDATE resources SET body=$3,version=version+1 WHERE carrier_id=$1 AND id=$2',[a.carrierId,v.driverId,JSON.stringify(newer?driver:{...driver,position:event.position,duty:event.duty})]);
+    await c.query('UPDATE resources SET body=$3,version=version+1 WHERE carrier_id=$1 AND id=$2',[a.carrierId,v.driverId,JSON.stringify(newer?driver:{...driver,position:event.position,duty:event.dutyEvidence==='cached-declaration'?driver.duty:event.duty})]);
     const stops=await c.query('SELECT *,ST_Distance(location,ST_SetSRID(ST_MakePoint($3,$4),4326)::geography) AS distance FROM stops WHERE carrier_id=$1 AND load_id=$2',[a.carrierId,load.id,event.position.lng,event.position.lat]);
     for(const stop of stops.rows){
       const inside=Number(stop.distance)+event.accuracyM<stop.radius_m,outside=Number(stop.distance)-event.accuracyM>stop.radius_m;
@@ -395,7 +395,7 @@ export class Store {
       (SELECT coalesce(jsonb_agg(t),'[]') FROM manifests t WHERE carrier_id=$1 AND ($2::text IS NULL OR assignment_id IN (SELECT id FROM own_assignments))) AS manifests`,[a.carrierId,own?a.driverId:null])).rows[0] as {cursor:string;assignments:Row[];loads:Row[];resources:Row[];scenarios:Row[];proposals:Row[];visits:Row[];invoices:Row[];maintenanceHolds:Row[];planningRuns:Row[];disruptions:Row[];documents:Row[];facilityNotes:Row[];workSessions:Row[];dutyEvents:Row[];stopCompletions:Row[];tripGroups:Row[];manifests:Row[]};
     const resources=r.resources.map((v:Row)=>({...v.body,kind:v.kind,version:v.version}));
     const drivers=await withDutyHistory(c,a.carrierId,resources.filter(v=>v.kind==='driver'));
-    const result={...r,actor:{role:a.role,driverId:a.driverId,carrierId:a.carrierId},serverTime:new Date().toISOString(),loads:r.loads.map((l:Row)=>({...l.body,version:l.version,status:l.status})),assignments:r.assignments.map(assignment),resources:resources.map(v=>v.kind==='driver'?drivers.find(d=>d.id===v.id)!:v)};
+    const result={...r,capabilities:{cachedDutyTelemetry:true},actor:{role:a.role,driverId:a.driverId,carrierId:a.carrierId},serverTime:new Date().toISOString(),loads:r.loads.map((l:Row)=>({...l.body,version:l.version,status:l.status})),assignments:r.assignments.map(assignment),resources:resources.map(v=>v.kind==='driver'?drivers.find(d=>d.id===v.id)!:v)};
     await c.query('COMMIT');return result;
     }catch(error){await c.query('ROLLBACK');throw error;}finally{c.release();}
   }

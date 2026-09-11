@@ -9,7 +9,7 @@ export async function withDutyHistory(db:Pick<pg.Pool,'query'>|pg.PoolClient,car
    SELECT d.at,d.duty,'duty:'||d.id AS source FROM duty_events d WHERE d.carrier_id=$1 AND d.driver_id=r.id
    UNION ALL
    SELECT t.at,t.body->>'duty','telemetry:'||t.id FROM telemetry t JOIN assignments a ON a.carrier_id=t.carrier_id AND a.id=t.assignment_id
-    WHERE t.carrier_id=$1 AND a.driver_id=r.id AND t.accuracy_m<=100 AND t.disposition IN ('applied','retained_out_of_order') AND t.body->>'provenance'=r.body->>'provenance'
+    WHERE t.carrier_id=$1 AND a.driver_id=r.id AND t.accuracy_m<=100 AND t.disposition IN ('applied','retained_out_of_order') AND t.body->>'provenance'=r.body->>'provenance' AND t.body->>'dutyEvidence' IS DISTINCT FROM 'cached-declaration'
  ) e WHERE e.at>=b.at) AS observations
  FROM resources r LEFT JOIN hos_bases b ON b.carrier_id=r.carrier_id AND b.driver_id=r.id
  WHERE r.carrier_id=$1 AND r.id=ANY($2::text[])`,[carrierId,drivers.map(d=>d.id)])).rows;
