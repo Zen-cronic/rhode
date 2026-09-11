@@ -1,0 +1,6 @@
+{
+  "routeStatus": 200,
+  "errors": [],
+  "googleImages": 4,
+  "mapText": "Route evidence\nOntario\nRS-1043\nFTL · Dry Van\n\nDemo customer · packaging\n\nPickup\nLondon distribution dock · demo location\nDelivery\nMilton terminal · demo location\nLoad schedule · ET\nSep 13 · 12:15 p.m.–3:00 p.m.\nRecorded cargo\n18,000 lb · 12 pallets\nInspect a truck route\n\nChoose a load and vehicle to inspect its route and restrictions.\n\nRoute load\nChoose load\nRS-1042 · Milton terminal · demo location → London distribution dock · demo location\nRS-1043 · London distribution dock · demo location → Milton terminal · demo location\nRS-1044 · Milton terminal · demo location → Barrie receiving · demo location\nRoute vehicle\nChoose truck\nT-101\nT-102\nT-103\nLoad truck route\nHide map\n−\nMap\nMap data ©2026 Google\nTerms\nReport a map error\n\nDriver positions from operational records. Select a load and vehicle to request its truck route.\n\nRS-1043 · T-102\nTruck Route\n\n99 min · pickup → delivery\n\nSynthetic vehicle profile · 4.1 m high × 2.6 m wide × 23 m long\n\nGross weight 40 t · axle load 9 t · No hazardous goods declared\n\nRouting evidence\n\nRoute quality depends on OSM restriction coverage; not a legal clearance certificate"
+}

@@ -2,41 +2,44 @@
   "status": "NEEDS_REVISION",
   "direction": "Precision transport",
   "date": "2026-09-11",
-  "pass": "Operator-authorized second bounded refinement",
-  "baseline": "b3d44950f03b548206620df726f801a95689e313",
+  "pass": "Operator-authorized third bounded refinement",
+  "baseline": "1b7eebfe1ba28df52a9b74ed7aea7d3d1e39697b",
   "criticCalls": 3,
   "criticCap": 3,
   "target": 9,
-  "finalScore": 8.2,
+  "finalScore": 8.1,
   "scores": [
+    8.3,
     8.2,
-    8.0,
-    8.2
+    8.1
   ],
-  "criticContext": "Fresh isolated contexts, unchanged fixed prompt,13 product images +4 neutral references",
+  "criticContext": "Fresh isolated contexts, unchanged fixed prompt,13images, no source/history/target; no comparative reference images this pass",
   "remainingVisualGaps": [
-    "Recovery evidence column space allocation",
-    "Film diagram distinction between dock wait and replacement path"
+    "Dense supporting web text and visible synthetic workspace identifier",
+    "Deck bold headings differ from lighter film display type"
   ],
-  "disputedFinding": "Native queue heading clipping claimed by critics is not present in coordinator inspection of the exact immutable image.",
+  "disputedFinding": "Native queue heading clipping claimed by critics is absent in coordinator inspection of the exact immutable image.",
   "checks": {
-    "web": "Build/typecheck;10 focused tests pass,2 Firebase-configuration skips; keyboard/focus/disclosure/offline/responsive checks pass. Production truck route200, Google attribution visible, no browser errors.",
-    "native": "23 tests/typecheck; ARM64 and x86_64 standalone Android builds; iOS JavaScript export; final actual emulator driver/dispatcher views verified.",
-    "recovery": "Fresh design-polish-final synthetic delay/propose/approve/driver response eachHTTP200.",
-    "deck": "v9:13editable slides,13notes,13 rendered PDF pages inspected;zero package/layout findings.",
-    "film": "240.096s,1920x1080,24fps,H264/AAC;12final frames inspected;54ordered captions end239.92s;audio-16.06LUFS/-1.43dBTP. Full continuous browser playback ended with zero errors and dropped frames.",
-    "publication": "Movie,PDF,PPTX,SRT HTTP200 and exact localSHA256 matches"
+    "web": "Build/typecheck;10focused tests pass,2Firebase-configuration skips. Responsive/keyboard/focus/disclosure/offline checks pass. Direct cloud metadata verification confirms visible proof/nooverflow.",
+    "native": "Unchanged native source and APK; prior23tests/builds/emulator proof retained, emulator stillrunning. No new physical proof.",
+    "recovery": "Final design-pass3-final synthetic delay/propose/approve/driverresponse allHTTP200.",
+    "map": "Actual truckroute200; Googleattribution visible; no browsererrors.",
+    "deck": "v10:13editable slides/notes,13PDFpages inspected,zero package/layout findings;600s core + 300s appendix.",
+    "film": "240.096s1920x1080/24fps,H264/AAC;12framesinspected;54orderedcaptionslast239.92s. Fullplaybackendedwithzeroerrors/drops. Existingnarration/identicalnormalizationinputsretained.",
+    "publication": "Movie/PDF/PPTX/SRT HTTP200 and exactlocalSHA256matches; hostedChromeplayback200/noerrors."
   },
   "limits": [
-    "Physical Android/iPhone and native iOS deferred by operator",
-    "Human narration listening/live rehearsal pending",
-    "Final submission separate",
-    "No additional model usage or infrastructure provisioned"
+    "Confirmed detention completion-before-departure defect remains; seeREADME",
+    "HOS budgets/simulator/tracking gaps documented by independent panel; notfixedbydesignpass",
+    "Physicalphone/nativeiOS deferred byoperator",
+    "Humanlistening/live rehearsal pending",
+    "Finalsubmission separate",
+    "No newinfrastructure orpaidmodelusage"
   ],
   "preview": {
     "local": "http://localhost:5174",
     "web": "https://roadstar-web-739889188415.us-central1.run.app",
     "sourceVisibility": "PRIVATE",
-    "cloudRevision": "roadstar-web-00018-pxs"
+    "cloudRevision": "roadstar-web-00021-9hw"
   }
 }

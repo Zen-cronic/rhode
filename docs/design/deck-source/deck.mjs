@@ -65,8 +65,8 @@ body(s,'React dispatcher UI\nExpo driver execution',69,356,320,124,25);
 body(s,'Firebase identity\nCarrier membership\nValidated commands',486,356,340,124,25);
 body(s,'Versions\nReservations\nEvidence',923,356,285,124,25);
 s.shapes.add({geometry:'rect',position:{left:73,top:531,width:1134,height:1},fill:C.rule,line:{fill:'none',width:0}});
-txt(s,'PROPOSALS',65,552,560,32,18,true,C.muted);txt(s,'DOCUMENT FIELDS',696,552,510,32,18,true,C.muted);
-body(s,'OR-Tools + Valhalla',65,591,570,47,28,C.ink);body(s,'Gemini extraction',696,591,510,47,28,C.ink);
+txt(s,'Supporting capabilities used by the API',65,547,1120,42,23,true,C.muted);
+body(s,'Proposals: OR-Tools + Valhalla',65,595,618,43,25,C.ink);body(s,'Documents: Gemini extraction',696,595,510,43,25,C.ink);
 body(s,'Independent replay clock · Approval remains an explicit command.',65,651,1100,38,19);
 
 // 10. Measurement and practical limits get equal visual authority.

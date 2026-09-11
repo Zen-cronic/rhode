@@ -1,0 +1,51 @@
+{
+  "samples": [
+    {
+      "time": 47.901204,
+      "duration": 240.096,
+      "ended": false,
+      "readyState": 4,
+      "totalFrames": 1153,
+      "droppedFrames": 0,
+      "error": null
+    },
+    {
+      "time": 95.903918,
+      "duration": 240.096,
+      "ended": false,
+      "readyState": 4,
+      "totalFrames": 2306,
+      "droppedFrames": 0,
+      "error": null
+    },
+    {
+      "time": 143.906937,
+      "duration": 240.096,
+      "ended": false,
+      "readyState": 4,
+      "totalFrames": 3458,
+      "droppedFrames": 0,
+      "error": null
+    },
+    {
+      "time": 191.909471,
+      "duration": 240.096,
+      "ended": false,
+      "readyState": 4,
+      "totalFrames": 4610,
+      "droppedFrames": 0,
+      "error": null
+    },
+    {
+      "time": 239.911205,
+      "duration": 240.096,
+      "ended": false,
+      "readyState": 4,
+      "totalFrames": 5760,
+      "droppedFrames": 0,
+      "error": null
+    }
+  ],
+  "ended": true,
+  "errors": []
+}

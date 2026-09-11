@@ -1,0 +1,26 @@
+{
+  "status": "SCORED",
+  "score_out_of_10": 8.3,
+  "images_inspected": [
+    "deck-cover.png",
+    "deck-data.png",
+    "web-review.png",
+    "deck-architecture.png",
+    "native-review.png",
+    "web-mobile.png",
+    "film-diagram.png",
+    "film-native.png",
+    "film-title.png",
+    "native-queue.png",
+    "web-recovery.png",
+    "native-today.png",
+    "web-login.png"
+  ],
+  "largest_gaps": [
+    "Claimed native heading clipping",
+    "Small web secondary metadata",
+    "Uneven native film frame"
+  ],
+  "coordinator_response": "Exact native image re-opened: complete inset heading/subtitle are visible; clipping disputed. Web metadata and film framing receive bounded refinements.",
+  "context": "Fresh isolated pass3_critic_a, unchanged fixed prompt,13supplied images, no references/history/source/scoretarget."
+}

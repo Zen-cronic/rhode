@@ -1,0 +1,37 @@
+{
+  "desktop": {
+    "proof": "Truck-route timing screen passed\n138.9 km estimated deadhead · Valhalla modeled travel times",
+    "proofBounds": {
+      "top": 587.5,
+      "bottom": 627.734375,
+      "fullyVisible": true,
+      "pageWidth": 1440,
+      "viewportWidth": 1440
+    },
+    "selectorsInitiallyHidden": true
+  },
+  "mobile": {
+    "proof": "Truck-route timing screen passed\n138.9 km estimated deadhead · Valhalla modeled travel times",
+    "proofBounds": {
+      "top": 591.40625,
+      "bottom": 646.578125,
+      "fullyVisible": true,
+      "pageWidth": 390,
+      "viewportWidth": 390
+    },
+    "selectorsInitiallyHidden": true
+  },
+  "rehearsalSelectedLoad": true,
+  "rehearsalFocusInside": true,
+  "rehearsalFocusReturns": true,
+  "rehearsalOfflineDisabled": true,
+  "disclosureKeyboardOpens": true,
+  "routeEnabledOnline": true,
+  "routeDisabledOffline": true,
+  "realRouteEvidence": "RS-1043 · T-102\nTruck Route\n\n99 min · pickup → delivery\n\nSynthetic vehicle profile · 4.1 m high × 2.6 m wide × 23 m long\n\nGross weight 40 t · axle load 9 t · No hazardous goods declared\n\nRouting evidence\n\nRoute quality depends on OSM restriction coverage; not a legal clearance certificate",
+  "mapSurfaceVisible": true,
+  "mapHidesWithoutRemovingEvidence": true,
+  "disclosureKeyboardCloses": true,
+  "trackingViewVisible": true,
+  "errors": []
+}

@@ -1,0 +1,11 @@
+{
+  "status": "SCORED",
+  "score_out_of_10": 8.2,
+  "largest_gaps": [
+    "Claimed native heading clipping",
+    "Web supporting information remains small",
+    "Deck supporting capabilities visually detached"
+  ],
+  "coordinator_response": "Native clipping remains disputed on exactimage; retainedsourcefreeze forweb afterverifiedmetadatarefinement. Deck supporting relationship clarified before final review.",
+  "context": "Freshisolatedpass3_critic_b,unchangedfixedprompt,13images,nohistory/source/target."
+}

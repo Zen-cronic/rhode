@@ -589,22 +589,20 @@ export function App() {
                       )}
                       {!!historicalProposals.length && <details className="recovery-history"><summary>Earlier reviews · {historicalProposals.length}</summary>{historicalProposals.map(proposal => <Recovery key={proposal.id} proposal={proposal} state={state} onApprove={() => setApprove(proposal)} disabled={!online}/>)}</details>}
                       <details className="recovery-guidance"><summary>Approval & route checks</summary><p>Assignments change only after approval. Route evidence is checked separately.</p></details>
-                      <div className="section-footer">
-                        {state.loads
-                          .filter((l) => l.status !== "completed")
-                          .slice(0, 4)
-                          .map((l) => (
-                            <button
-                              key={l.id}
-                              onClick={() => setSelected(l)}
-                              disabled={!online}
-                            >
-                              Rehearse {l.id} →
-                            </button>
-                          ))}
-                      </div>
+                      <form className="section-footer rehearsal-selector" onSubmit={event => {
+                        event.preventDefault();
+                        const loadId = new FormData(event.currentTarget).get("loadId");
+                        const load = state.loads.find(item => item.id === loadId);
+                        if (load) setSelected(load);
+                      }}>
+                        <label htmlFor="rehearsal-load">Rehearse a load</label>
+                        <div><select id="rehearsal-load" name="loadId" defaultValue="" required disabled={!online}>
+                          <option value="" disabled>Choose load</option>
+                          {state.loads.filter(load => load.status !== "completed").map(load => <option key={load.id} value={load.id}>{load.id} · {load.customer}</option>)}
+                        </select><button disabled={!online}>Open rehearsal →</button></div>
+                      </form>
                     </section>
-                    <MapPanel state={state} session={session} compact />
+                    <MapPanel state={state} session={session} compact focusLoadId={featuredProposals[0]?.load_id} />
                   </div>
                   <LoadBoard
                     state={state}

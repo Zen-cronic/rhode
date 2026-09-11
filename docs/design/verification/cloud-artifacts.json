@@ -3,24 +3,24 @@
     "name": "roadstar-demo.mp4",
     "status": 200,
     "type": "video/mp4",
-    "bytes": 19630681,
-    "sha256": "d879bfcb9234eb83639c9c809781145d72353edfc81cef2f301d734915a8dbbc",
+    "bytes": 19752340,
+    "sha256": "329ebce920340ad1333be3d54f1c9285348331ca63de419c0a4c58aad8a77d3e",
     "matchesLocal": true
   },
   {
     "name": "roadstar-pitch.pdf",
     "status": 200,
     "type": "application/pdf",
-    "bytes": 641312,
-    "sha256": "0690770631d7971c38b9b3d08d98306781c41c9a2652a4d0b7d7bb97e3c39ce6",
+    "bytes": 643123,
+    "sha256": "eb8a84de25fe41212162815f9362f191f2f4e88fcbc8c659addfb29ab5bfee29",
     "matchesLocal": true
   },
   {
     "name": "roadstar-pitch.pptx",
     "status": 200,
     "type": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    "bytes": 4259500,
-    "sha256": "84bc4c6c2b3081fc64c7bc47e533ac5255d5730c706830696cdeff640cb47548",
+    "bytes": 4259655,
+    "sha256": "2e4f8d14ae13499a2a509e26efc27b9223bae9811c4c1549a46b6e0442c6fd1a",
     "matchesLocal": true
   },
   {

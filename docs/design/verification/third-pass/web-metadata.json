@@ -1,0 +1,57 @@
+{
+  "desktop": {
+    "proof": "Truck-route timing screen passed\n138.9 km estimated deadhead · Valhalla modeled travel times",
+    "proofBounds": {
+      "top": 585.40625,
+      "bottom": 625.640625,
+      "fullyVisible": true,
+      "pageWidth": 1440,
+      "viewportWidth": 1440
+    },
+    "selectorsInitiallyHidden": true
+  },
+  "mobile": {
+    "proof": "Truck-route timing screen passed\n138.9 km estimated deadhead · Valhalla modeled travel times",
+    "proofBounds": {
+      "top": 592.90625,
+      "bottom": 648.078125,
+      "fullyVisible": true,
+      "pageWidth": 390,
+      "viewportWidth": 390
+    },
+    "selectorsInitiallyHidden": true
+  },
+  "typography": {
+    ".topbar": {
+      "fontSize": "11px",
+      "lineHeight": "15px",
+      "color": "rgb(81, 89, 77)",
+      "letterSpacing": "normal"
+    },
+    ".workspace-label": {
+      "fontSize": "11px",
+      "lineHeight": "16px",
+      "color": "rgb(182, 189, 176)",
+      "letterSpacing": "0.6px"
+    },
+    ".decision-workbench>.panel-heading .eyebrow": {
+      "fontSize": "12px",
+      "lineHeight": "16px",
+      "color": "rgb(214, 180, 165)",
+      "letterSpacing": "0.4px"
+    },
+    ".decision-heading h2": {
+      "fontSize": "29px",
+      "lineHeight": "31.9px",
+      "color": "rgb(245, 243, 237)",
+      "letterSpacing": "-1px"
+    },
+    ".driver-choice>strong": {
+      "fontSize": "16px",
+      "lineHeight": "20.8px",
+      "color": "rgb(245, 243, 237)",
+      "letterSpacing": "-0.3px"
+    }
+  },
+  "offlineNoOverflow": true
+}

@@ -2,7 +2,7 @@
 
 The film uses the Precision transport identity: Manrope and IBM Plex Mono, graphite, ivory and signal orange. `motion.html` contains deterministic typography and explanatory route animations. Original studio artwork is illustrative; geographic route evidence appears only in actual app footage.
 
-`render-motion.mjs` requires an existing Playwright installation, Chrome and ffmpeg. It writes five 1920×1080, 24fps H.264 motion segments to `ROADSTAR_MOTION_OUTPUT` (default `/tmp/roadstar-motion`). No additional paid model provider is required.
+`render-motion.mjs` requires an existing Playwright installation, Chrome and ffmpeg. It writes five 1920×1080, 24fps H.264 motion segments to `ROADSTAR_MOTION_OUTPUT` (default `/tmp/roadstar-motion`). Set `ROADSTAR_MOTION_SCENE=problem` to render only one named scene. No additional paid model provider is required.
 
 `assemble.py` combines the five motion segments, authenticated synthetic workflow clips, an Android emulator recording and the existing narration WAVs. It writes a four-minute H.264/AAC movie and source/timing receipts, then normalizes audio to -16 LUFS with a -1.5 dBTP target. The motion segments must be under `<ROADSTAR_RENDER_WORK>/film`. Set `ROADSTAR_RENDER_WORK`, `ROADSTAR_CAPTURE`, `ROADSTAR_NATIVE_CLIP` and `ROADSTAR_SUBMISSION` as needed. The submission directory supplies `private-build/audio/<scene>.wav`. Licensed fonts and the ten scene descriptions are included here.
 
@@ -11,3 +11,5 @@ Capture inputs are full app viewports after authentication, with no altered UI v
 The ten segment durations remain unchanged, so the existing narration and sentence-level captions can be reused. Captions are approximately aligned within each beat; human listening and live presentation rehearsal remain final operator checks. Physical background-location and native iOS verification are explicitly disclosed as pending.
 
 The refined native composition uses the verified 26.30-second, 1080×2400 recording. `native_shots` in `assemble.py` records four source intervals and complete-card crops (Today, settled map, queue, Today); it omits the scroll transition and preserves every displayed value and map attribution. A replacement recording requires remeasuring these bounds and intervals. `native-composition.json` records the source and edits. Set `ROADSTAR_ONLY_SCENE=driver` for a focused render before full assembly.
+
+Native detail crops receive a consistent 12-pixel ivory frame before placement on the film canvas. The frame does not alter or mask application content.

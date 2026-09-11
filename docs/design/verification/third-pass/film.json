@@ -1,0 +1,30 @@
+{
+  "captions": 54,
+  "lastEnd": 239.92,
+  "duration": 240.096,
+  "ordered": true,
+  "framesInspected": [
+    "title",
+    "diagram",
+    "delay",
+    "approval",
+    "native",
+    "map",
+    "queue",
+    "evidence",
+    "planning",
+    "lineage",
+    "proof",
+    "close"
+  ],
+  "video": [
+    {
+      "codec_name": "h264",
+      "width": 1920,
+      "height": 1080,
+      "r_frame_rate": "24/1"
+    }
+  ],
+  "sha256": "329ebce920340ad1333be3d54f1c9285348331ca63de419c0a4c58aad8a77d3e",
+  "bytes": 19752340
+}

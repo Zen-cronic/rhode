@@ -15,7 +15,7 @@ if not only_scene or only_scene=='driver':
  native_shots=[(0,5.966667,'984:1272:48:544'),(7.2,14.966667,'984:1376:48:552'),(14.966667,22.966667,'984:1380:48:544'),(22.966667,26.3,'984:1272:48:544')]
  filters=[]
  for i,(start,end,crop) in enumerate(native_shots):
-  filters.append(f'[0:v]trim=start={start}:end={end},setpts=PTS-STARTPTS,crop={crop},scale=660:880:force_original_aspect_ratio=decrease,pad=1920:1080:1080:(1080-ih)/2:color=0x191B1D,setsar=1,fps=24[n{i}]')
+  filters.append(f'[0:v]trim=start={start}:end={end},setpts=PTS-STARTPTS,crop={crop},scale=660:880:force_original_aspect_ratio=decrease,pad=iw+24:ih+24:12:12:color=0xF5F3ED,pad=1920:1080:1080:(1080-ih)/2:color=0x191B1D,setsar=1,fps=24[n{i}]')
  filters.append(''.join(f'[n{i}]' for i in range(len(native_shots)))+'concat=n=4:v=1:a=0[out]')
  run(['-i',str(native_source),'-filter_complex',';'.join(filters),'-map','[out]','-an','-c:v','libx264','-preset','fast','-crf','18','-pix_fmt','yuv420p',str(native_composed)])
  sources['driver']=native_composed

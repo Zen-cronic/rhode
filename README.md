@@ -54,6 +54,10 @@ Evidence under `docs/evidence` includes cloud authentication/document extraction
 
 This is an implementation preview. HOS checks declared budgets and is not a certified ELD or comprehensive legal compliance calculation. OSM route restrictions are limited by source coverage. Consolidated optimization currently accepts synthetic trips with a disclosed26-pallet allowance; live use needs verified capacities. Consolidated trips require complete-manifest review for recovery.
 
+A September 11 review reproduced a detention lifecycle defect: completing delivery inside the facility marks the assignment completed, so the later departure telemetry is rejected and the visit remains open. That path needs repair before detention can be treated as complete. Existing arrival/departure-before-completion tests do not cover it.
+
+Recorded duty changes do not yet recompute declared HOS budgets. The simulator uses constant moving speed and an origin wait; large time advances can skip intermediate geofence samples. Native GPS has no odometer source and pauses retention when server authorization cannot be checked; historical trails need explicit gap segmentation. These are current implementation limits, not verified production capabilities. Dispatcher time savings and recovered revenue remain unmeasured.
+
 The measured131-driver cloud burst had zero failed commands but p95 acknowledgement-to-snapshot lag about5.4s; two-second polling is not a two-second delivery guarantee. The benchmark includes a burst barrier and disclosed warm-data conditions.
 
 Android ARM64/x86_64 standalone builds pass. API35 emulator verification passed Firebase login, satellite/truck routes, offline acceptance across force-stop/restart/reconnect, recovery approval and the four-stop consolidated manifest. Mobile has23 passing tests. Physical Android and native iOS testing are deferred because devices/Mac are unavailable. Background push is not configured. Satellite tiles are not an offline navigation cache. Invoice approval preserves a reviewed revision; it does not collect payment. GPS uncertainty is never silently promoted to an authoritative billing timestamp.

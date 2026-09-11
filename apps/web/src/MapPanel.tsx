@@ -27,10 +27,12 @@ export function MapPanel({
   state,
   session,
   compact = false,
+  focusLoadId,
 }: {
   state: State;
   session: Session;
   compact?: boolean;
+  focusLoadId?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null),
     map = useRef<google.maps.Map | null>(null);
@@ -180,6 +182,9 @@ export function MapPanel({
       line.setMap(null);
     };
   }, [mapReady, route.data, route.isError, route.isFetching]);
+  const contextLoad = compact ? state.loads.find(load => load.id === focusLoadId) : undefined;
+  const scheduleTime = (at: string) => new Date(at).toLocaleTimeString("en-CA", { timeZone: "America/Toronto", hour: "numeric", minute: "2-digit" });
+  const scheduleDate = (at: string) => new Date(at).toLocaleDateString("en-CA", { timeZone: "America/Toronto", month: "short", day: "numeric" });
   const routeForm = (
       <form
         className="route-form"
@@ -245,7 +250,15 @@ export function MapPanel({
         <h2>{compact ? "Route evidence" : "Fleet geography"}</h2>
         <span className="tag">Ontario</span>
       </div>
-      {compact && <p className="route-inspector-intro">Routing evidence stays with each proposal. Explore the geography when needed.</p>}
+      {compact && (contextLoad ? <div className="route-context">
+        <div className="route-context-heading"><strong>{contextLoad.id}</strong><span>{contextLoad.mode} · {contextLoad.equipment}</span></div>
+        <p className="route-customer">{contextLoad.customer}</p>
+        <ol className="route-stop-list" aria-label="Recorded load stops">
+          <li><span>Pickup</span><strong>{contextLoad.pickup.name}</strong></li>
+          <li><span>Delivery</span><strong>{contextLoad.delivery.name}</strong></li>
+        </ol>
+        <dl className="route-context-facts"><div><dt>Load schedule · ET</dt><dd>{scheduleDate(contextLoad.startAt)} · {scheduleTime(contextLoad.startAt)}–{scheduleDate(contextLoad.endAt) !== scheduleDate(contextLoad.startAt) ? `${scheduleDate(contextLoad.endAt)} ` : ""}{scheduleTime(contextLoad.endAt)}</dd></div><div><dt>Recorded cargo</dt><dd>{contextLoad.weightLb === null ? "Weight unverified" : `${contextLoad.weightLb.toLocaleString("en-CA")} lb`} · {contextLoad.pallets} pallets</dd></div></dl>
+      </div> : <p className="route-inspector-intro">Choose a load and vehicle to inspect its route and restrictions.</p>)}
       {compact ? <details className="route-selector-disclosure">
         <summary>Inspect a truck route</summary>
         <p>Choose a load and vehicle to inspect its route and restrictions.</p>

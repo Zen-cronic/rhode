@@ -1,0 +1,225 @@
+[
+  {
+    "name": "01-dock-delay",
+    "carrier": "design-pass3-final",
+    "commands": [
+      {
+        "path": "delay",
+        "status": 200,
+        "request": {
+          "assignmentId": "6e5a0ce3-f9b1-49d9-a651-08034f2d99d9",
+          "expectedEnd": "2026-09-13T17:30:00.000Z",
+          "observedAt": "2026-09-13T12:00:00+00:00",
+          "reason": "Dock departure delayed"
+        },
+        "result": {
+          "id": "ac2d2359-fc63-4d96-8590-4eef85ccdb44",
+          "assignmentId": "6e5a0ce3-f9b1-49d9-a651-08034f2d99d9",
+          "expectedEnd": "2026-09-13T17:30:00.000Z",
+          "impactedLoads": [
+            {
+              "id": "e635e98c-5d6d-4f84-a25a-0c817f26b052",
+              "load_id": "RS-1043",
+              "start_at": "2026-09-13T16:15:00.000Z",
+              "end_at": "2026-09-13T19:00:00.000Z"
+            }
+          ],
+          "provenance": "synthetic",
+          "status": "awaiting_recovery",
+          "note": "Observed delay retained; planned reservations remain visible until a feasible recovery is approved."
+        }
+      },
+      {
+        "path": "propose",
+        "status": 200,
+        "request": {
+          "loadId": "RS-1043",
+          "driverId": "D-02",
+          "truckId": "T-102",
+          "trailerId": "V-102",
+          "reason": "Dock departure delayed; review next-load coverage."
+        },
+        "result": {
+          "id": "29f6e0f8-9677-4b6d-b63e-f57f65f9e861",
+          "revision": 1,
+          "status": "pending",
+          "loadId": "RS-1043",
+          "body": {
+            "loadId": "RS-1043",
+            "driverId": "D-02",
+            "truckId": "T-102",
+            "trailerId": "V-102",
+            "reason": "Dock departure delayed; review next-load coverage.",
+            "currentAssignmentId": "e635e98c-5d6d-4f84-a25a-0c817f26b052",
+            "currentAssignmentVersion": 1,
+            "resources": [
+              {
+                "id": "D-02",
+                "version": 1
+              },
+              {
+                "id": "T-102",
+                "version": 1
+              },
+              {
+                "id": "V-102",
+                "version": 1
+              }
+            ],
+            "proof": {
+              "eligible": true,
+              "reasons": [],
+              "deadheadKm": 138.9,
+              "note": "Truck-route travel times with declared work budgets. OSM restrictions and supplied dimensions require review; not certified ELD or legal clearance.",
+              "routeFingerprint": "59fb75e1c6c913adbbfe6776e0598c2e5cfca4fd3ee6eade464d3f1361dc1118",
+              "routingEvidence": "valhalla-truck"
+            },
+            "assumptions": [
+              "Declared HOS budgets",
+              "Valhalla truck route with supplied dimensions; OSM restriction coverage applies"
+            ]
+          }
+        }
+      }
+    ],
+    "marks": [
+      {
+        "label": "slice_start",
+        "wallSeconds": 6.835
+      },
+      {
+        "label": "delay_observation_form",
+        "wallSeconds": 8.916
+      },
+      {
+        "label": "delay_request",
+        "wallSeconds": 12.918
+      },
+      {
+        "label": "delay_response",
+        "wallSeconds": 13.098
+      },
+      {
+        "label": "next_load_at_risk",
+        "wallSeconds": 13.301
+      },
+      {
+        "label": "replacement_selected",
+        "wallSeconds": 17.437
+      },
+      {
+        "label": "propose_request",
+        "wallSeconds": 22.438
+      },
+      {
+        "label": "propose_response",
+        "wallSeconds": 22.921
+      },
+      {
+        "label": "slice_end",
+        "wallSeconds": 32.135
+      }
+    ]
+  },
+  {
+    "name": "02-recovery-approval",
+    "carrier": "design-pass3-final",
+    "commands": [
+      {
+        "path": "approve",
+        "status": 200,
+        "request": {
+          "proposalId": "29f6e0f8-9677-4b6d-b63e-f57f65f9e861"
+        },
+        "result": {
+          "proposalId": "29f6e0f8-9677-4b6d-b63e-f57f65f9e861",
+          "assignment": {
+            "id": "45722019-fc2d-409b-b096-64ceb07a0710",
+            "loadId": "RS-1043",
+            "driverId": "D-02",
+            "truckId": "T-102",
+            "trailerId": "V-102",
+            "startAt": "2026-09-13T16:15:00.000Z",
+            "endAt": "2026-09-13T19:00:00.000Z",
+            "status": "offered",
+            "version": 1
+          },
+          "status": "approved"
+        }
+      }
+    ],
+    "marks": [
+      {
+        "label": "slice_start",
+        "wallSeconds": 6.716
+      },
+      {
+        "label": "explicit_approval_review",
+        "wallSeconds": 11.804
+      },
+      {
+        "label": "approve_request",
+        "wallSeconds": 19.922
+      },
+      {
+        "label": "approve_response",
+        "wallSeconds": 20.281
+      },
+      {
+        "label": "approved_replacement",
+        "wallSeconds": 20.665
+      },
+      {
+        "label": "slice_end",
+        "wallSeconds": 33.665
+      }
+    ]
+  },
+  {
+    "name": "03-driver-acceptance",
+    "carrier": "design-pass3-final",
+    "commands": [
+      {
+        "path": "respond",
+        "status": 200,
+        "request": {
+          "assignmentId": "45722019-fc2d-409b-b096-64ceb07a0710",
+          "action": "accept"
+        },
+        "result": {
+          "id": "45722019-fc2d-409b-b096-64ceb07a0710",
+          "loadId": "RS-1043",
+          "driverId": "D-02",
+          "truckId": "T-102",
+          "trailerId": "V-102",
+          "startAt": "2026-09-13T16:15:00.000Z",
+          "endAt": "2026-09-13T19:00:00.000Z",
+          "status": "accepted",
+          "version": 2
+        }
+      }
+    ],
+    "marks": [
+      {
+        "label": "slice_start",
+        "wallSeconds": 7.001
+      },
+      {
+        "label": "respond_request",
+        "wallSeconds": 14.055
+      },
+      {
+        "label": "respond_response",
+        "wallSeconds": 14.256
+      },
+      {
+        "label": "driver_accepted",
+        "wallSeconds": 14.445
+      },
+      {
+        "label": "slice_end",
+        "wallSeconds": 33.503
+      }
+    ]
+  }
+]

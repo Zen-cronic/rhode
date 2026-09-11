@@ -1,0 +1,55 @@
+{
+  "revision": "v10",
+  "date": "2026-09-11",
+  "slides": 13,
+  "speakerNotes": 13,
+  "nativeTables": 1,
+  "pdfPages": 13,
+  "coreSeconds": 600,
+  "appendixSeconds": 300,
+  "sourceRowSum": 15197,
+  "artifactRenderInspectedSlides": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "pdfRenderInspectedPages": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "visualFindings": [],
+  "structuralReceipt": "build/validation-v10.json",
+  "provenanceReceipt": "build/assets-receipt.json",
+  "nativePowerPointExecutionVerified": false,
+  "files": {
+    "/tmp/roadstar-pass3/deck/output/roadstar-precision-v10.pptx": {
+      "sha256": "2e4f8d14ae13499a2a509e26efc27b9223bae9811c4c1549a46b6e0442c6fd1a",
+      "bytes": 4259655
+    },
+    "/tmp/roadstar-pass3/deck/output/roadstar-precision-v10.pdf": {
+      "sha256": "eb8a84de25fe41212162815f9362f191f2f4e88fcbc8c659addfb29ab5bfee29",
+      "bytes": 643123
+    }
+  }
+}

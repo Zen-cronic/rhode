@@ -1,0 +1,13 @@
+{
+  "login": {
+    "status": 200,
+    "width": 1440
+  },
+  "video": {
+    "time": 6.962303,
+    "duration": 240.096,
+    "readyState": 4,
+    "error": null
+  },
+  "errors": []
+}
