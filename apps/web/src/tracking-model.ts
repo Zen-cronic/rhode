@@ -57,7 +57,8 @@ export function trackingDistance(points:TrackingPoint[]) {
     // Avoid counting stationary jitter inside the samples' combined uncertainty.
     if(chord>((a.accuracyM??0)+(b.accuracyM??0))/1000){gpsChordKm+=chord;gpsIntervals++;}
   }
-  return {odometerKm:odometerIntervals?odometerKm:null,gpsChordKm,gpsIntervals,odometerIntervals,missingOdometerIntervals,segments:trails.length,linkedIntervals:trails.reduce((n,t)=>n+Math.max(0,t.length-1),0)};
+  const linkedIntervals=trails.reduce((n,t)=>n+Math.max(0,t.length-1),0);
+  return {odometerKm:odometerIntervals?odometerKm:null,gpsChordKm:linkedIntervals?gpsChordKm:null,gpsIntervals,odometerIntervals,missingOdometerIntervals,segments:trails.length,linkedIntervals};
 }
 export function sampleNumber(value: number | null | undefined, unit: string): string {
   return typeof value==='number'&&Number.isFinite(value)?`${new Intl.NumberFormat('en-CA',{maximumFractionDigits:2}).format(value)} ${unit}`:'Unknown';

@@ -34,3 +34,5 @@ test('distance excludes gaps, resets and missing odometers and does not sum stat
  assert.equal(trackingDistance([point('1'),point('2')]).odometerKm,null);assert.equal(trackingDistance([point('1'),point('2')]).gpsChordKm,0);
  assert.equal(trackingDistance([a,{...b,odometerKm:200}]).odometerKm,null);
 });
+
+test('isolated samples cannot imply zero GPS distance',()=>{assert.equal(trackingDistance([point('1')]).gpsChordKm,null);assert.equal(trackingDistance([]).gpsChordKm,null);assert.equal(trackingDistance([point('1'),{...point('2'),at:'2026-09-13T13:00:00Z'}]).gpsChordKm,null);});
