@@ -1,0 +1,199 @@
+{
+  "carrier": "hos-review-cloud-20260911",
+  "preview": {
+    "driverId": "D-01",
+    "expectedVersion": 2,
+    "profile": {
+      "ruleset": "federal-south-60-solo-ordinary-v1",
+      "cycle": 1,
+      "dayAnchor": "2026-09-13T04:00:00.000Z",
+      "timeZone": "America/Toronto",
+      "exceptions": [],
+      "history": [
+        {
+          "start": "2026-08-28T04:00:00.000Z",
+          "end": "2026-09-07T12:00:00.000Z",
+          "duty": "off_duty",
+          "source": "synthetic-cycle-exhausted.csv:row-2"
+        },
+        {
+          "start": "2026-09-07T12:00:00.000Z",
+          "end": "2026-09-08T00:00:00.000Z",
+          "duty": "on_duty",
+          "source": "synthetic-cycle-exhausted.csv:row-3"
+        },
+        {
+          "start": "2026-09-08T00:00:00.000Z",
+          "end": "2026-09-08T12:00:00.000Z",
+          "duty": "off_duty",
+          "source": "synthetic-cycle-exhausted.csv:row-4"
+        },
+        {
+          "start": "2026-09-08T12:00:00.000Z",
+          "end": "2026-09-09T00:00:00.000Z",
+          "duty": "on_duty",
+          "source": "synthetic-cycle-exhausted.csv:row-5"
+        },
+        {
+          "start": "2026-09-09T00:00:00.000Z",
+          "end": "2026-09-09T12:00:00.000Z",
+          "duty": "off_duty",
+          "source": "synthetic-cycle-exhausted.csv:row-6"
+        },
+        {
+          "start": "2026-09-09T12:00:00.000Z",
+          "end": "2026-09-10T00:00:00.000Z",
+          "duty": "on_duty",
+          "source": "synthetic-cycle-exhausted.csv:row-7"
+        },
+        {
+          "start": "2026-09-10T00:00:00.000Z",
+          "end": "2026-09-10T12:00:00.000Z",
+          "duty": "off_duty",
+          "source": "synthetic-cycle-exhausted.csv:row-8"
+        },
+        {
+          "start": "2026-09-10T12:00:00.000Z",
+          "end": "2026-09-11T00:00:00.000Z",
+          "duty": "on_duty",
+          "source": "synthetic-cycle-exhausted.csv:row-9"
+        },
+        {
+          "start": "2026-09-11T00:00:00.000Z",
+          "end": "2026-09-11T12:00:00.000Z",
+          "duty": "off_duty",
+          "source": "synthetic-cycle-exhausted.csv:row-10"
+        },
+        {
+          "start": "2026-09-11T12:00:00.000Z",
+          "end": "2026-09-12T00:00:00.000Z",
+          "duty": "on_duty",
+          "source": "synthetic-cycle-exhausted.csv:row-11"
+        },
+        {
+          "start": "2026-09-12T00:00:00.000Z",
+          "end": "2026-09-12T12:00:00.000Z",
+          "duty": "off_duty",
+          "source": "synthetic-cycle-exhausted.csv:row-12"
+        },
+        {
+          "start": "2026-09-12T12:00:00.000Z",
+          "end": "2026-09-13T00:00:00.000Z",
+          "duty": "on_duty",
+          "source": "synthetic-cycle-exhausted.csv:row-13"
+        },
+        {
+          "start": "2026-09-13T00:00:00.000Z",
+          "end": "2026-09-13T12:00:00.000Z",
+          "duty": "off_duty",
+          "source": "synthetic-cycle-exhausted.csv:row-14"
+        }
+      ]
+    },
+    "sourceSha256": "e422f9b31bf2a411df7bbde26883ed76dbe47247bc757f095c0cfd1d8c83c4a9",
+    "budget": {
+      "drivingMinutes": 780,
+      "onDutyMinutes": 840,
+      "shiftMinutes": 840,
+      "cycleMinutes": 0
+    },
+    "budgetAsOf": "2026-09-13T12:00:00.000Z",
+    "hosEvidence": {
+      "status": "modeled",
+      "profile": "federal-south-60-solo-ordinary-v1",
+      "cycle": 1,
+      "historyFrom": "2026-08-28T04:00:00.000Z",
+      "historyThrough": "2026-09-13T12:00:00.000Z",
+      "dayStart": "2026-09-13T04:00:00.000Z",
+      "dayEnd": "2026-09-14T04:00:00.000Z",
+      "shiftStart": "2026-09-13T12:00:00.000Z",
+      "shiftDeadline": "2026-09-14T02:00:00.000Z",
+      "dayDrivingMinutes": 0,
+      "dayOnDutyMinutes": 0,
+      "shiftDrivingMinutes": 0,
+      "shiftOnDutyMinutes": 0,
+      "cycleOnDutyMinutes": 4320,
+      "onDutySince24HourRestMinutes": 4320,
+      "dailyRestRemainingMinutes": 120,
+      "certifiedELD": false,
+      "note": "Ordinary federal solo south-of-60 planning profile. Fixed 24-hour operator days; no exceptions, sleeper split or automatic cycle reset. Tail-eight-hour core-rest allocation is conservative. Future plans stop at the current day/rest horizon; not certified ELD or a retrospective compliance certificate."
+    }
+  },
+  "reviewed": {
+    "driverId": "D-01",
+    "version": 3,
+    "revision": 2,
+    "sourceSha256": "e422f9b31bf2a411df7bbde26883ed76dbe47247bc757f095c0cfd1d8c83c4a9",
+    "budget": {
+      "drivingMinutes": 780,
+      "onDutyMinutes": 840,
+      "shiftMinutes": 840,
+      "cycleMinutes": 0
+    },
+    "hosEvidence": {
+      "status": "modeled",
+      "profile": "federal-south-60-solo-ordinary-v1",
+      "cycle": 1,
+      "historyFrom": "2026-08-28T04:00:00.000Z",
+      "historyThrough": "2026-09-13T12:00:00.000Z",
+      "dayStart": "2026-09-13T04:00:00.000Z",
+      "dayEnd": "2026-09-14T04:00:00.000Z",
+      "shiftStart": "2026-09-13T12:00:00.000Z",
+      "shiftDeadline": "2026-09-14T02:00:00.000Z",
+      "dayDrivingMinutes": 0,
+      "dayOnDutyMinutes": 0,
+      "shiftDrivingMinutes": 0,
+      "shiftOnDutyMinutes": 0,
+      "cycleOnDutyMinutes": 4320,
+      "onDutySince24HourRestMinutes": 4320,
+      "dailyRestRemainingMinutes": 120,
+      "certifiedELD": false,
+      "note": "Ordinary federal solo south-of-60 planning profile. Fixed 24-hour operator days; no exceptions, sleeper split or automatic cycle reset. Tail-eight-hour core-rest allocation is conservative. Future plans stop at the current day/rest horizon; not certified ELD or a retrospective compliance certificate.",
+      "revision": 2,
+      "sourceRef": "synthetic-cycle-exhausted.csv",
+      "reviewedBy": "preview-dispatcher"
+    }
+  },
+  "rejection": {
+    "error": {
+      "code": "INELIGIBLE",
+      "message": "Insufficient cycle budget.",
+      "requestId": "req-41"
+    }
+  },
+  "driverSnapshot": {
+    "budget": {
+      "drivingMinutes": 780,
+      "onDutyMinutes": 840,
+      "shiftMinutes": 840,
+      "cycleMinutes": 0
+    },
+    "hosEvidence": {
+      "status": "modeled",
+      "profile": "federal-south-60-solo-ordinary-v1",
+      "cycle": 1,
+      "historyFrom": "2026-08-28T04:00:00.000Z",
+      "historyThrough": "2026-09-13T12:00:00.000Z",
+      "dayStart": "2026-09-13T04:00:00.000Z",
+      "dayEnd": "2026-09-14T04:00:00.000Z",
+      "shiftStart": "2026-09-13T12:00:00.000Z",
+      "shiftDeadline": "2026-09-14T02:00:00.000Z",
+      "dayDrivingMinutes": 0,
+      "dayOnDutyMinutes": 0,
+      "shiftDrivingMinutes": 0,
+      "shiftOnDutyMinutes": 0,
+      "cycleOnDutyMinutes": 4320,
+      "onDutySince24HourRestMinutes": 4320,
+      "dailyRestRemainingMinutes": 120,
+      "certifiedELD": false,
+      "note": "Ordinary federal solo south-of-60 planning profile. Fixed 24-hour operator days; no exceptions, sleeper split or automatic cycle reset. Tail-eight-hour core-rest allocation is conservative. Future plans stop at the current day/rest horizon; not certified ELD or a retrospective compliance certificate.",
+      "revision": 2,
+      "sourceRef": "synthetic-cycle-exhausted.csv",
+      "reviewedBy": "preview-dispatcher"
+    }
+  },
+  "sourceRetainedExactly": true,
+  "idempotentRetry": true,
+  "driverReviewDenied": true,
+  "errors": []
+}

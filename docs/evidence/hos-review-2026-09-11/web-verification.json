@@ -1,0 +1,15 @@
+{
+  "fixture": {
+    "carrier": "hos-review-1789149302477"
+  },
+  "productionBuild": true,
+  "overflow": false,
+  "errors": [],
+  "assertions": [
+    "modeled CSV preview",
+    "dispatcher approval persists revision",
+    "exact reviewed source downloads",
+    "390px incomplete acknowledgment gate",
+    "driver switch clears source file"
+  ]
+}
