@@ -1,3 +1,5 @@
+import {visitTimeReview,correctVisitTimes} from './visit-time-review.ts';
+import {latestVisitTime,validateVisitTime,visitTimeConflicts} from './visit-time-evidence.ts';
 import {fenceConfidence,VISIT_SESSION_POLICY} from '../../../packages/domain/src/geofence.ts';
 import {visitReview,applyVisitReview} from './visit-reconciliation.ts';
 import {closureAreas,requireReviewedClosure,routeRevisionProof} from './closures.ts';
@@ -302,6 +304,8 @@ export class Store {
     }
     return {duplicate:false,disposition};
   });}
+  async visitTimeReview(a:Actor,visitId:string){this.dispatcher(a);const c=await this.db.connect();try{await c.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');const result=await visitTimeReview(c,a.carrierId,visitId);await c.query('COMMIT');return result;}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}
+  correctVisitTimes(a:Actor,cmd:Command,input:Row){this.dispatcher(a);return this.command(a,cmd,'visit.times_reviewed',input,c=>correctVisitTimes(c,a,cmd,input));}
   async visitReview(a:Actor,assignmentId:string){this.dispatcher(a);const c=await this.db.connect();try{await c.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');const result=await visitReview(c,a.carrierId,assignmentId);await c.query('COMMIT');return result;}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}
   reconcileVisits(a:Actor,cmd:Command,input:Row){this.dispatcher(a);return this.command(a,cmd,'visits.reconciled',input,c=>applyVisitReview(c,a,cmd,input));}
   detentionDraft(a:Actor,cmd:Command,input:Row){this.dispatcher(a);return this.command(a,cmd,'invoice.drafted',input,async c=>{
@@ -394,8 +398,12 @@ export class Store {
     const contract=(await c.query('SELECT * FROM contracts WHERE carrier_id=$1 AND id=$2',[a.carrierId,invoice.contract_id])).rows[0];demand(contract.version===invoice.contract_version,'STALE_CONTRACT','Contract changed. Generate a new draft.');
     const visit=(await c.query('SELECT * FROM stop_visits WHERE carrier_id=$1 AND id=$2',[a.carrierId,invoice.visit_id])).rows[0];demand(visit.departure&&!visit.superseded_by&&JSON.stringify([visit.arrival_event,visit.departure_event])===JSON.stringify(invoice.body.evidence),'STALE_EVIDENCE','Visit evidence changed.');
     demand(!(await c.query('SELECT visit_review_required FROM assignments WHERE carrier_id=$1 AND id=$2',[a.carrierId,visit.assignment_id])).rows[0].visit_review_required,'VISIT_REVIEW_REQUIRED','Late GPS evidence requires visit reconciliation before billing approval.');
+    const correction=await latestVisitTime(c,a.carrierId,visit.id);await validateVisitTime(c,a.carrierId,visit,correction);
+    demand((correction?.id??null)===(invoice.body.timingEvidence?.correctionId??null),'STALE_TIME_EVIDENCE','Corrected visit times changed. Generate a new draft.');
+    demand(!(await visitTimeConflicts(c,a.carrierId,visit,correction)).length,'VISIT_OVERLAP','Corrected times overlap another observed visit. Review the conflict before billing approval.');
+    if(correction)demand(input.acknowledgeCorrectedTimes===true,'REVIEW_REQUIRED','Explicitly review the corrected document times as well as original GPS evidence.');
     demand(input.acknowledgeObservedSamples===true&&String(input.evidenceNote).length>=20,'REVIEW_REQUIRED','Explicit review of observed GPS samples and configured terms is required.');
-    const id=randomUUID(),revision=latest+1,body={...invoice.body,requiresEvidenceReview:false,review:{reviewedBy:a.uid,recordedAt:new Date().toISOString(),note:input.evidenceNote,acknowledgeObservedSamples:true,previousRevisionId:invoice.id},precision:'observed_samples'};
+    const id=randomUUID(),revision=latest+1,body={...invoice.body,...(invoice.body.timingConflicts?{timingConflictReview:{remainingConflicts:[],checkedAt:new Date().toISOString()}}:{}),requiresEvidenceReview:false,review:{reviewedBy:a.uid,recordedAt:new Date().toISOString(),note:input.evidenceNote,acknowledgeObservedSamples:true,previousRevisionId:invoice.id},precision:invoice.body.precision};
     await c.query("INSERT INTO invoice_revisions(carrier_id,id,visit_id,revision,contract_id,contract_version,status,body,approved_by) VALUES($1,$2,$3,$4,$5,$6,'approved',$7,$8)",[a.carrierId,id,invoice.visit_id,revision,contract.id,contract.version,JSON.stringify(body),a.uid]);return {id,revision,status:'approved',...body};
   });}
   facilityNote(a:Actor,cmd:Command,input:Row){this.dispatcher(a);return this.command(a,cmd,'facility.instructions_reviewed',input,async c=>{
