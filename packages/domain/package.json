@@ -6,7 +6,9 @@
   "exports": {
     ".": "./src/index.ts",
     "./commands": "./src/commands.ts",
-    "./tracking": "./src/tracking.ts"
+    "./tracking": "./src/tracking.ts",
+    "./hos-profile": "./src/hos-profile.ts",
+    "./hos-import": "./src/hos-import.ts"
   },
   "dependencies": {
     "zod": "^4.0.0"
