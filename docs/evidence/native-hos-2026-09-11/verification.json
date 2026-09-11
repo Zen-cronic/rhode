@@ -1,0 +1,22 @@
+{
+  "date": "2026-09-11",
+  "device": "API35 emulator-5556",
+  "apkSha256": "1900cdb97c4f4e7f6679fa6e47657b0e51fc964a835586b011983da817dd0b72",
+  "tests": {
+    "native": 32,
+    "failed": 0,
+    "skipped": 0,
+    "typecheck": "passed",
+    "releaseBuild": "passed"
+  },
+  "carrier": "hos-review-cloud-20260911",
+  "driver": "D-01",
+  "reviewedRevision": 2,
+  "offlineForceStopRetainedSnapshot": true,
+  "offlineWarningVisible": true,
+  "nativeDutyEventCount": 1,
+  "nativeDutyOccurrence": "2026-09-13T12:00:00Z",
+  "cycleMinutesAfterDuty": 0,
+  "physicalDeviceVerified": false,
+  "iosVerified": false
+}

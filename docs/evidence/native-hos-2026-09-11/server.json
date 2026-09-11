@@ -1,0 +1,58 @@
+{
+  "driver": {
+    "id": "D-01",
+    "duty": "on_duty",
+    "name": "Alex Chen · demo",
+    "budget": {
+      "drivingMinutes": 780,
+      "onDutyMinutes": 840,
+      "shiftMinutes": 840,
+      "cycleMinutes": 0
+    },
+    "position": {
+      "id": "milton-yard",
+      "lat": 43.5183,
+      "lng": -79.8774,
+      "name": "Milton terminal · demo location",
+      "radiusM": 200
+    },
+    "budgetAsOf": "2026-09-13T12:00:00.000Z",
+    "provenance": "synthetic",
+    "hosEvidence": {
+      "status": "modeled",
+      "profile": "federal-south-60-solo-ordinary-v1",
+      "cycle": 1,
+      "historyFrom": "2026-08-28T04:00:00.000Z",
+      "historyThrough": "2026-09-13T12:00:00.000Z",
+      "dayStart": "2026-09-13T04:00:00.000Z",
+      "dayEnd": "2026-09-14T04:00:00.000Z",
+      "shiftStart": "2026-09-13T12:00:00.000Z",
+      "shiftDeadline": "2026-09-14T02:00:00.000Z",
+      "dayDrivingMinutes": 0,
+      "dayOnDutyMinutes": 0,
+      "shiftDrivingMinutes": 0,
+      "shiftOnDutyMinutes": 0,
+      "cycleOnDutyMinutes": 4320,
+      "onDutySince24HourRestMinutes": 4320,
+      "dailyRestRemainingMinutes": 120,
+      "certifiedELD": false,
+      "note": "Ordinary federal solo south-of-60 planning profile. Fixed 24-hour operator days; no exceptions, sleeper split or automatic cycle reset. Tail-eight-hour core-rest allocation is conservative. Future plans stop at the current day/rest horizon; not certified ELD or a retrospective compliance certificate.",
+      "revision": 2,
+      "sourceRef": "synthetic-cycle-exhausted.csv",
+      "reviewedBy": "preview-dispatcher"
+    },
+    "kind": "driver",
+    "version": 4
+  },
+  "dutyEvents": [
+    {
+      "at": "2026-09-13T12:00:00+00:00",
+      "id": "3de31bf1-bf7c-491b-b8ee-3d4bbcd0d116",
+      "duty": "on_duty",
+      "note": "",
+      "driver_id": "D-01",
+      "carrier_id": "hos-review-cloud-20260911"
+    }
+  ],
+  "scenarios": []
+}
