@@ -11,7 +11,7 @@ export type TrackingPoint = {
   provenance: string;
   disposition: string;
   timestampConflict?: boolean;
-  geofenceEvidence?: {status: "ambiguous"; policy: string; stopIds: string[]; reason: string} | null;
+  geofenceEvidence?: {status: "ambiguous" | "evaluated"; policy: string; stopIds: string[]; reason: string; sessionPolicy?: string; stopStates?: {stopId:string;confidence:"inside"|"outside"|"boundary"|"uncertain";distanceM:number;radiusM:number}[]} | null;
 };
 export type TrackingPage = {assignmentId:string;serverTime?:string;clientReceivedAt?:number;latestReceivedAt?:string|null;points:TrackingPoint[];nextBefore?:string|null};
 export function validPosition(point: TrackingPoint): boolean {

@@ -1,3 +1,4 @@
+import {fenceConfidence,VISIT_SESSION_POLICY} from '../../../packages/domain/src/geofence.ts';
 import {visitReview,applyVisitReview} from './visit-reconciliation.ts';
 import {closureAreas,requireReviewedClosure,routeRevisionProof} from './closures.ts';
 import {hosReviewSchema,importedHosProfile,type HosReviewInput} from '../../../packages/domain/src/hos-import.ts';
@@ -288,9 +289,10 @@ export class Store {
     // Keep location/duty usable and retain the ambiguity separately from raw telemetry.
     const possibleStops=stops.rows.filter(stop=>Number(stop.distance)-event.accuracyM<=stop.radius_m);
     const ambiguous=possibleStops.length>1;
-    if(ambiguous)await c.query('UPDATE telemetry SET geofence_evidence=$3 WHERE carrier_id=$1 AND id=$2',[a.carrierId,event.id,JSON.stringify({status:'ambiguous',policy:'unique-possible-trip-stop-v1',stopIds:possibleStops.map(stop=>stop.id).sort(),reason:'GPS accuracy overlaps multiple trip stops. No new arrival established; review facility identity.'})]);
+    const stopStates=stops.rows.map(stop=>({stopId:stop.id,confidence:fenceConfidence(Number(stop.distance),event.accuracyM,Number(stop.radius_m)),distanceM:Number(stop.distance),radiusM:Number(stop.radius_m)}));
+    await c.query('UPDATE telemetry SET geofence_evidence=$3 WHERE carrier_id=$1 AND id=$2',[a.carrierId,event.id,JSON.stringify({status:ambiguous?'ambiguous':'evaluated',policy:'unique-possible-trip-stop-v1',sessionPolicy:VISIT_SESSION_POLICY,stopIds:possibleStops.map(stop=>stop.id).sort(),stopStates,reason:ambiguous?'GPS accuracy overlaps multiple trip stops. No new arrival established; review facility identity.':'Boundary uncertainty holds prior visit state. Confident exit and return form separate visits; no grace period.'})]);
     for(const stop of stops.rows){
-      const inside=!ambiguous&&Number(stop.distance)+event.accuracyM<stop.radius_m,outside=Number(stop.distance)-event.accuracyM>stop.radius_m;
+      const confidence=fenceConfidence(Number(stop.distance),event.accuracyM,Number(stop.radius_m)),inside=!ambiguous&&confidence==='inside',outside=confidence==='outside';
       const r=await c.query('SELECT * FROM stop_visits WHERE carrier_id=$1 AND assignment_id=$2 AND stop_id=$3 AND departure IS NULL AND superseded_by IS NULL',[a.carrierId,v.id,stop.id]);const visit=r.rows[0];
       if(v.status==='accepted'&&inside&&!visit)await c.query('INSERT INTO stop_visits(carrier_id,id,assignment_id,load_id,stop_id,arrival,arrival_event) VALUES($1,$2,$3,$4,$5,$6,$7)',[a.carrierId,randomUUID(),v.id,load.id,stop.id,event.at,event.id]);
       if(outside&&visit){

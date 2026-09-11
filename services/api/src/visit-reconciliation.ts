@@ -1,3 +1,4 @@
+import {fenceConfidence,visitPolicyEvidence} from '../../../packages/domain/src/geofence.ts';
 import type pg from 'pg';
 import {createHash,randomUUID} from 'node:crypto';
 import {demand} from '../../../packages/domain/src/index.ts';
@@ -27,16 +28,16 @@ export async function visitReview(c:pg.PoolClient,carrierId:string,assignmentId:
   const source=rows[0];if(source.body.accuracyM>100||!['applied','retained_out_of_order'].includes(source.disposition))continue;
   const possible=rows.filter(s=>Number(s.distance)-source.body.accuracyM<=s.radius_m),ambiguous=possible.length>1;
   for(const stop of rows){
-   const prior=open.get(stop.stop_id),inside=!ambiguous&&Number(stop.distance)+source.body.accuracyM<stop.radius_m,outside=Number(stop.distance)-source.body.accuracyM>stop.radius_m;
+   const prior=open.get(stop.stop_id),confidence=fenceConfidence(Number(stop.distance),source.body.accuracyM,Number(stop.radius_m)),inside=!ambiguous&&confidence==='inside',outside=confidence==='outside';
    if(outside&&prior){prior.departure=iso(source.at);prior.departure_event=source.id;open.delete(stop.stop_id);}
    if(inside&&!prior){const v={stop_id:stop.stop_id,arrival:iso(source.at),arrival_event:source.id,departure:null,departure_event:null};proposed.push(v);open.set(stop.stop_id,v);}
   }
  }
  const active=visits.filter(v=>!v.superseded_by),expected=new Set(proposed.map(key)),retired=active.filter(v=>!expected.has(key(v))),retained=new Map(active.filter(v=>expected.has(key(v))).map(v=>[key(v),v]));
  const candidates:Row[]=proposed.map(v=>({...v,retainedVisitId:retained.get(key(v))?.id??null}));
- const fingerprint=createHash('sha256').update(canonical({trip,sources,visits,invoices,terms,load})).digest('hex');
+ const fingerprint=createHash('sha256').update(canonical({trip,sources,visits,invoices,terms,load,visitPolicyEvidence})).digest('hex');
  const history=(await c.query('SELECT * FROM visit_reconciliations WHERE carrier_id=$1 AND assignment_id=$2 ORDER BY recorded_at,id',[carrierId,assignmentId])).rows;
- return {assignmentId,loadId:trip.load_id,expectedVersion:trip.version,reviewRequired:trip.visit_review_required,fingerprint,policy:'ordered-unique-trip-stop-v1',stopConditions,sampleCount:samples.size,issues,current:active,proposed:candidates,retiredVisitIds:retired.map(v=>v.id),historicalVisits:visits.filter(v=>v.superseded_by),invoices,history,terms,changed:retired.length>0||candidates.some(v=>!v.retainedVisitId)};
+ return {assignmentId,loadId:trip.load_id,expectedVersion:trip.version,reviewRequired:trip.visit_review_required,fingerprint,policy:'ordered-unique-trip-stop-v1',visitPolicy:visitPolicyEvidence,stopConditions,sampleCount:samples.size,issues,current:active,proposed:candidates,retiredVisitIds:retired.map(v=>v.id),historicalVisits:visits.filter(v=>v.superseded_by),invoices,history,terms,changed:retired.length>0||candidates.some(v=>!v.retainedVisitId)};
 }
 export async function applyVisitReview(c:pg.PoolClient,a:Actor,cmd:Command,input:Row){
  demand(input.acknowledgeRevisedEvidence===true&&typeof input.reason==='string'&&input.reason.trim().length>=20,'REVIEW_REQUIRED','Review revised visits, source observations and retained invoice history.');
