@@ -61,3 +61,9 @@ export function trackingDistance(points:TrackingPoint[]) {
   const linkedIntervals=trails.reduce((n,t)=>n+Math.max(0,t.length-1),0);
   return {odometerKm:odometerIntervals?odometerKm:null,gpsChordKm:linkedIntervals?gpsChordKm:null,gpsIntervals,odometerIntervals,missingOdometerIntervals,segments:trails.length,linkedIntervals};
 }
+
+export type MileageLeg={assignmentId:string;truckId:string;loadId:string;samples:number;firstAt:string|null;lastAt:string|null;odometerKm:number|null;gpsChordKm:number|null;linkedIntervals:number;odometerIntervals:number;missingOdometerIntervals:number;unlinkedIntervals:number;observedSeconds:number;provenance:string[]};
+export type MileageReport={scope:'assignment'|'work-session';id:string;driverId:string;asOf:string;startedAt:string|null;endedAt:string|null;allRetainedSamples:boolean;samples:number;odometerKm:number|null;gpsChordKm:number|null;legs:MileageLeg[];assumptions:string[]};
+export type MileageSession={id:string;driver_id?:string;started_at?:string;ended_at:string|null};
+export function mileagePath(selection:string){const [kind,id]=selection.split(':');if(!['assignment','session'].includes(kind)||!id)throw new Error('Choose a trip or work session.');return `mileage?${kind==='session'?'sessionId':'assignmentId'}=${encodeURIComponent(id)}`;}
+export function mileageMatches(report:MileageReport,selection:string){return report?.id===selection.split(':')[1]&&report.scope===(selection.startsWith('session:')?'work-session':'assignment')&&Array.isArray(report.legs);}
