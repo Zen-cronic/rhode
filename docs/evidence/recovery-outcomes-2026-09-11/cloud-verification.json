@@ -1,0 +1,82 @@
+{
+  "cloud": true,
+  "carrierId": "outcomes-timed-20260911",
+  "overflow": false,
+  "errors": [],
+  "assertions": [
+    "current75min late versus replacementontime",
+    "actualweb approval offered trip",
+    "separateFirebase driver accepted",
+    "web synchronized accepted outcome"
+  ],
+  "apiRevision": "roadstar-api-00013-ctw",
+  "webRevision": "roadstar-web-00028-w6n",
+  "screenshotsInspected": true,
+  "comparison": {
+    "current": {
+      "eligible": false,
+      "reasons": [
+        "Insufficient on-duty budget.",
+        "Resource reserved by RS-1042.",
+        "Driver cannot reach pickup after prior committed work under the current planning estimate."
+      ],
+      "deadheadKm": 0,
+      "note": "Truck-route travel times with declared work budgets. OSM restrictions and supplied dimensions require review; not certified ELD or legal clearance. Position and remaining work budgets projected from preceding committed deliveries.",
+      "timing": {
+        "evaluatedAt": "2026-09-13T15:00:00.000Z",
+        "availableAt": "2026-09-13T17:30:00.000Z",
+        "pickupArrivalAt": "2026-09-13T17:30:00.000Z",
+        "pickupReadyAt": "2026-09-13T17:30:00.000Z",
+        "pickupLateMinutes": 75,
+        "completionAt": "2026-09-13T19:54:00.000Z",
+        "travelMinutes": 99,
+        "serviceMinutes": 45
+      },
+      "routeFingerprint": "4e19f36505c9b5f6c65f1664b8d9c43032f40615c104e561cb4d571528f16a21",
+      "routingEvidence": "valhalla-truck"
+    },
+    "proposed": {
+      "eligible": true,
+      "reasons": [],
+      "deadheadKm": 0,
+      "note": "Truck-route travel times with declared work budgets. OSM restrictions and supplied dimensions require review; not certified ELD or legal clearance.",
+      "timing": {
+        "evaluatedAt": "2026-09-13T15:00:00.000Z",
+        "availableAt": "2026-09-13T15:00:00.000Z",
+        "pickupArrivalAt": "2026-09-13T15:00:00.000Z",
+        "pickupReadyAt": "2026-09-13T16:15:00.000Z",
+        "pickupLateMinutes": 0,
+        "completionAt": "2026-09-13T18:39:00.000Z",
+        "travelMinutes": 99,
+        "serviceMinutes": 45
+      },
+      "routeFingerprint": "2d92584ec7f8ae23b438729cc0415f0a015166f4e973bdd0ef7d09ade903d207",
+      "routingEvidence": "valhalla-truck"
+    },
+    "evaluatedAt": "2026-09-13T15:00:00.000Z"
+  },
+  "acceptedAssignment": {
+    "id": "c419301a-2ccb-42c4-aebc-0c501d4008a4",
+    "loadId": "RS-1043",
+    "driverId": "D-02",
+    "truckId": "T-102",
+    "trailerId": "V-102",
+    "startAt": "2026-09-13T16:15:00.000Z",
+    "endAt": "2026-09-13T19:00:00.000Z",
+    "status": "accepted",
+    "version": 2
+  },
+  "assumptions": [
+    "Synthetic replacement explicitly staged in London before the scenario begins",
+    "Evaluation clock11am ET equals delay observation; current pickup1:30pm is75minutes late versus12:15pm replacement",
+    "Prior committed work is conservatively deducted in full; in-progress jobs can be rejected conservatively",
+    "No measured savings, actual carrier productivity or certified HOS claim"
+  ],
+  "checks": {
+    "backendRealRoad": 39,
+    "webPass": 14,
+    "webConfigSkip": 2,
+    "typecheck": "pass",
+    "productionBuild": "pass"
+  }
+}
