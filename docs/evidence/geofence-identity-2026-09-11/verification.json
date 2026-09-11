@@ -1,0 +1,18 @@
+{
+  "verifiedAt": "2026-09-11T20:09:36.745Z",
+  "carrier": "geofence-ui-57dec248-f40d-4488-872d-ed40b15e1779",
+  "assignmentId": "1848a0ce-52f8-422e-89b8-6a68e6e2fd94",
+  "captures": [
+    1440,
+    390
+  ],
+  "errors": [],
+  "visits": 0,
+  "invoices": 0,
+  "checks": [
+    "built web shows ambiguity and competing stops at desktop/mobile widths",
+    "raw observation retained; no automatic arrival or billing",
+    "no horizontal overflow or page errors"
+  ],
+  "limits": "Local PostgreSQL/API and built web. No cloud deployment or native ambiguity UI proof."
+}
