@@ -20,7 +20,7 @@ def isolated_checkpoints(monkeypatch, tmp_path):
 def install_run(monkeypatch):
     replay=Replay([[-79.9,43.5],[-79.91,43.5]],1000,route_evidence='synthetic-test-route')
     replay.paused=False
-    run={'replay':replay,'assignment_id':'assignment','carrier_id':'test','events':[],'pending':None,'emit_mode':None}
+    run={'replay':replay,'assignment_id':'assignment','carrier_id':'test','events':[],'pending':None,'emit_mode':None,'closure_checks':False}
     monkeypatch.setattr(sim,'runs',{'run':run})
     monkeypatch.setattr(sim,'lock',asyncio.Lock())
     return run
@@ -272,3 +272,79 @@ def test_atomic_replace_failure_preserves_prior_checkpoint_and_pauses(monkeypatc
     assert error.value.status_code==503 and run['replay'].paused
     assert sim.checkpoint_path('run').read_bytes()==before
     assert run['pending']['sent']==0
+
+
+def test_adopted_route_retains_history_across_checkpoint_reset_and_unequal_replay(monkeypatch):
+    import copy,json
+    run=install_run(monkeypatch);monkeypatch.setenv('SIMULATOR_TOKEN','synthetic-test-token')
+    original=httpx.AsyncClient;stored={};review={'assignmentStatus':'accepted','closures':[],'revisions':[],'receipts':[]};proof={};clock={'clock':'1970-01-01T00:00:01Z','version':1}
+    def handler(request):
+        if request.url.path=='/api/route-reviews':return httpx.Response(200,json=review)
+        if request.url.path=='/api/simulation-route':return httpx.Response(200,json=proof)
+        if request.url.path=='/api/simulation-clock':
+            if request.method=='POST':clock.update(clock=json.loads(request.content)['at'],version=clock['version']+1)
+            return httpx.Response(200,json=clock)
+        event=json.loads(request.content);assert request.url.path=='/api/telemetry'
+        if event['id'] in stored:assert stored[event['id']]==event
+        stored[event['id']]=event;return httpx.Response(200,json={})
+    monkeypatch.setattr(sim.httpx,'AsyncClient',lambda **kwargs:original(**kwargs,transport=httpx.MockTransport(handler)))
+    async def exercise():
+        await sim.advance('run',sim.Advance(seconds=10));await sim.pause('run')
+        history=copy.deepcopy(run['events']);last=history[-1];point=last['position'];receipt={'route_revision_id':'revision','route_fingerprint':'fingerprint'}
+        route={'route':{'trip':{'legs':[{'shape':{'coordinates':[[point['lng'],point['lat']],[-79.905,43.501],[-79.91,43.5]]}}]}}}
+        proof.update(assignmentId='assignment',revision=3,receipt=receipt,proof={'telemetryId':last['id'],'odometerKm':last['odometerKm'],'origin':point,'originAt':last['at'],'route':route,'routeFingerprint':'fingerprint'})
+        review.update(closures=[{'id':'closure'}],revisions=[{'id':'revision','status':'approved','approved_at':'2026-09-11T19:00:00Z','body':{'routeFingerprint':'fingerprint','closures':[{'id':'closure'}]}}],receipts=[receipt])
+        adopted=await sim.adopt_route('run',sim.AdoptRoute(revision_id='revision',expected_revision=3));assert adopted['paused']
+        assert sim.get('run')['events']==history and sim.get('run')['replay'].elapsed_seconds==10
+        assert (await sim.adopt_route('run',sim.AdoptRoute(revision_id='revision',expected_revision=3)))['repeated']
+        sim.runs.clear();restored=sim.get('run');assert restored['replay'].paused and restored['transition_cursor']==1
+        await sim.resume('run');await sim.advance('run',sim.Advance(seconds=10));await sim.pause('run')
+        expected=copy.deepcopy(sim.get('run')['events']);assert len(stored)==21
+        await sim.reset('run');await sim.resume('run')
+        await sim.advance('run',sim.Advance(seconds=7));await sim.advance('run',sim.Advance(seconds=6));await sim.advance('run',sim.Advance(seconds=7))
+        assert sim.get('run')['events']==expected and len(stored)==21
+        assert sim.get('run')['transition_cursor']==1
+        # A new closure pauses before generating or changing any new motion.
+        review['closures'].append({'id':'new-closure'});before=copy.deepcopy(sim.get('run')['replay'].__dict__)
+        with pytest.raises(sim.HTTPException):await sim.advance('run',sim.Advance(seconds=60))
+        assert sim.get('run')['pending'] is None and sim.get('run')['replay'].elapsed_seconds==before['elapsed_seconds']
+        assert sim.get('run')['replay'].paused and len(stored)==21
+    asyncio.run(exercise())
+
+
+def test_unadopted_closure_blocks_new_batch_without_discardable_generated_events(monkeypatch):
+    run=install_run(monkeypatch);run['closure_checks']=True;monkeypatch.setenv('SIMULATOR_TOKEN','synthetic-test-token')
+    original=httpx.AsyncClient
+    monkeypatch.setattr(sim.httpx,'AsyncClient',lambda **kwargs:original(**kwargs,transport=httpx.MockTransport(lambda req:httpx.Response(200,json={'assignmentStatus':'accepted','closures':[{'id':'c'}],'revisions':[],'receipts':[]}))))
+    async def exercise():
+        with pytest.raises(sim.HTTPException):await sim.advance('run',sim.Advance(seconds=100))
+        assert run['replay'].elapsed_seconds==0 and run['pending'] is None and run['replay'].paused
+    asyncio.run(exercise())
+
+
+def test_adoption_rejects_unconfirmed_origin_and_preserves_run(monkeypatch):
+    run=install_run(monkeypatch);run['replay'].paused=True;run['emit_mode']=True;run['events']=[{'id':'latest','odometerKm':1,'position':{'lng':-79.9,'lat':43.5},'at':'1970-01-01T00:00:01+00:00'}]
+    async def wrong(*args):return {'assignmentId':'another-trip','revision':3,'proof':{'telemetryId':'other'}}
+    monkeypatch.setattr(sim,'route_request',wrong)
+    async def exercise():
+        with pytest.raises(sim.HTTPException):await sim.adopt_route('run',sim.AdoptRoute(revision_id='r',expected_revision=3))
+        assert not run.get('route_transitions') and run['replay'].paused
+    asyncio.run(exercise())
+
+
+def test_completed_trip_cannot_generate_new_observations(monkeypatch):
+    run=install_run(monkeypatch);run['closure_checks']=True;monkeypatch.setenv('SIMULATOR_TOKEN','synthetic-test-token')
+    async def completed(*args):return {'assignmentStatus':'completed','closures':[]}
+    monkeypatch.setattr(sim,'route_request',completed)
+    async def exercise():
+        with pytest.raises(sim.HTTPException):await sim.advance('run',sim.Advance(seconds=10))
+        assert run['replay'].paused and run['replay'].elapsed_seconds==0 and run['events']==[]
+    asyncio.run(exercise())
+
+
+def test_guarded_run_with_missing_token_does_not_generate_an_unreviewed_batch(monkeypatch):
+    run=install_run(monkeypatch);run['closure_checks']=True;monkeypatch.delenv('SIMULATOR_TOKEN',raising=False)
+    async def exercise():
+        with pytest.raises(sim.HTTPException):await sim.advance('run',sim.Advance(seconds=10))
+        assert run['replay'].paused and run['pending'] is None and run['replay'].elapsed_seconds==0
+    asyncio.run(exercise())

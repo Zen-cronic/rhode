@@ -4,6 +4,7 @@ import asyncio
 import os
 import json
 import re
+import copy
 import fcntl
 from pathlib import Path
 from contextlib import asynccontextmanager
@@ -13,6 +14,7 @@ from uuid import uuid4
 import httpx
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
+from roadstar_optimizer.route_transition import replace_remaining_route
 from roadstar_optimizer.simulation import Replay
 from roadstar_optimizer.routing import RouteRequest, valhalla_route
 
@@ -38,7 +40,7 @@ runs: dict[str, dict] = {}
 lock = asyncio.Lock()
 
 
-PROGRESS_FIELDS = ('elapsed_seconds', '_distance', '_next_stop', '_wait', '_last_speed', '_initial_emitted')
+PROGRESS_FIELDS = ('elapsed_seconds', '_distance', '_next_stop', '_wait', '_last_speed', '_initial_emitted', '_lengths')
 
 
 def checkpoint_path(run_id):
@@ -90,6 +92,8 @@ def restore_run(run_id):
         if saved['conditions_hash'] != replay.conditions_hash():
             raise ValueError('Initial conditions changed')
         for field in PROGRESS_FIELDS:
+            if field == '_lengths' and field not in saved['progress']:
+                continue  # Legacy checkpoints reconstruct unchanged geometry lengths.
             setattr(replay, field, saved['progress'][field])
         if replay.elapsed_seconds < 0 or not 0 <= replay._distance <= replay._lengths[-1] or not 1 <= replay._next_stop <= len(replay.stop_indices) or replay._wait < 0:
             raise ValueError('Invalid motion checkpoint')
@@ -143,7 +147,7 @@ async def create(data: Start):
     except (ValueError, IndexError) as error:
         raise HTTPException(400, str(error)) from error
     run_id = str(uuid4())
-    runs[run_id] = {'run_id': run_id, 'api_origin': os.environ.get('ROADSTAR_API', 'http://127.0.0.1:4010').rstrip('/'), 'replay': replay, 'assignment_id': data.assignment_id, 'carrier_id': data.carrier_id, 'events': [], 'pending': None, 'emit_mode': None}
+    runs[run_id] = {'run_id': run_id, 'api_origin': os.environ.get('ROADSTAR_API', 'http://127.0.0.1:4010').rstrip('/'), 'replay': replay, 'assignment_id': data.assignment_id, 'carrier_id': data.carrier_id, 'events': [], 'pending': None, 'emit_mode': None, 'closure_checks': True}
     save_run(runs[run_id])
     return {'id': run_id, 'conditions_hash': replay.conditions_hash(), 'paused': True, 'route': routed, 'provenance': 'synthetic', 'stop_indices': stops}
 
@@ -152,6 +156,7 @@ def get(run_id):
     if run_id not in runs:
         runs[run_id] = restore_run(run_id)
     runs[run_id].setdefault('run_id', run_id)
+    runs[run_id].setdefault('closure_checks', True)
     runs[run_id].setdefault('api_origin', os.environ.get('ROADSTAR_API', 'http://127.0.0.1:4010').rstrip('/'))
     return runs[run_id]
 
@@ -180,7 +185,12 @@ async def reset(run_id: str):
         run = get(run_id)
         if run.get('advancing') or run['pending'] is not None:
             raise HTTPException(409, 'Retry the pending batch before reset; accepted observations cannot be discarded')
-        run['replay'].reset()
+        if run.get('original_initial'):
+            initial=copy.deepcopy(run['original_initial']);initial.pop('model_version')
+            run['replay']=Replay(**initial)
+            run['transition_cursor']=0
+        else:
+            run['replay'].reset()
         run['events'] = []
         run['emit_mode'] = None
         save_run(run)
@@ -257,11 +267,18 @@ async def advance(run_id: str, data: Advance):
     if run['emit_mode'] is not None and run['emit_mode'] != data.emit:
         raise HTTPException(409, 'Reset or create another run to change emission mode; pending observations are retained')
     if run['pending'] is None:
-        events = replay.advance_samples(data.seconds)
+        if data.emit and run.get('closure_checks'):
+            run['advancing']=True
+            try:
+                await check_route_guard(run)
+            finally:
+                run['advancing']=False
+        events = generate_samples(run, data.seconds)
+        replay = run['replay']
         if not events:
             return {'events': [], 'paused': True, 'elapsed_seconds': replay.elapsed_seconds, 'emitted': False}
-        fingerprint = replay.conditions_hash()
         for event in events:
+            fingerprint = event.pop('_conditions_hash')
             at_ms = event.pop('at_ms')
             event.update(at=datetime.fromtimestamp(at_ms/1000, timezone.utc).isoformat(), assignmentId=run['assignment_id'])
             event['id'] = sha256(f'{run_id}:{fingerprint}:{at_ms}'.encode()).hexdigest()
@@ -314,9 +331,116 @@ async def state(run_id: str):
     async with lock:
         run = get(run_id)
         replay = run['replay']
-        return {'paused': replay.paused, 'elapsed_seconds': emitted_seconds(run), 'generated_until_seconds': replay.elapsed_seconds, 'advancing': run.get('advancing', False), 'phase': replay.phase() if run['pending'] is None else 'streaming_or_paused', 'conditions_hash': replay.conditions_hash(), 'pending': run['pending'], 'events': run['events'], 'initial_conditions': replay.initial_conditions(), 'emit_mode': run['emit_mode'], 'delay_reports': list(run.get('delay_reports', {}).values()), 'restored': run.get('restored', False), 'persistence': 'atomic local checkpoint; restart restores paused with pending commands intact', 'provenance': 'synthetic'}
+        return {'paused': replay.paused, 'elapsed_seconds': emitted_seconds(run), 'generated_until_seconds': replay.elapsed_seconds, 'advancing': run.get('advancing', False), 'phase': replay.phase() if run['pending'] is None else 'streaming_or_paused', 'conditions_hash': replay.conditions_hash(), 'pending': run['pending'], 'events': run['events'], 'initial_conditions': replay.initial_conditions(), 'emit_mode': run['emit_mode'], 'delay_reports': list(run.get('delay_reports', {}).values()), 'restored': run.get('restored', False), 'persistence': 'atomic local checkpoint; restart restores paused with pending commands intact', 'route_transitions': run.get('route_transitions', []), 'transition_cursor': run.get('transition_cursor',0), 'closure_block': run.get('closure_block'), 'original_initial_conditions': run.get('original_initial'), 'provenance': 'synthetic'}
 
 
 @app.get('/runs')
 async def list_runs():
     return {'runs': sorted({*runs.keys(), *(p.stem for p in state_directory().glob('*.json'))}), 'restart_policy': 'restored runs are paused; explicitly resume to retry pending commands'}
+
+
+def replay_snapshot(replay):
+    return {'initial': replay.initial_conditions(), 'progress': {k:copy.deepcopy(getattr(replay,k)) for k in PROGRESS_FIELDS}}
+
+
+def replay_from_snapshot(saved):
+    initial=copy.deepcopy(saved['initial']);initial.pop('model_version')
+    replay=Replay(**initial)
+    for key in PROGRESS_FIELDS:
+        setattr(replay,key,copy.deepcopy(saved['progress'][key]))
+    replay.paused=True
+    return replay
+
+
+def generate_samples(run, seconds):
+    events=[]
+    for _ in range(seconds):
+        replay=run['replay']
+        cursor=run.get('transition_cursor',0);transitions=run.get('route_transitions',[])
+        while cursor<len(transitions):
+            transition=transitions[cursor]
+            if replay.elapsed_seconds<transition['at_seconds']:break
+            if replay.elapsed_seconds>transition['at_seconds']:
+                raise HTTPException(409,'Recorded route transition was missed; pause and review the checkpoint')
+            if replay.elapsed_seconds==transition['at_seconds']:
+                if replay.conditions_hash()!=transition['previous_conditions_hash'] or replay.sample()!=transition['previous_sample']:
+                    raise HTTPException(409,'Historical motion no longer matches the saved route transition')
+                paused=replay.paused;replay=replay_from_snapshot(transition['snapshot']);replay.paused=paused
+                run['replay']=replay;cursor+=1;run['transition_cursor']=cursor
+        fingerprint=replay.conditions_hash()
+        for event in replay.advance_samples(1):
+            event['_conditions_hash']=fingerprint;events.append(event)
+    return events
+
+
+async def route_request(run, path, params):
+    token=os.environ.get('SIMULATOR_TOKEN')
+    if not token:raise HTTPException(503,'SIMULATOR_TOKEN required for operational route evidence')
+    if run['api_origin']!=os.environ.get('ROADSTAR_API','http://127.0.0.1:4010').rstrip('/'):
+        raise HTTPException(409,'Run belongs to another operational API')
+    try:
+        async with httpx.AsyncClient(base_url=run['api_origin'],timeout=30) as client:
+            response=await client.get(path,params=params,headers={'Authorization':f'Bearer {token}','X-Carrier-Id':run['carrier_id']})
+            response.raise_for_status();return response.json()
+    except (httpx.HTTPError,ValueError) as error:
+        raise HTTPException(409,'Operational route evidence was not confirmed; keep the run paused and review the dispatcher response') from error
+
+
+async def check_route_guard(run):
+    try:
+        data=await route_request(run,'/api/route-reviews',{'assignmentId':run['assignment_id']})
+        if data.get('assignmentStatus')!='accepted':raise ValueError('Simulation trip is no longer accepted')
+        if not data['closures']:return
+        approved=sorted((r for r in data['revisions'] if r['status']=='approved'),key=lambda r:(r['approved_at'],r['id']),reverse=True)
+        adopted=run.get('route_transitions',[])
+        if not approved or not adopted:raise ValueError('Closure requires an approved, received and adopted route')
+        latest=approved[0];selection=adopted[-1]
+        if latest['id']!=selection['revision_id'] or latest['body']['routeFingerprint']!=selection['route_fingerprint'] or {c['id'] for c in data['closures']}!={c['id'] for c in latest['body']['closures']}:
+            raise ValueError('Closure or approved route changed after adoption')
+        if not any(r['route_revision_id']==latest['id'] and r['route_fingerprint']==selection['route_fingerprint'] for r in data['receipts']):
+            raise ValueError('Driver receipt is unavailable')
+        run.pop('closure_block',None)
+    except (HTTPException,ValueError,KeyError,TypeError) as error:
+        run['replay'].paused=True;run['closure_block']=str(error);save_run(run)
+        raise HTTPException(409,'Route evidence requires review; run paused before generating a new batch') from error
+
+
+class AdoptRoute(BaseModel):
+    revision_id: str = Field(min_length=1,max_length=100)
+    expected_revision: int = Field(ge=1)
+
+
+@app.post('/runs/{run_id}/adopt-route')
+async def adopt_route(run_id: str, data: AdoptRoute):
+    async with lock:
+        run=get(run_id);previous=run['replay']
+        # A lost local HTTP acknowledgment can repeat the exact selection safely.
+        for transition in run.get('route_transitions',[]):
+            if transition['revision_id']==data.revision_id:
+                if transition['revision']!=data.expected_revision:raise HTTPException(409,'Adoption revision differs from the retained receipt')
+                return {'adopted':True,'transition':transition,'repeated':True,'paused':previous.paused}
+        if not previous.paused or run.get('advancing') or run['pending'] is not None:
+            raise HTTPException(409,'Pause and finish the pending batch before adopting a route')
+        if run.get('transition_cursor',0)!=len(run.get('route_transitions',[])):
+            raise HTTPException(409,'Finish the retained transition replay before appending a new adoption')
+        if run['emit_mode'] is not True or not run['events']:
+            raise HTTPException(409,'Adoption requires an acknowledged operational telemetry origin')
+        evidence=await route_request(run,'/api/simulation-route',{'revisionId':data.revision_id})
+        proof=evidence['proof'];last=run['events'][-1]
+        if evidence['assignmentId']!=run['assignment_id'] or evidence['revision']!=data.expected_revision or proof['telemetryId']!=last['id'] or proof['odometerKm']!=last['odometerKm'] or proof['origin']!=last['position']:
+            raise HTTPException(409,'Approved route does not match this run and its exact latest acknowledged GPS')
+        if datetime.fromisoformat(proof['originAt'].replace('Z','+00:00'))!=datetime.fromisoformat(last['at']):
+            raise HTTPException(409,'Approved origin time differs from the retained observation')
+        points=[];stops=[0]
+        for leg in proof['route']['route']['trip']['legs']:
+            shape=leg['shape']['coordinates']
+            if points and points[-1]!=shape[0]:raise HTTPException(409,'Disconnected approved route legs')
+            points.extend(shape[1:] if points else shape);stops.append(len(points)-1)
+        try:changed=replace_remaining_route(previous,points,stops)
+        except ValueError as error:raise HTTPException(409,str(error)) from error
+        transition={'adopted_at':datetime.now(timezone.utc).isoformat(),'at_seconds':changed.at_seconds,'revision_id':data.revision_id,'revision':data.expected_revision,'receipt':evidence['receipt'],'route_fingerprint':proof['routeFingerprint'],'previous_conditions_hash':changed.previous_conditions_hash,'conditions_hash':changed.conditions_hash,'previous_sample':previous.sample(),'snapshot':replay_snapshot(changed.replay),'origin_telemetry_id':last['id']}
+        candidate={**run,'original_initial':run.get('original_initial',previous.initial_conditions()),'route_transitions':[*run.get('route_transitions',[]),transition],'transition_cursor':len(run.get('route_transitions',[]))+1,'replay':changed.replay,'completion_forecasts':{},'closure_checks':True}
+        candidate.pop('closure_block',None)
+        save_run(candidate)  # Publish the new selection in memory only after durable storage.
+        runs[run_id]=candidate
+        return {'adopted':True,'paused':True,'transition':transition,'note':'Simulation plan selected; resume separately. Original observations remain unchanged.'}
