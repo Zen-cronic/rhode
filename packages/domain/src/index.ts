@@ -17,6 +17,7 @@ export type Driver = {
 export type Truck = {id: string; axleClearance: 'verified' | 'unknown'; provenance: Provenance; routingProfile?: {height:number;width:number;length:number;weight:number;axle_load:number;hazmat:boolean;evidence:'operator-verified'|'synthetic-scenario'}};
 export type Trailer = {id: string; equipment: Equipment; capacityLb: number; provenance: Provenance};
 export type Assignment = {
+  visitReviewRequired?: boolean;
   id: string; loadId: string; driverId: string; truckId: string; trailerId: string;
   startAt: string; endAt: string; status: 'offered' | 'accepted' | 'rejected' | 'completed' | 'superseded'; version: number;
 };

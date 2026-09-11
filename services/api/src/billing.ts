@@ -2,7 +2,9 @@ import type pg from 'pg';
 import {randomUUID} from 'node:crypto';
 import {demand} from '../../../packages/domain/src/index.ts';
 export async function prepareDetention(c:pg.PoolClient,carrierId:string,visit:any,options:{automatic:boolean;expectedVersion?:number;contractId?:string}){
- demand(visit?.departure,'VISIT_OPEN','A closed same-stop visit is required.');
+ demand(visit?.departure&&!visit.superseded_by,'VISIT_OPEN','A closed same-stop visit is required.');
+ const trip=(await c.query('SELECT visit_review_required FROM assignments WHERE carrier_id=$1 AND id=$2',[carrierId,visit.assignment_id])).rows[0];
+ if(!options.automatic)demand(!trip?.visit_review_required,'VISIT_REVIEW_REQUIRED','Reconcile late GPS evidence before preparing detention.');
  const binding=(await c.query('SELECT c.*,l.body AS load,b.bound_by,b.bound_at FROM load_contracts b JOIN contracts c ON c.carrier_id=b.carrier_id AND c.id=b.contract_id JOIN loads l ON l.carrier_id=b.carrier_id AND l.id=b.load_id WHERE b.carrier_id=$1 AND b.load_id=$2',[carrierId,visit.load_id])).rows[0];
  if(options.automatic&&(!binding||binding.load.mode!=='FTL'))return null;
  demand(binding,'CONTRACT_REQUIRED','Bind shipment terms before preparing detention.');

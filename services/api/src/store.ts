@@ -1,3 +1,4 @@
+import {visitReview,applyVisitReview} from './visit-reconciliation.ts';
 import {closureAreas,requireReviewedClosure,routeRevisionProof} from './closures.ts';
 import {hosReviewSchema,importedHosProfile,type HosReviewInput} from '../../../packages/domain/src/hos-import.ts';
 import {mileageReport} from './mileage.ts';
@@ -18,7 +19,7 @@ export type Command={key:string;expectedVersion:number};
 type Row=Record<string,any>;
 const canonical=(x:any):string=>JSON.stringify(x,(_,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.entries(v).sort(([a],[b])=>a.localeCompare(b))):v);
 const iso=(v:Date|string)=>new Date(v).toISOString();
-const assignment=(r:Row):Assignment=>({id:r.id,loadId:r.load_id,driverId:r.driver_id,truckId:r.truck_id,trailerId:r.trailer_id,startAt:iso(r.start_at),endAt:iso(r.end_at),status:r.status,version:r.version});
+const assignment=(r:Row):Assignment=>({id:r.id,loadId:r.load_id,driverId:r.driver_id,truckId:r.truck_id,trailerId:r.trailer_id,startAt:iso(r.start_at),endAt:iso(r.end_at),status:r.status,version:r.version,visitReviewRequired:r.visit_review_required??false});
 export class Store {
   readonly db:pg.Pool;
   constructor(db:pg.Pool){this.db=db;}
@@ -266,16 +267,16 @@ export class Store {
     }
     const duplicate=await c.query('SELECT body,disposition FROM telemetry WHERE carrier_id=$1 AND id=$2',[a.carrierId,event.id]);
     if(duplicate.rows[0]){demand(canonical(duplicate.rows[0].body)===canonical(event),'EVENT_ID_COLLISION','Event ID already has different content.');return {duplicate:true,disposition:duplicate.rows[0].disposition};}
-    const pendingExit=v.status==='completed'&&(await c.query('SELECT 1 FROM stop_visits WHERE carrier_id=$1 AND assignment_id=$2 AND departure IS NULL LIMIT 1',[a.carrierId,v.id])).rows.length>0;
-    demand(v.status==='accepted'||pendingExit,'NOT_ACCEPTED','Accepted trip or existing completed-trip visit awaiting departure required.');
+    const pendingExit=v.status==='completed'&&(await c.query('SELECT 1 FROM stop_visits WHERE carrier_id=$1 AND assignment_id=$2 AND departure IS NULL AND superseded_by IS NULL LIMIT 1',[a.carrierId,v.id])).rows.length>0;
     const last=await c.query("SELECT body FROM telemetry WHERE carrier_id=$1 AND assignment_id=$2 AND disposition='applied' ORDER BY at DESC LIMIT 1",[a.carrierId,v.id]);
     const previous=last.rows[0]?.body,stale=previous&&timestamp(event.at)<=timestamp(previous.at);
+    demand(v.status==='accepted'||pendingExit||(v.status==='completed'&&stale),'NOT_ACCEPTED','Accepted trip, pending departure or late completed-trip evidence required.');
     if(previous&&!stale&&event.odometerKm!==null&&previous.odometerKm!==null)demand(event.odometerKm>=previous.odometerKm,'ODOMETER_REWIND','Odometer cannot decrease.');
     const disposition=stale?'retained_out_of_order':event.accuracyM>100?'uncertain':'applied';
     await c.query('INSERT INTO telemetry(carrier_id,id,assignment_id,session_id,at,location,accuracy_m,body,disposition) VALUES($1,$2,$3,$4,$5,ST_SetSRID(ST_MakePoint($6,$7),4326)::geography,$8,$9,$10)',[a.carrierId,event.id,v.id,event.sessionId??null,event.at,event.position.lng,event.position.lat,event.accuracyM,JSON.stringify(event),disposition]);
     if(disposition!=='applied'){
       // Late valid duty history can change feasibility without moving the current GPS marker.
-      if(disposition==='retained_out_of_order'&&event.accuracyM<=100)await c.query('UPDATE resources SET version=version+1 WHERE carrier_id=$1 AND id=$2',[a.carrierId,v.driverId]);
+      if(disposition==='retained_out_of_order'&&event.accuracyM<=100){await c.query('UPDATE resources SET version=version+1 WHERE carrier_id=$1 AND id=$2',[a.carrierId,v.driverId]);await c.query('UPDATE assignments SET visit_review_required=true WHERE carrier_id=$1 AND id=$2',[a.carrierId,v.id]);}
       return {duplicate:false,disposition};
     }
     // Keep ingestion proportional to one observation; snapshots/planning derive duty budgets.
@@ -290,7 +291,7 @@ export class Store {
     if(ambiguous)await c.query('UPDATE telemetry SET geofence_evidence=$3 WHERE carrier_id=$1 AND id=$2',[a.carrierId,event.id,JSON.stringify({status:'ambiguous',policy:'unique-possible-trip-stop-v1',stopIds:possibleStops.map(stop=>stop.id).sort(),reason:'GPS accuracy overlaps multiple trip stops. No new arrival established; review facility identity.'})]);
     for(const stop of stops.rows){
       const inside=!ambiguous&&Number(stop.distance)+event.accuracyM<stop.radius_m,outside=Number(stop.distance)-event.accuracyM>stop.radius_m;
-      const r=await c.query('SELECT * FROM stop_visits WHERE carrier_id=$1 AND assignment_id=$2 AND stop_id=$3 AND departure IS NULL',[a.carrierId,v.id,stop.id]);const visit=r.rows[0];
+      const r=await c.query('SELECT * FROM stop_visits WHERE carrier_id=$1 AND assignment_id=$2 AND stop_id=$3 AND departure IS NULL AND superseded_by IS NULL',[a.carrierId,v.id,stop.id]);const visit=r.rows[0];
       if(v.status==='accepted'&&inside&&!visit)await c.query('INSERT INTO stop_visits(carrier_id,id,assignment_id,load_id,stop_id,arrival,arrival_event) VALUES($1,$2,$3,$4,$5,$6,$7)',[a.carrierId,randomUUID(),v.id,load.id,stop.id,event.at,event.id]);
       if(outside&&visit){
         const closed=(await c.query('UPDATE stop_visits SET departure=$3,departure_event=$4 WHERE carrier_id=$1 AND id=$2 RETURNING *',[a.carrierId,visit.id,event.at,event.id])).rows[0];
@@ -299,8 +300,10 @@ export class Store {
     }
     return {duplicate:false,disposition};
   });}
+  async visitReview(a:Actor,assignmentId:string){this.dispatcher(a);const c=await this.db.connect();try{await c.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');const result=await visitReview(c,a.carrierId,assignmentId);await c.query('COMMIT');return result;}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}
+  reconcileVisits(a:Actor,cmd:Command,input:Row){this.dispatcher(a);return this.command(a,cmd,'visits.reconciled',input,c=>applyVisitReview(c,a,cmd,input));}
   detentionDraft(a:Actor,cmd:Command,input:Row){this.dispatcher(a);return this.command(a,cmd,'invoice.drafted',input,async c=>{
-    const r=await c.query('SELECT * FROM stop_visits WHERE carrier_id=$1 AND id=$2',[a.carrierId,input.visitId]);const visit=r.rows[0];demand(visit?.departure,'VISIT_OPEN','A closed same-stop visit is required.');
+    const r=await c.query('SELECT * FROM stop_visits WHERE carrier_id=$1 AND id=$2',[a.carrierId,input.visitId]);const visit=r.rows[0];demand(visit?.departure&&!visit.superseded_by,'VISIT_OPEN','A closed same-stop visit is required.');
     return prepareDetention(c,a.carrierId,visit,{automatic:false,expectedVersion:cmd.expectedVersion,contractId:input.contractId});
   });}
   bindContract(a:Actor,cmd:Command,input:Row){this.dispatcher(a);return this.command(a,cmd,'shipment.terms_bound',input,async c=>{
@@ -387,7 +390,8 @@ export class Store {
     const latest=Number((await c.query('SELECT max(revision) AS revision FROM invoice_revisions WHERE carrier_id=$1 AND visit_id=$2',[a.carrierId,invoice.visit_id])).rows[0].revision);
     demand(invoice.status==='draft'&&invoice.revision===latest&&latest===cmd.expectedVersion,'STALE_VERSION','Review the latest invoice draft.');
     const contract=(await c.query('SELECT * FROM contracts WHERE carrier_id=$1 AND id=$2',[a.carrierId,invoice.contract_id])).rows[0];demand(contract.version===invoice.contract_version,'STALE_CONTRACT','Contract changed. Generate a new draft.');
-    const visit=(await c.query('SELECT * FROM stop_visits WHERE carrier_id=$1 AND id=$2',[a.carrierId,invoice.visit_id])).rows[0];demand(visit.departure&&JSON.stringify([visit.arrival_event,visit.departure_event])===JSON.stringify(invoice.body.evidence),'STALE_EVIDENCE','Visit evidence changed.');
+    const visit=(await c.query('SELECT * FROM stop_visits WHERE carrier_id=$1 AND id=$2',[a.carrierId,invoice.visit_id])).rows[0];demand(visit.departure&&!visit.superseded_by&&JSON.stringify([visit.arrival_event,visit.departure_event])===JSON.stringify(invoice.body.evidence),'STALE_EVIDENCE','Visit evidence changed.');
+    demand(!(await c.query('SELECT visit_review_required FROM assignments WHERE carrier_id=$1 AND id=$2',[a.carrierId,visit.assignment_id])).rows[0].visit_review_required,'VISIT_REVIEW_REQUIRED','Late GPS evidence requires visit reconciliation before billing approval.');
     demand(input.acknowledgeObservedSamples===true&&String(input.evidenceNote).length>=20,'REVIEW_REQUIRED','Explicit review of observed GPS samples and configured terms is required.');
     const id=randomUUID(),revision=latest+1,body={...invoice.body,requiresEvidenceReview:false,review:{reviewedBy:a.uid,recordedAt:new Date().toISOString(),note:input.evidenceNote,acknowledgeObservedSamples:true,previousRevisionId:invoice.id},precision:'observed_samples'};
     await c.query("INSERT INTO invoice_revisions(carrier_id,id,visit_id,revision,contract_id,contract_version,status,body,approved_by) VALUES($1,$2,$3,$4,$5,$6,'approved',$7,$8)",[a.carrierId,id,invoice.visit_id,revision,contract.id,contract.version,JSON.stringify(body),a.uid]);return {id,revision,status:'approved',...body};
@@ -480,8 +484,8 @@ export class Store {
       (SELECT coalesce(jsonb_agg(t),'[]') FROM resources t WHERE carrier_id=$1 AND ($2::text IS NULL OR id IN (SELECT id FROM resource_ids))) AS resources,
       (SELECT coalesce(jsonb_agg(t),'[]') FROM scenarios t WHERE carrier_id=$1 AND $2::text IS NULL) AS scenarios,
       (SELECT coalesce(jsonb_agg(t),'[]') FROM proposals t WHERE carrier_id=$1 AND $2::text IS NULL) AS proposals,
-      (SELECT coalesce(jsonb_agg(t),'[]') FROM stop_visits t WHERE carrier_id=$1 AND ($2::text IS NULL OR assignment_id IN (SELECT id FROM own_assignments))) AS visits,
-      (SELECT coalesce(jsonb_agg(t),'[]') FROM invoice_revisions t WHERE carrier_id=$1 AND $2::text IS NULL) AS invoices,
+      (SELECT coalesce(jsonb_agg(t),'[]') FROM stop_visits t WHERE carrier_id=$1 AND superseded_by IS NULL AND ($2::text IS NULL OR assignment_id IN (SELECT id FROM own_assignments))) AS visits,
+      (SELECT coalesce(jsonb_agg(t),'[]') FROM invoice_revisions t WHERE carrier_id=$1 AND $2::text IS NULL AND EXISTS(SELECT 1 FROM stop_visits v WHERE v.carrier_id=t.carrier_id AND v.id=t.visit_id AND v.superseded_by IS NULL)) AS invoices,
       (SELECT coalesce(jsonb_agg(t),'[]') FROM maintenance_holds t WHERE carrier_id=$1 AND $2::text IS NULL) AS "maintenanceHolds",
       (SELECT coalesce(jsonb_agg(t),'[]') FROM planning_runs t WHERE carrier_id=$1 AND $2::text IS NULL) AS "planningRuns",
       (SELECT coalesce(jsonb_agg(t),'[]') FROM disruptions t WHERE carrier_id=$1 AND $2::text IS NULL) AS disruptions,
