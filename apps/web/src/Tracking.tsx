@@ -1,3 +1,4 @@
+import {Mileage} from './Mileage';
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { request } from "./api";
@@ -28,6 +29,7 @@ export function Tracking({state,session,online}:{state:State;session:Session;onl
   return <section className="panel tracking-panel">
     <div className="panel-heading"><div><p className="eyebrow">Recorded telemetry</p><h2>Tracking history</h2></div><span className="tag">Sample precision</span></div>
     <p>Inspect the recorded breadcrumbs and each sample's speed, odometer and GPS accuracy. This view does not start a tracking session.</p>
+    <Mileage state={state} session={session} online={online}/>
     <label>Tracked assignment<select aria-label="Tracked assignment" value={assignmentId} onChange={event=>{setAssignmentId(event.target.value);setSelectedId(null);}}><option value="">Choose an assignment</option>{assignments.map(assignment=><option key={assignment.id} value={assignment.id}>{assignment.loadId} · {assignment.driverId} · {assignment.truckId} · {assignment.status} · {assignment.id.slice(0,8)}</option>)}</select></label>
     {!assignments.length&&<p className="empty">No assignments are available for this identity.</p>}
     {!assignmentId&&!!assignments.length&&<p className="empty">Choose a trip to inspect its recorded history.</p>}

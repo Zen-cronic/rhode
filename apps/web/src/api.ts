@@ -159,6 +159,7 @@ export type State = {
   planningRuns?: PlanningRun[];
   tripGroups?: TripGroup[];
   stopCompletions?: StopCompletion[];
+  workSessions?: import("@roadstar/domain/tracking").MileageSession[];
 };
 export type Session = {
   carrier: string;
