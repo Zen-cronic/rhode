@@ -37,3 +37,30 @@ test('new closure or exhausted HOS cannot approve a previously feasible alternat
  const other=await setup();await store.reportClosure(other.simulator,cmd(3),report(other.trip));await db.query("UPDATE hos_bases SET budget=jsonb_set(budget,'{cycleMinutes}','0') WHERE carrier_id=$1 AND driver_id='D-01'",[other.carrierId]);const exhausted:any=await store.rehearseRoute(other.dispatcher,cmd(4),{assignmentId:other.trip.id});assert.equal(exhausted.status,'unresolved');assert.ok(exhausted.body.reasons.includes('Insufficient cycle budget.'));
  assert.equal((await db.query("SELECT * FROM route_revisions WHERE carrier_id=$1 AND status='approved'",[carrierId])).rows.length,0);
 });
+
+async function approvedFixture(){const f=await setup();await store.reportClosure(f.simulator,cmd(3),report(f.trip));const review:any=await store.rehearseRoute(f.dispatcher,cmd(4),{assignmentId:f.trip.id});assert.equal(review.status,'pending');await store.approveRoute(f.dispatcher,cmd(),{routeRevisionId:review.id,acknowledgeModeledRoute:true});return {...f,review};}
+test('assigned driver acknowledges the exact route once over HTTP and receipt survives retry without changing motion',async()=>{
+ const f=await approvedFixture(),{carrierId,trip,review}=f,app=createApi(store,{localDemo:true});
+ const before=(await db.query('SELECT * FROM telemetry WHERE carrier_id=$1 ORDER BY id',[carrierId])).rows,reserved=(await db.query('SELECT * FROM reservations WHERE carrier_id=$1 ORDER BY id',[carrierId])).rows;
+ const request={method:'POST' as const,url:'/api/acknowledge-route',headers:{authorization:'Bearer demo-driver-1','x-carrier-id':carrierId,'idempotency-key':randomUUID(),'if-match':'2'},payload:{routeRevisionId:review.id,acknowledgeReceipt:true}};
+ try{const first=await app.inject(request);assert.equal(first.statusCode,200,first.body);const result=first.json();assert.equal(result.receipt.approved_revision,2);assert.equal(result.receipt.driver_id,'D-01');assert.equal(result.receipt.route_fingerprint,review.body.routeFingerprint);assert.equal(result.revision,3);assert.deepEqual((await app.inject(request)).json(),result);
+ const different=await app.inject({...request,headers:{...request.headers,'idempotency-key':randomUUID()}});assert.equal(different.statusCode,409);
+ const read=await store.routeReviews(f.dispatcher,trip.id);assert.equal(read.receipts.length,1);assert.equal(read.revisions[0].revision,3);assert.equal(read.receipts[0].acknowledged_by,'demo-driver-1');assert.equal((await store.routeReviews(f.driver,trip.id)).receipts.length,1);
+ assert.equal((await db.query("SELECT * FROM events WHERE carrier_id=$1 AND kind='route.acknowledged'",[carrierId])).rowCount,1);
+ assert.deepEqual((await db.query('SELECT * FROM telemetry WHERE carrier_id=$1 ORDER BY id',[carrierId])).rows,before);assert.deepEqual((await db.query('SELECT * FROM reservations WHERE carrier_id=$1 ORDER BY id',[carrierId])).rows,reserved);
+ }finally{await app.close();}
+});
+test('route receipt excludes wrong driver, carrier, dispatcher, simulator and missing confirmation',async()=>{
+ const f=await approvedFixture(),input={routeRevisionId:f.review.id,acknowledgeReceipt:true};
+ for(const actor of [f.dispatcher,f.simulator,await store.membership('demo-driver-2',f.carrierId)])await assert.rejects(async()=>store.acknowledgeRoute(actor,cmd(2),input),{code:'FORBIDDEN'});
+ const other=await setup();await assert.rejects(async()=>store.acknowledgeRoute(other.driver,cmd(2),input),{code:'NOT_FOUND'});
+ await assert.rejects(async()=>store.acknowledgeRoute(f.driver,cmd(2),{routeRevisionId:f.review.id}),{code:'REVIEW_REQUIRED'});
+ assert.equal((await store.routeReviews(f.dispatcher,f.trip.id)).receipts.length,0);
+});
+test('new closures and newer approved routes cannot receive a stale driver acknowledgement',async()=>{
+ const f=await approvedFixture(),input={routeRevisionId:f.review.id,acknowledgeReceipt:true};
+ const newer:any=await store.rehearseRoute(f.dispatcher,cmd(5),{assignmentId:f.trip.id});assert.equal(newer.status,'pending');await store.approveRoute(f.dispatcher,cmd(),{routeRevisionId:newer.id,acknowledgeModeledRoute:true});
+ await assert.rejects(store.acknowledgeRoute(f.driver,cmd(2),input),{code:'STALE_ROUTE'});
+ await store.reportClosure(f.simulator,cmd(6),report(f.trip));await assert.rejects(store.acknowledgeRoute(f.driver,cmd(2),{routeRevisionId:newer.id,acknowledgeReceipt:true}),{code:'STALE_ROUTE'});
+ assert.equal((await store.routeReviews(f.driver,f.trip.id)).receipts.length,0);
+});

@@ -91,10 +91,29 @@ export class Store {
     await c.query('INSERT INTO outbox(carrier_id,id,kind,payload) VALUES($1,$2,$3,$4)',[a.carrierId,randomUUID(),'driver.assignment',JSON.stringify({assignmentId:trip.id,driverId:trip.driverId,routeRevisionId:row.id,notifyDriverIds:[trip.driverId]})]);
     return {id:row.id,revision:row.revision+1,status:'approved',assignmentVersion:trip.version+1,body:fresh,note:'Reviewed route revision is available. Driver receipt/adoption is separate; original observations and reservations are unchanged.'};
   });}
+  acknowledgeRoute(a:Actor,cmd:Command,input:Row){
+    demand(a.role==='driver'&&a.driverId,'FORBIDDEN','Assigned driver acknowledgement required.',403);
+    return this.command(a,cmd,'route.acknowledged',input,async c=>{
+      demand(input.acknowledgeReceipt===true,'REVIEW_REQUIRED','Confirm receipt of this route revision.',400);
+      const row=(await c.query('SELECT * FROM route_revisions WHERE carrier_id=$1 AND id=$2',[a.carrierId,input.routeRevisionId])).rows[0];
+      demand(row,'NOT_FOUND','Route revision not found.',404);
+      const trip=await this.getAssignment(c,a,row.assignment_id);
+      demand(trip.driverId===a.driverId,'FORBIDDEN','Route revision belongs to another driver.',403);
+      demand(trip.status==='accepted','INVALID_TRANSITION','Accepted trip required for route receipt.');
+      demand(row.status==='approved'&&row.revision===cmd.expectedVersion,'STALE_VERSION','Approved revision changed. Refresh before acknowledging.');
+      const latest=(await c.query("SELECT id FROM route_revisions WHERE carrier_id=$1 AND assignment_id=$2 AND status='approved' ORDER BY approved_at DESC,id DESC LIMIT 1",[a.carrierId,trip.id])).rows[0];
+      demand(latest?.id===row.id,'STALE_ROUTE','A newer route revision was approved. Review that revision.');
+      const closures=await closureAreas(c,a.carrierId,[trip.id]);
+      demand(canonical(closures)===canonical(row.body.closures),'STALE_ROUTE','Closure evidence changed after approval. Dispatcher review required.');
+      const receipt=(await c.query('INSERT INTO route_receipts(carrier_id,route_revision_id,approved_revision,driver_id,acknowledged_by,route_fingerprint) VALUES($1,$2,$3,$4,$5,$6) RETURNING *',[a.carrierId,row.id,row.revision,a.driverId,a.uid,row.body.routeFingerprint])).rows[0];
+      await c.query('UPDATE route_revisions SET revision=revision+1 WHERE carrier_id=$1 AND id=$2',[a.carrierId,row.id]);
+      return {routeRevisionId:row.id,revision:row.revision+1,assignmentId:trip.id,receipt:{...receipt,acknowledged_at:iso(receipt.acknowledged_at)},note:'Driver receipt recorded. This does not prove route adoption or execution.'};
+    });
+  }
   async routeReviews(a:Actor,assignmentId:string){
     const c=await this.db.connect();try{await c.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');const trip=await this.getAssignment(c,a,assignmentId),load=await this.load(c,a,trip.loadId);
       demand(a.role==='dispatcher'||(a.role==='driver'&&a.driverId===trip.driverId)||(a.role==='simulator'&&load.provenance==='synthetic'),'FORBIDDEN','Route evidence belongs to another driver or operation.',403);
-      const result={assignmentId,assignmentVersion:trip.version,closures:(await c.query('SELECT * FROM road_closures WHERE carrier_id=$1 AND assignment_id=$2 ORDER BY recorded_at',[a.carrierId,assignmentId])).rows,revisions:(await c.query('SELECT * FROM route_revisions WHERE carrier_id=$1 AND assignment_id=$2 ORDER BY created_at DESC',[a.carrierId,assignmentId])).rows};
+      const result={assignmentId,assignmentVersion:trip.version,receipts:(await c.query('SELECT r.* FROM route_receipts r JOIN route_revisions v ON v.carrier_id=r.carrier_id AND v.id=r.route_revision_id WHERE v.carrier_id=$1 AND v.assignment_id=$2 ORDER BY r.acknowledged_at',[a.carrierId,assignmentId])).rows,closures:(await c.query('SELECT * FROM road_closures WHERE carrier_id=$1 AND assignment_id=$2 ORDER BY recorded_at',[a.carrierId,assignmentId])).rows,revisions:(await c.query('SELECT * FROM route_revisions WHERE carrier_id=$1 AND assignment_id=$2 ORDER BY created_at DESC',[a.carrierId,assignmentId])).rows};
       await c.query('COMMIT');return result;
     }catch(error){await c.query('ROLLBACK');throw error;}finally{c.release();}
   }

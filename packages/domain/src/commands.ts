@@ -6,6 +6,7 @@ const closureArea=z.object({west:z.number().min(-180).max(180),east:z.number().m
 export const schemas={
   'report-closure':z.object({assignmentId:uuid,area:closureArea,observedAt:z.string().datetime({offset:true}),sourceRef:z.string().min(3).max(500),reason:z.string().min(10).max(2000)}),
   'rehearse-route':z.object({assignmentId:uuid}),
+  'acknowledge-route':z.object({routeRevisionId:uuid,acknowledgeReceipt:z.literal(true)}),
   'approve-route':z.object({routeRevisionId:uuid,acknowledgeModeledRoute:z.literal(true)}),
   'review-hos':hosReviewSchema,
   'simulation-clock':z.object({at:z.string().datetime({offset:true})}),
