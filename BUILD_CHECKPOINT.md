@@ -1,10 +1,10 @@
 # RoadStar build checkpoint
 
-Updated: 2026-09-10. Status: AUTHENTICATED_CLOUD_PREVIEW; FULL_PLATFORM_BUILD_IN_PROGRESS.
-Current accepted state: authenticated GCP preview, actual Ontario truck routing, OR-Tools consolidated dispatch, atomic reservations, web/native recovery and ordered execution, source-linked document/facility/detention review, and role-scoped tracking history. Backend22 tests pass (one real-road test opt-in), separately enabled real-road consolidated/backhaul check passes; Python7; native23. Web cloud planning and tracking, Android API35 offline termination/reconnect and complete four-stop consolidated execution passed. Physical Android/native iOS explicitly deferred.
-Branch: build/roadstar-platform. Local preview http://localhost:5174 (Demo dispatcher, demo-carrier); API4010 and optimizer4040. Visible Chrome and Android emulator remain open.
-Cloud: https://roadstar-web-739889188415.us-central1.run.app ; API00010-t58, web00008-mxq.
-Four-minute film and editable13-slide deck/PDF complete and publicly served under /demo/. Ten-field local draft prepared. Private source repository https://github.com/Zen-cronic/roadstar created and pushed after explicit user instruction; GitHub PRIVATE visibility verified. Final submission remains separate. Recorded audio transcript checked, human listening pending.
+Updated: 2026-09-11. Status: THIRD_DESIGN_ACCEPTED; PRIORITY_FIXES_DEPLOYED; FULL_PLATFORM_VERIFICATION_IN_PROGRESS.
+Current accepted state: operator selected keeping the third design pass (f3a003c). Detention lifecycle and automatic shipment-linked draft packets verified locally and committed on main. Dated HOS budget consumption and absolute shift deadline now pass locally. Stop-aware deterministic replay and recoverable API batches are verified and committed through 66fbfec.
+Branch: main, created from existing build history by explicit user request. Commit-split each passing packet as work proceeds; no push requested. Local web http://localhost:5174; physical Android/native iOS remain deferred.
+Cloud: web00024-4ts, API00011-6bb, optimizer00005-t4l and documents00002-5xp serve the accepted update. Firebase recovery/detention smoke22 checks passes. All four third-pass film/deck/caption assets match local SHA256. Existing approved seven-day preview persists; no new resources, push or final submission.
+
 
 ## Authorized objective
 
@@ -126,3 +126,31 @@ Eightisolatedjudgeseatsreviewedbaseline1b7eebf:aboveestimateddashboardfloor/belo
 Finalsyntheticdesign-pass3-final delay/propose/approve/acceptall200. Webbuild/typecheck,10focusedtests(+2configskips),keyboard/responsive/offline/directcloudmetadataandactualtruckroutechecks pass. Nativeunchangedwithprior23tests/emulatorproof,physicaltestingdeferred. Film240.096s1920x1080/24fps,H264/AAC,12framesinspected,54captions,fullplaybackended0errors/0droppedframes. Deckv10all13slides/PDFpagesinspected,editablecontent/notes600s+300sretained. Researchdeck15slides,allslides/PDFpagesinspected. Finalpublicationreceiptwillrecordcloudrevisionandhashes. Noformsave/finalsubmission.
 
 Final third-pass publication: roadstar-web-00021-9hw. Movie/PDF/PPTX/SRT allHTTP200 and exact reviewed local hashes; hosted Chrome movie playback passes. Localweb/emulator user services active. This pass rawauthentication recordings removed aftertrimmed/fullmovie verification. GitHubPRIVATE reverified. No further visual changes after finalcritique.
+
+
+## Operator-selected second design restoration — September11
+
+User explicitly requested reverting the third design pass and continuing product-build from the independent research/panel findings. Restored only presentation files from1b7eebf with exact byte verification. Preserved README defect disclosures and all research. Packet: suite research/build-packets/2026-09-11-restore-second-design.md. Functional remediation follows detention→HOS→simulator, with remaining research acceptance gaps retained.
+
+## Operator correction — September 11
+
+Operator selected keeping the third design pass. Reversed only this session’s temporary second-pass restoration; all 25 presentation paths are byte-identical to f3a003c. Research and pending functional fixes remain in scope. Existing preview will serve the third pass. Run commit-split on main after functional work, per latest authorization; no push requested by that instruction.
+
+## Incremental functional commits — September 11
+
+- e0e85d5: completed-trip departure evidence, own-driver visit snapshots and distinct completion occurrence time. PostgreSQL 24 passed/1 gated road skip; native24, typecheck and built web passed.
+- Shipment-bound automatic detention: 26 PostgreSQL/import tests passed/1 gated road skip; typecheck passed. Includes threshold, missing terms, LTL exclusion, contract substitution and idempotency. Automatic drafts require dispatcher evidence review. Existing pre-migration scenarios have no inferred commercial bindings; use fresh seeded scenario for new automatic-draft proof.
+- User corrected commit timing to commit-split on main as packets pass. HOS packet accepted locally after 33 tests passed/1 gated road skip, five optimizer tests and typecheck/web build. No full daily/rest/cycle certification; missing/reset history fails closed.
+
+HOS acceptance: dated interval consumption, cycle exhaustion, short rest, missing basis, day rollover, duplicate/out-of-order observations, contradictory same-time duty, late-evidence resource invalidation, and non-restarting optimizer shift bound verified. Telemetry ingestion still does not advance scenario clock; explicit simulator clock integration is next.
+
+
+## Priority fixes deployed — September 11 15:13 UTC
+
+Accepted commits through2a5f6cc onmain. Backend37 tests including real Valhalla route, Python16, native24, root typecheck and production web build pass. Android ARM64/x86_64 release rebuilt and installed on API35 emulator; login screen inspected. Current authenticated native offline/termination/reconnect proof remains to repeat. Local web5174 and API4010 healthy.
+
+Independent real-road replay:7,801 unique observations, two closed visits, one CAD1.67 review draft,160 modeled on-duty minutes consumed. Database recovery preserved IDs/evidence. Local131-driver test zero failures, p95 telemetry642ms, synchronization531ms, acknowledgement-to-snapshot2142ms; not CloudSQL capacity proof. See docs/evidence/simulator-real-road-2026-09-11.json and load-test-131.json.
+
+Cloud functional-20260911:22 authenticated checks pass including real truck feasibility, delayed assignment, recovery approval/repeated approval, driver acceptance, completion inside dock, later departure/repeated telemetry, one review draft and explicit clock-driven HOS consumption; forbidden role/carrier requests rejected. See cloud-functional-2026-09-11.json. Samples are explicitly sparse synthetic smoke inputs; realism proof is the separate local replay. Reproduction script scripts/verify-cloud-functional.py requires a freshly seeded synthetic carrier with existing preview identities; refuses a previously assigned carrier.
+
+Deployment corrected explicit traffic pins and misleading prior-ready revision output. Script now uses immutable registry digests and latestCreatedRevisionName. Final web00024-4ts serves allfour third-pass assets with exact reviewed hashes. No further visual redesign. Remaining: current native authenticated parity; GPS offline retention/distance and segmented history; more complete supported HOS/replay acceptance; measured workflow value; current demo claim/acceptance audit. Physical Android/iOS remains operator-deferred. No full compliance, adoption or financial savings claim.

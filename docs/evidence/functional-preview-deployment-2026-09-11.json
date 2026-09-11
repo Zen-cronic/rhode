@@ -1,0 +1,38 @@
+{
+  "api": "roadstar-api-00011-6bb",
+  "optimizer": "roadstar-optimizer-00005-t4l",
+  "web": "roadstar-web-00024-4ts",
+  "documents": "roadstar-documents-00002-5xp",
+  "health": {
+    "ok": true,
+    "database": "postgresql",
+    "auth": "firebase"
+  },
+  "thirdPassAssets": [
+    {
+      "path": "/demo/roadstar-demo.mp4",
+      "status": 200,
+      "sha256": "329ebce920340ad1333be3d54f1c9285348331ca63de419c0a4c58aad8a77d3e",
+      "matchesAcceptedLocal": true
+    },
+    {
+      "path": "/demo/roadstar-pitch.pdf",
+      "status": 200,
+      "sha256": "eb8a84de25fe41212162815f9362f191f2f4e88fcbc8c659addfb29ab5bfee29",
+      "matchesAcceptedLocal": true
+    },
+    {
+      "path": "/demo/roadstar-pitch.pptx",
+      "status": 200,
+      "sha256": "2e4f8d14ae13499a2a509e26efc27b9223bae9811c4c1549a46b6e0442c6fd1a",
+      "matchesAcceptedLocal": true
+    },
+    {
+      "path": "/demo/roadstar-demo.srt",
+      "status": 200,
+      "sha256": "f39241c893c0818500e4c498338bbf53002fe75b708a47c856ccfca605e7fedb",
+      "matchesAcceptedLocal": true
+    }
+  ],
+  "newResources": 0
+}

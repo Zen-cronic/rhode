@@ -1,0 +1,201 @@
+{
+  "measuredAt": "2026-09-11T15:09:19Z",
+  "carrierId": "functional-20260911",
+  "checks": [
+    {
+      "path": "state",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "dispatch",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "respond",
+      "status": 200,
+      "role": "driver-1"
+    },
+    {
+      "path": "dispatch",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "delay",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "state",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "propose",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "approve",
+      "status": 403,
+      "role": "driver-1"
+    },
+    {
+      "path": "approve",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "approve",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "approve",
+      "status": 409,
+      "role": "dispatcher"
+    },
+    {
+      "path": "respond",
+      "status": 200,
+      "role": "driver-2"
+    },
+    {
+      "path": "state",
+      "status": 200,
+      "role": "driver-1"
+    },
+    {
+      "path": "complete-stop",
+      "status": 200,
+      "role": "driver-1"
+    },
+    {
+      "path": "telemetry",
+      "status": 200,
+      "role": "simulator"
+    },
+    {
+      "path": "complete-stop",
+      "status": 200,
+      "role": "driver-1"
+    },
+    {
+      "path": "telemetry",
+      "status": 200,
+      "role": "simulator"
+    },
+    {
+      "path": "telemetry",
+      "status": 200,
+      "role": "simulator"
+    },
+    {
+      "path": "simulation-clock",
+      "status": 200,
+      "role": "simulator"
+    },
+    {
+      "path": "simulation-clock",
+      "status": 200,
+      "role": "simulator"
+    },
+    {
+      "path": "state",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "state",
+      "status": 403,
+      "role": "dispatcher"
+    }
+  ],
+  "recoveryAssignment": {
+    "id": "1b23b30c-d958-4b7b-b210-8fa2f2768117",
+    "loadId": "RS-1043",
+    "driverId": "D-02",
+    "truckId": "T-102",
+    "trailerId": "V-102",
+    "startAt": "2026-09-13T16:15:00.000Z",
+    "endAt": "2026-09-13T19:00:00.000Z",
+    "status": "accepted",
+    "version": 2
+  },
+  "closedVisit": {
+    "id": "f5d96712-b238-49a0-a30f-efd5cbf4753b",
+    "arrival": "2026-09-13T14:30:00+00:00",
+    "load_id": "RS-1042",
+    "stop_id": "london-dock",
+    "departure": "2026-09-13T16:31:00+00:00",
+    "precision": "observed_samples",
+    "carrier_id": "functional-20260911",
+    "arrival_event": "414a535b-c8c5-4d11-ab49-1f3d028f029b",
+    "assignment_id": "bf7cbd6b-b65d-4e6d-a3d7-f3f5191bc337",
+    "departure_event": "b8235f6a-f7ba-4af3-b532-8a5b73fcaec4"
+  },
+  "invoice": {
+    "id": "00e31e2c-f1f0-4321-8682-2e008a385138",
+    "body": {
+      "contract": {
+        "id": "demo-ftl",
+        "version": 1,
+        "currency": "CAD",
+        "carrier_id": "functional-20260911",
+        "provenance": "synthetic scenario terms",
+        "free_minutes": 120,
+        "rate_cents_per_hour": 10000
+      },
+      "currency": "CAD",
+      "evidence": [
+        "414a535b-c8c5-4d11-ab49-1f3d028f029b",
+        "b8235f6a-f7ba-4af3-b532-8a5b73fcaec4"
+      ],
+      "rounding": "whole-minute floor, nearest cent",
+      "automatic": true,
+      "precision": "observed_samples",
+      "amountCents": 167,
+      "dwellMinutes": 121,
+      "shipmentTerms": {
+        "mode": "FTL",
+        "loadId": "RS-1042",
+        "boundAt": "2026-09-11T15:07:46.575Z",
+        "boundBy": "synthetic-fixture"
+      },
+      "billableMinutes": 1,
+      "requiresEvidenceReview": true
+    },
+    "status": "draft",
+    "revision": 1,
+    "visit_id": "f5d96712-b238-49a0-a30f-efd5cbf4753b",
+    "carrier_id": "functional-20260911",
+    "approved_by": null,
+    "contract_id": "demo-ftl",
+    "contract_version": 1
+  },
+  "hosEvidence": {
+    "status": "modeled",
+    "profile": "declared-budget-history",
+    "basisAt": "2026-09-13T12:00:00.000Z",
+    "shiftDeadline": "2026-09-13T21:00:00.000Z",
+    "observations": 2,
+    "drivingMinutes": 0,
+    "onDutyMinutes": 271,
+    "elapsedMinutes": 271,
+    "certifiedELD": false,
+    "note": "Dated duty intervals consume declared initial budgets. No automatic rest/day/cycle reset or certified ELD claim."
+  },
+  "remainingBudget": {
+    "drivingMinutes": 420,
+    "onDutyMinutes": 209,
+    "cycleMinutes": 629,
+    "shiftMinutes": 269
+  },
+  "limitations": [
+    "Synthetic API workflow; no browser or physical-device verification",
+    "Telemetry samples in this smoke are sparse synthetic inputs; independent road replay is separately verified locally",
+    "No financial savings or certified ELD claim"
+  ]
+}

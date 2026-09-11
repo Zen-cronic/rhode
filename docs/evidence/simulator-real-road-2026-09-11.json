@@ -1,0 +1,116 @@
+{
+  "carrierId": "sim-road-3737c594-57d1-49b3-82d2-83a13d789dc9",
+  "assignmentId": "ad5c16ed-9183-461d-9574-86cb96dd7b8a",
+  "runId": "07c22602-6732-4ef8-8836-2668439ecf6e",
+  "conditionsHash": "c3b1fdb3914d5006540940ee697583bf3246548e7639fcc25e919846a7defb39",
+  "events": 7801,
+  "visits": [
+    {
+      "id": "578878e5-ae5d-4bbb-9da7-a1738384a294",
+      "arrival": "2026-09-13T12:30:00+00:00",
+      "load_id": "RS-1042",
+      "stop_id": "milton-yard",
+      "departure": "2026-09-13T12:30:04+00:00",
+      "precision": "observed_samples",
+      "carrier_id": "sim-road-3737c594-57d1-49b3-82d2-83a13d789dc9",
+      "arrival_event": "c0afe6618d84ca30d942ee12fc071b46b781b02f4ad2e55be8176ba3a3fce391",
+      "assignment_id": "ad5c16ed-9183-461d-9574-86cb96dd7b8a",
+      "departure_event": "d96962a4741323fedb4a6384c7ebcca610d42d29c1e3196a5c92d8053d742735"
+    },
+    {
+      "id": "f949eec1-f65c-4513-a2d5-52f7882bd4cc",
+      "arrival": "2026-09-13T12:31:36+00:00",
+      "load_id": "RS-1042",
+      "stop_id": "london-dock",
+      "departure": "2026-09-13T14:32:43+00:00",
+      "precision": "observed_samples",
+      "carrier_id": "sim-road-3737c594-57d1-49b3-82d2-83a13d789dc9",
+      "arrival_event": "827245f991eaf159a226ab09a87da2251b532b6ff97d869b19827230ebffde52",
+      "assignment_id": "ad5c16ed-9183-461d-9574-86cb96dd7b8a",
+      "departure_event": "a19886fc95ef002ec4d77ca4b394009240e803ac0e216a536e684d19647f7ae5"
+    }
+  ],
+  "invoice": {
+    "id": "ea106e81-f02d-4d70-acad-dcb1eda38f1c",
+    "body": {
+      "contract": {
+        "id": "demo-ftl",
+        "version": 1,
+        "currency": "CAD",
+        "carrier_id": "sim-road-3737c594-57d1-49b3-82d2-83a13d789dc9",
+        "provenance": "synthetic scenario terms",
+        "free_minutes": 120,
+        "rate_cents_per_hour": 10000
+      },
+      "currency": "CAD",
+      "evidence": [
+        "827245f991eaf159a226ab09a87da2251b532b6ff97d869b19827230ebffde52",
+        "a19886fc95ef002ec4d77ca4b394009240e803ac0e216a536e684d19647f7ae5"
+      ],
+      "rounding": "whole-minute floor, nearest cent",
+      "automatic": true,
+      "precision": "observed_samples",
+      "amountCents": 167,
+      "dwellMinutes": 121,
+      "shipmentTerms": {
+        "mode": "FTL",
+        "loadId": "RS-1042",
+        "boundAt": "2026-09-11T14:44:42.050Z",
+        "boundBy": "synthetic-fixture"
+      },
+      "billableMinutes": 1,
+      "requiresEvidenceReview": true
+    },
+    "status": "draft",
+    "revision": 1,
+    "visit_id": "f949eec1-f65c-4513-a2d5-52f7882bd4cc",
+    "carrier_id": "sim-road-3737c594-57d1-49b3-82d2-83a13d789dc9",
+    "approved_by": null,
+    "contract_id": "demo-ftl",
+    "contract_version": 1
+  },
+  "driver": {
+    "id": "D-01",
+    "duty": "on_duty",
+    "name": "Alex Chen \u00b7 demo",
+    "budget": {
+      "drivingMinutes": 417,
+      "onDutyMinutes": 320,
+      "cycleMinutes": 740,
+      "shiftMinutes": 380
+    },
+    "position": {
+      "lat": 43.52999,
+      "lng": -79.877386
+    },
+    "budgetAsOf": "2026-09-13T14:40:00.000Z",
+    "provenance": "synthetic",
+    "kind": "driver",
+    "version": 7802,
+    "hosEvidence": {
+      "status": "modeled",
+      "profile": "declared-budget-history",
+      "basisAt": "2026-09-13T12:00:00.000Z",
+      "shiftDeadline": "2026-09-13T21:00:00.000Z",
+      "observations": 7801,
+      "drivingMinutes": 2.566666666666667,
+      "onDutyMinutes": 160,
+      "elapsedMinutes": 160,
+      "certifiedELD": false,
+      "note": "Dated duty intervals consume declared initial budgets. No automatic rest/day/cycle reset or certified ELD claim."
+    }
+  },
+  "scenarioClock": "2026-09-13T14:40:00+00:00",
+  "wallSeconds": 204.12,
+  "routeEvidence": "valhalla-truck",
+  "synthetic": true,
+  "verifiedAfterDatabaseRecovery": true,
+  "previousFloatingPointBudget": 319,
+  "exactDutyRemaining": 320,
+  "limitations": [
+    "Local API/PostgreSQL; not a cloud capacity measurement",
+    "Synthetic dock positions on a real 2.424 km Milton Valhalla truck route; stop identifiers inherited from fixture are not physical London facility claims",
+    "One-second observations are measured sample times, not exact boundary crossing times",
+    "Declared HOS basis; no certified ELD or automatic legal reset"
+  ]
+}
