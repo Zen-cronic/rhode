@@ -3,7 +3,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { request } from "./api";
 import type { Session, State } from "./api";
 import { loadMaps } from "./MapPanel";
-import { appliedTrails, dispositionLabel, mergeSamples, sampleNumber, validPosition } from "./tracking-model";
+import { appliedTrails, dispositionLabel, mergeSamples, sampleNumber, trackingDistance, validPosition } from "./tracking-model";
 import type { TrackingPage, TrackingPoint } from "./tracking-model";
 const when=(at:string)=>new Date(at).toLocaleString('en-CA',{timeZone:'America/Toronto',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit'});
 export function Tracking({state,session,online}:{state:State;session:Session;online:boolean}){
@@ -22,6 +22,7 @@ export function Tracking({state,session,online}:{state:State;session:Session;onl
   });
   useEffect(()=>{if(assignmentId&&permitted&&online)void history.refetch();},[state.cursor]);
   const samples=useMemo(()=>permitted?mergeSamples(history.data?.pages??[]):[],[history.data,permitted]);
+  const distance=useMemo(()=>trackingDistance(samples),[samples]);
   const selected=samples.find(point=>point.id===selectedId);
   const applied=samples.filter(point=>point.disposition==='applied'&&validPosition(point));
   return <section className="panel tracking-panel">
@@ -37,7 +38,9 @@ export function Tracking({state,session,online}:{state:State;session:Session;onl
       {!!history.data&&!samples.length&&<p className="empty">No telemetry samples have been recorded for this assignment.</p>}
       {!!samples.length&&<>
         <div className="panel-heading"><p className="fine">{samples.length} loaded samples · {applied.length} applied coordinates · {samples.length-applied.length} excluded from the trail</p><button disabled={!online||history.isFetching} onClick={()=>void history.refetch()}>{history.isFetching?'Refreshing history…':'Refresh history'}</button></div>
-        <p className="notice">Lines join consecutive applied samples only. Gaps break at uncertain, out-of-order or invalid coordinates. The traveled path between samples is unknown; recorded timestamps are not authoritative boundary-crossing or billing times.</p>
+        <p className="notice">Lines join consecutive applied samples only. Gaps break at excluded or poor GPS samples, intervals over two minutes, conflicting timestamps, source changes, or implied movement over 160 km/h after GPS uncertainty. These are display assumptions. The traveled path between samples is unknown; recorded timestamps are not authoritative boundary-crossing or billing times.</p>
+        <p className="fine">Loaded history only · {distance.segments} separate segments · Reported odometer distance {sampleNumber(distance.odometerKm,'km')} across {distance.odometerIntervals} valid intervals. {distance.missingOdometerIntervals} linked intervals lack usable odometer readings.</p>
+        <p className="fine">GPS chord estimate {sampleNumber(distance.gpsChordKm,'km')} across {distance.gpsIntervals} movements beyond GPS uncertainty. This estimate excludes gaps and stationary jitter; it is not vehicle mileage or a road-route measurement.</p>
         <BreadcrumbMap key={assignmentId} samples={samples} selected={selected}/>
         {selected&&<div className="selected-sample" aria-live="polite"><h3>Selected sample · {when(selected.at)} ET</h3><p><strong>{dispositionLabel(selected.disposition)}</strong> · {selected.provenance} · {selected.duty.replaceAll('_',' ')}</p><p>Speed {sampleNumber(selected.speedKph,'km/h')} · Odometer {sampleNumber(selected.odometerKm,'km')} · Accuracy {sampleNumber(selected.accuracyM,'m')}</p><p className="fine">Sampled {when(selected.at)} ET · Received {when(selected.recordedAt)} ET</p><code>{selected.id}</code>{validPosition(selected)&&<p className="fine">Recorded coordinate: {selected.position.lat}, {selected.position.lng}. Accuracy radius describes this sample only.</p>}<button onClick={()=>setSelectedId(null)}>Clear selected sample</button></div>}
         <p className="fine">Orange dots are recorded sample locations. Select a sample to inspect its reported accuracy radius.</p><h3>Sample history</h3><p className="fine">Newest first. Unknown measurements remain unknown; no speed or odometer values are inferred.</p>
