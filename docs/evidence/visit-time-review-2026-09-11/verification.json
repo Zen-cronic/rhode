@@ -1,0 +1,83 @@
+{
+  "verifiedAt": "2026-09-11T21:31:14.538Z",
+  "carrier": "dock-document-c50e2b62-4ded-4a34-a2ea-34e4c5eb0a94",
+  "assignmentId": "aa4c7401-8cc0-4696-87cb-c4f8cb08721c",
+  "visitId": "ac42faf4-fecd-4772-8ec4-c35787d1cc2d",
+  "sourceDocumentId": "2965b094-3fc8-4991-a77d-d9a57a2f79b4",
+  "sourceSha256": "b0e22368a8f1de5ef8fec1ced90ee13558db42999ac796f4bf6e985f66ac7b88",
+  "correction": {
+    "carrier_id": "dock-document-c50e2b62-4ded-4a34-a2ea-34e4c5eb0a94",
+    "id": "49359f3c-05d3-4372-80d4-b44f81aa01c9",
+    "visit_id": "ac42faf4-fecd-4772-8ec4-c35787d1cc2d",
+    "revision": 1,
+    "document_id": "2965b094-3fc8-4991-a77d-d9a57a2f79b4",
+    "reviewed_by": "demo-dispatcher",
+    "recorded_at": "2026-09-11T21:31:13.410Z",
+    "fingerprint": "7cb4a5b7f2d4b7b9e27f3f9b3a41206de7a9b4fc745353fbbc13a4c46ce05dac",
+    "body": {
+      "reason": "The facility GPS observations include yard time before dock check-in and after release; the reviewed ticket supplies dock service times.",
+      "document": {
+        "id": "2965b094-3fc8-4991-a77d-d9a57a2f79b4",
+        "sha256": "b0e22368a8f1de5ef8fec1ced90ee13558db42999ac796f4bf6e985f66ac7b88",
+        "version": 4,
+        "filename": "synthetic-milton-dock-ticket.pdf",
+        "media_type": "application/pdf"
+      },
+      "observed": {
+        "arrivalAt": "2026-09-13T12:30:00.000Z",
+        "departureAt": "2026-09-13T15:15:00.000Z",
+        "arrivalEvent": "arrival",
+        "departureEvent": "departure"
+      },
+      "arrivalAt": "2026-09-13T12:40:00.000Z",
+      "provenance": "document-reviewed",
+      "recordedAt": "2026-09-11T21:31:13.423Z",
+      "reviewedBy": "demo-dispatcher",
+      "sourceNote": "Page 1: the synthetic facility desk ticket identifies RS-1042 at Milton yard, check-in 12:40 UTC and release 15:10 UTC.",
+      "departureAt": "2026-09-13T15:10:00.000Z",
+      "previousRevisionId": null
+    }
+  },
+  "invoiceRevisions": [
+    {
+      "id": "bc035c8e-b4e3-446d-8812-8d6f62cdee05",
+      "revision": 1,
+      "status": "draft",
+      "amountCents": 7500,
+      "precision": "observed_samples"
+    },
+    {
+      "id": "176416b6-c95f-4055-9672-9d4fe6da9681",
+      "revision": 2,
+      "status": "approved",
+      "amountCents": 7500,
+      "precision": "observed_samples"
+    },
+    {
+      "id": "35bfdc6d-c0f8-48ea-be40-1b3caee3a11e",
+      "revision": 3,
+      "status": "draft",
+      "amountCents": 5000,
+      "precision": "reviewed_document_times"
+    },
+    {
+      "id": "15a49c20-2b7d-45fa-9721-06cf7601d90e",
+      "revision": 4,
+      "status": "approved",
+      "amountCents": 5000,
+      "precision": "reviewed_document_times"
+    }
+  ],
+  "errors": [],
+  "checks": [
+    "actual uploaded source PDF downloaded byte-for-byte",
+    "document version change disables open correction review",
+    "dispatcher records document/GPS conflict with source note and reason",
+    "exact correction retry creates no extra revision",
+    "separate invoice approval preserves corrected precision",
+    "original telemetry, visits, resources and prior $75 approval unchanged",
+    "new $50 approval retained with all four invoice revisions",
+    "desktop/narrow/offline history verified without overflow"
+  ],
+  "limits": "Local actual PostgreSQL/API and built web; migration019/cloud/native correction UI not deployed. Document times are dispatcher-reviewed source claims, not certified physical timestamps. No payment or source rewriting."
+}
