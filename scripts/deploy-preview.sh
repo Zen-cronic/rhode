@@ -18,5 +18,7 @@ done < apps/web/.env.production
 docker build -f infra/Dockerfile.web -t "$roadstar_registry/web:preview" "${roadstar_args[@]}" .
 docker push "$roadstar_registry/web:preview"
 gcloud run services update roadstar-web --project "$roadstar_project" --region "$roadstar_region" --image "$roadstar_registry/web:preview" --quiet
+# Explicit traffic pins survive service updates; publish this newly built revision.
+gcloud run services update-traffic roadstar-web --project "$roadstar_project" --region "$roadstar_region" --to-latest --quiet
 # Document worker shares the operational image; existing command/env/service identity remain unchanged.
 gcloud run services update roadstar-documents --project "$roadstar_project" --region "$roadstar_region" --image "$roadstar_registry/api:preview" --quiet
