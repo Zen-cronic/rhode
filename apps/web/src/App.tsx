@@ -1,3 +1,4 @@
+import {VisitTimeCorrection} from './VisitTimeCorrection';
 import {SimulatorControls} from './SimulatorControls';
 import { VisitReconciliation } from './VisitReconciliation';
 import {DriverRouteReview} from './DriverRouteReview';
@@ -655,6 +656,7 @@ export function App() {
                     }
                   />
                   <VisitReconciliation state={state} session={session} send={send} online={online}/>
+                  <VisitTimeCorrection state={state} session={session} send={send} online={online}/>
                   <EvidenceBilling
                     state={state}
                     send={send}

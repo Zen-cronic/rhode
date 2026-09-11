@@ -80,7 +80,7 @@ export function EvidenceBilling({
                     {invoice.revision}
                   </strong>
                   <p className="fine">
-                    {invoice.body.dwellMinutes} minutes observed ·{" "}
+                    {invoice.body.dwellMinutes} minutes {invoice.body.timingEvidence?'reviewed':'observed'} ·{" "}
                     {invoice.body.billableMinutes} billable minutes
                   </p>
                 </div>
@@ -98,6 +98,8 @@ export function EvidenceBilling({
                   : ""}
               </p>
               <p className="fine">{invoice.body.visitPolicy?'Free-time allowance applies to this observed visit. Exit and return are not merged.':'Historical invoice: visit-session policy was not recorded in this revision.'}</p>
+              {!!invoice.body.timingConflicts?.length&&<p className="notice">{invoice.body.timingConflictReview?'A previously flagged overlap was rechecked and resolved at approval.':'Draft flagged overlapping visit times. Review the document correction before billing approval; the server rechecks current visits.'}</p>}
+              {invoice.body.timingEvidence&&<div className="notice"><strong>Reviewed document times</strong><p>{date(invoice.body.timingEvidence.arrivalAt)} → {date(invoice.body.timingEvidence.departureAt)}</p><p>{invoice.body.timingEvidence.document.filename} · correction {invoice.body.timingEvidence.revision} · {invoice.body.timingEvidence.reason}</p><p className="fine">Original GPS observations remain unchanged. Prior invoice revisions are history, not additional charges.</p></div>}
               {invoice.body.review && (
                 <details>
                   <summary>Approval evidence</summary>
@@ -168,13 +170,14 @@ function InvoiceApproval({
         established by these timestamps. Review sample uncertainty, same-stop
         evidence and configured terms before approval.
       </div>
+      {invoice.body.timingEvidence&&<div className="notice"><strong>Document times supersede GPS times for this billing draft.</strong><p>{date(invoice.body.timingEvidence.arrivalAt)} → {date(invoice.body.timingEvidence.departureAt)}</p><p>{invoice.body.timingEvidence.document.filename} · {invoice.body.timingEvidence.sourceNote}</p><p>{invoice.body.timingEvidence.reason}</p></div>}
       <dl>
         <dt>Observed arrival / departure</dt>
         <dd>
           {visit ? date(visit.arrival) : "Visit unavailable"} →{" "}
           {visit?.departure ? date(visit.departure) : "Departure unavailable"}
         </dd>
-        <dt>Observed / billable duration</dt>
+        <dt>{invoice.body.timingEvidence?'Reviewed / billable duration':'Observed / billable duration'}</dt>
         <dd>
           {invoice.body.dwellMinutes} / {invoice.body.billableMinutes} minutes
         </dd>
@@ -203,6 +206,7 @@ function InvoiceApproval({
             {
               invoiceId: invoice.id,
               acknowledgeObservedSamples: true,
+              ...(invoice.body.timingEvidence?{acknowledgeCorrectedTimes:true}:{}),
               evidenceNote: note.trim(),
             },
             invoice.revision,
@@ -221,7 +225,7 @@ function InvoiceApproval({
           />
           <span>
             I reviewed the observed samples, their uncertainty, the same-stop
-            evidence and the configured contract terms.
+            evidence and the configured contract terms.{invoice.body.timingEvidence?' I also reviewed the corrected document times and their supporting evidence.':''}
           </span>
         </label>
         <label>

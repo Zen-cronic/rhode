@@ -56,6 +56,9 @@ export type Invoice = {
   revision: number;
   status: string;
   body: {
+    timingConflicts?: {visitId:string;stopId:string;arrivalAt:string;departureAt:string|null}[];
+    timingConflictReview?: {remainingConflicts:unknown[];checkedAt:string};
+    timingEvidence?: {correctionId:string;revision:number;arrivalAt:string;departureAt:string;sourceNote:string;reason:string;reviewedBy:string;recordedAt:string;document:{id:string;version:number;sha256:string;filename:string}};
     visitPolicy?: {id:string;boundaryRule:string;reentryRule:string;freeTimeScope:string};
     dwellMinutes: number;
     billableMinutes: number;
