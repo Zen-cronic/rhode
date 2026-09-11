@@ -27,9 +27,13 @@ export class Queue {
   async saveDraft(name:string,body:string){await this.db.runAsync('INSERT INTO drafts(scope,name,body) VALUES(?,?,?) ON CONFLICT(scope,name) DO UPDATE SET body=excluded.body',this.scope,name,body);}
   async enqueue(id:string,path:string,body:unknown,expectedVersion:number,label:string){
     const encoded=JSON.stringify(body);
+    const sameId=await this.db.getFirstAsync<Command>('SELECT * FROM commands WHERE id=?',id);
+    if(sameId){if(sameId.scope!==this.scope||sameId.path!==path||sameId.body!==encoded||sameId.expectedVersion!==expectedVersion)throw new Error('Command ID already belongs to different content.');return sameId.id;}
     const existing=await this.db.getFirstAsync<Command>("SELECT * FROM commands WHERE scope=? AND path=? AND body=? AND status='pending'",this.scope,path,encoded);
     if(existing&&!path.includes('/document'))return existing.id;
-    await this.db.runAsync("INSERT INTO commands(id,scope,path,body,expectedVersion,label,status,createdAt) VALUES(?,?,?,?,?,?,'pending',?)",id,this.scope,path,encoded,expectedVersion,label,new Date().toISOString());
+    await this.db.runAsync("INSERT OR IGNORE INTO commands(id,scope,path,body,expectedVersion,label,status,createdAt) VALUES(?,?,?,?,?,?,'pending',?)",id,this.scope,path,encoded,expectedVersion,label,new Date().toISOString());
+    const inserted=await this.db.getFirstAsync<Command>('SELECT * FROM commands WHERE id=?',id);
+    if(!inserted||inserted.scope!==this.scope||inserted.path!==path||inserted.body!==encoded||inserted.expectedVersion!==expectedVersion)throw new Error('Command ID already belongs to different content.');
     return id;
   }
   async flush(send:(command:Command)=>Promise<{status:number;body:unknown}>,eligible:(command:Command)=>boolean=()=>true) {

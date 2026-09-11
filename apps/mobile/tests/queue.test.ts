@@ -43,3 +43,9 @@ test('background flush cannot execute a queued consequential command',async()=>{
  const {sqlite,db}=connect(':memory:');const q=new Queue(db,'a');await q.init();await q.enqueue('approval','/api/approve',{proposalId:'p'},3,'Approve');await q.enqueue('gps','/api/telemetry',{id:'sample'},0,'Location');const sent:string[]=[];
  await q.flush(async c=>{sent.push(c.path);return {status:200,body:{}};},c=>c.path==='/api/telemetry');assert.deepEqual(sent,['/api/telemetry']);assert.equal((await q.list()).find(c=>c.id==='approval')?.status,'pending');sqlite.close();
 });
+
+test('concurrent same-ID callbacks retain one command and content collisions cannot cross scope',async()=>{
+ const {sqlite,db}=connect(':memory:');const a=new Queue(db,'a'),other=new Queue(db,'b');await a.init();const parallel=new Queue(db,'a');
+ await Promise.all([a.enqueue('sample','/api/telemetry',{id:'sample'},0,'GPS'),parallel.enqueue('sample','/api/telemetry',{id:'sample'},0,'GPS')]);assert.equal((await a.list()).length,1);
+ await assert.rejects(other.enqueue('sample','/api/telemetry',{id:'sample'},0,'GPS'),/different content/);await assert.rejects(a.enqueue('sample','/api/telemetry',{id:'changed'},0,'GPS'),/different content/);assert.equal((await other.list()).length,0);sqlite.close();
+});
