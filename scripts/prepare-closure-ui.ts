@@ -1,0 +1,8 @@
+import {randomUUID} from 'node:crypto';import assert from 'node:assert/strict';import {writeFile} from 'node:fs/promises';
+import {pool} from '../services/api/src/db.ts';import {Store} from '../services/api/src/store.ts';import {milton} from '../services/api/src/fixtures.ts';
+const db=pool('postgresql://roadstar:local-roadstar-only@127.0.0.1:55432/roadstar'),store=new Store(db),carrier='route-review-'+randomUUID(),checks:any[]=[];
+async function call(path:string,body?:unknown,version=1,role='demo-dispatcher',key=randomUUID(),expected=200){const r=await fetch('http://127.0.0.1:4010/api/'+path,{method:body===undefined?'GET':'POST',headers:{authorization:'Bearer '+role,'x-carrier-id':carrier,'idempotency-key':key,'if-match':String(version),'content-type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});const result=await r.json();assert.equal(r.status,expected,JSON.stringify(result));checks.push({path,status:r.status,role});return result as any;}
+try{
+await store.seed(carrier);const trip=await call('dispatch',{loadId:'RS-1042',driverId:'D-01',truckId:'T-101',trailerId:'V-101'});await call('respond',{assignmentId:trip.id,action:'accept'},1,'demo-driver-1');await call('simulation-clock',{at:trip.startAt},1,'demo-simulator');
+await call('telemetry',{id:randomUUID(),assignmentId:trip.id,at:trip.startAt,position:milton,accuracyM:5,speedKph:0,odometerKm:100,duty:'on_duty',provenance:'synthetic'},1,'demo-simulator');await call('complete-stop',{assignmentId:trip.id,stopId:milton.id,occurredAt:trip.startAt},2,'demo-driver-1');
+await writeFile('/tmp/roadstar-closure-ui-fixture.json',JSON.stringify({carrier,trip}));console.log('Fresh closure UI fixture ready');}finally{await db.end()}

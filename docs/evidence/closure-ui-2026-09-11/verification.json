@@ -1,0 +1,16 @@
+{
+  "carrier": "route-review-ce580191-0e1b-4dbe-8f1d-4d070f6aa5a9",
+  "assignmentId": "9d786c8f-6247-4b30-b528-0b8b6dabf457",
+  "productionBuild": true,
+  "errors": [],
+  "overflow": false,
+  "assertions": [
+    "record closure from labeled synthetic preset",
+    "real truck route diagram and toll disclosure",
+    "explicit approval acknowledgment",
+    "approved revision retained",
+    "new GPS disables open approval dialog",
+    "390px unresolved result",
+    "offline commands disabled"
+  ]
+}
