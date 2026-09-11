@@ -1,0 +1,43 @@
+{
+  "verifiedAt": "2026-09-11T16:07:16.810Z",
+  "carrier": "sim-consequences-0243dd07-eb60-4948-a7c2-ab5784bbb3aa",
+  "assignmentId": "d07d6833-00e5-4f7d-8c44-99b1b6061d72",
+  "nextAssignmentId": "c8e438f9-e435-4ba8-aac7-8b09d27d6323",
+  "runId": "92475b93-27b6-4751-bd04-76cf73c2c7a8",
+  "conditionsHash": "27e7cac63d39793fc8672be1196c994defd4744c6794b5b9a041e3ac98aebbb6",
+  "routeEvidence": "actual Valhalla truck route, Milton to London synthetic facilities",
+  "routePoints": 864,
+  "configuredDockWaitSeconds": 18000,
+  "delay": {
+    "key": "adc475bc16281721a22f0b988f0cb78fb6997499d3b49fb3efb805cc8a2e2f16",
+    "version": 2,
+    "end_ms": 1789328766000,
+    "body": {
+      "assignmentId": "d07d6833-00e5-4f7d-8c44-99b1b6061d72",
+      "expectedEnd": "2026-09-13T19:46:06+00:00",
+      "observedAt": "2026-09-13T12:30:00+00:00",
+      "reason": "Simulator observed dock_wait; modeled completion uses seeded road speeds and configured stop dwell. Road disruption included: False. Conditions 27e7cac63d39793fc8672be1196c994defd4744c6794b5b9a041e3ac98aebbb6. Dispatcher review required."
+    },
+    "result": {
+      "id": "5d66be2c-2571-4869-ad89-7c0d0c02e186",
+      "assignmentId": "d07d6833-00e5-4f7d-8c44-99b1b6061d72",
+      "expectedEnd": "2026-09-13T19:46:06+00:00",
+      "impactedLoads": [
+        {
+          "id": "c8e438f9-e435-4ba8-aac7-8b09d27d6323",
+          "load_id": "RS-1043",
+          "start_at": "2026-09-13T16:15:00.000Z",
+          "end_at": "2026-09-13T19:00:00.000Z"
+        }
+      ],
+      "provenance": "synthetic",
+      "status": "awaiting_recovery",
+      "note": "Observed delay retained; planned reservations remain visible until a feasible recovery is approved."
+    }
+  },
+  "uniqueTelemetry": "3",
+  "reservationsUnchanged": true,
+  "approvals": 0,
+  "resetDuplicateDisruptions": 0,
+  "scope": "Local separate simulator process → authenticated Fastify API → PostgreSQL; seeded speed/dwell model, not real traffic or a physical dock timestamp. No cloud deployment of this packet yet."
+}
