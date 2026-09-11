@@ -2,7 +2,11 @@ import {hosReviewSchema} from './hos-import.ts';
 import {z} from 'zod';
 const id=z.string().min(1).max(128),uuid=z.string().uuid();
 const assignmentInput=z.object({loadId:id,driverId:id,truckId:id,trailerId:id});
+const closureArea=z.object({west:z.number().min(-180).max(180),east:z.number().min(-180).max(180),south:z.number().min(-90).max(90),north:z.number().min(-90).max(90)}).refine(a=>a.west<a.east&&a.south<a.north&&a.east-a.west<=.5&&a.north-a.south<=.5,'Positive regional closure bounds required');
 export const schemas={
+  'report-closure':z.object({assignmentId:uuid,area:closureArea,observedAt:z.string().datetime({offset:true}),sourceRef:z.string().min(3).max(500),reason:z.string().min(10).max(2000)}),
+  'rehearse-route':z.object({assignmentId:uuid}),
+  'approve-route':z.object({routeRevisionId:uuid,acknowledgeModeledRoute:z.literal(true)}),
   'review-hos':hosReviewSchema,
   'simulation-clock':z.object({at:z.string().datetime({offset:true})}),
   'bind-contract':z.object({loadId:id,contractId:id}),

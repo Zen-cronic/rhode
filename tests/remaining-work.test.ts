@@ -4,7 +4,7 @@ import {remainingWork} from '../services/api/src/remaining-work.ts';
 import {fixtures,london,milton} from '../services/api/src/fixtures.ts';
 const input={assignmentIds:['first'],stops:[{assignmentId:'first',stopId:milton.id,point:milton},{assignmentId:'first',stopId:london.id,point:london}],truck:fixtures().trucks[0],provenance:'synthetic',now:'2026-09-13T15:00:00Z',startAt:'2026-09-13T12:30:00Z',releaseAt:'2026-09-13T16:00:00Z',availableAt:'2026-09-13T15:00:00Z',drivingMinutes:105,serviceMinutes:60};
 const sample={id:'gps',at:input.now,accuracy_m:5,disposition:'applied',body:{position:{lat:london.lat+0.001,lng:london.lng+0.001},provenance:'synthetic'}};
-const database=(point:any,completed:any[]=[])=>({query:async(sql:string)=>({rows:sql.includes('FROM telemetry')?(point?[point]:[]):completed})}) as any;
+const database=(point:any,completed:any[]=[],closures:any[]=[])=>({query:async(sql:string)=>{if(sql.includes('FROM telemetry'))return {rows:point?[point]:[]};if(sql.includes('FROM road_closures'))return {rows:closures};if(sql.includes('FROM stop_completions'))return {rows:completed};throw new Error('Unexpected fixture query');}}) as any;
 const routeTest={skip:!process.env.ROAD_ROUTING_TEST_URL};
 test('remaining driving uses actual truck route after dated pickup; future wait still consumes duty',routeTest,async()=>{
  process.env.OPTIMIZER_URL=process.env.ROAD_ROUTING_TEST_URL;
@@ -27,4 +27,8 @@ test('consolidated pending manifest stops remain in route and completion belongs
  const done=[{assignment_id:'first',stop_id:milton.id}];
  const result=await remainingWork(database(sample,done),'synthetic-test',{...input,stops,assignmentIds:['first','second'],drivingMinutes:210,serviceMinutes:100});
  assert.equal(result.completedStops,1);assert.ok(result.drivingMinutes>60);assert.ok(result.dutyMinutes>=result.drivingMinutes+100);
+});
+
+test('closure-affected work cannot fall back to old declared driving without current GPS',async()=>{
+ await assert.rejects(remainingWork(database(null,[],[{id:'closed',area:{west:-80.5,east:-80.49,south:43.2,north:43.21}}]),'synthetic-test',input),{code:'CLOSURE_PROGRESS_UNAVAILABLE'});
 });

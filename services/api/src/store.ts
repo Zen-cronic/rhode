@@ -1,3 +1,4 @@
+import {closureAreas,requireReviewedClosure,routeRevisionProof} from './closures.ts';
 import {hosReviewSchema,importedHosProfile,type HosReviewInput} from '../../../packages/domain/src/hos-import.ts';
 import {mileageReport} from './mileage.ts';
 import {emulatorVerification} from './verification.ts';
@@ -61,6 +62,42 @@ export class Store {
   async getAssignment(c:pg.PoolClient,a:Actor,id:string){
     const r=await c.query('SELECT * FROM assignments WHERE carrier_id=$1 AND id=$2',[a.carrierId,id]);demand(r.rows[0],'NOT_FOUND','Assignment not found.',404);return assignment(r.rows[0]);
   }
+  reportClosure(a:Actor,cmd:Command,input:Row){return this.command(a,cmd,'closure.reported',input,async c=>{
+    demand(a.role==='dispatcher'||a.role==='simulator','FORBIDDEN','Dispatcher or simulator identity required.',403);
+    const trip=await this.getAssignment(c,a,input.assignmentId),load=await this.load(c,a,trip.loadId);
+    demand(a.role!=='simulator'||load.provenance==='synthetic','FORBIDDEN','Simulator can report closures only for synthetic trips.',403);
+    demand(trip.status==='accepted'&&trip.version===cmd.expectedVersion,'STALE_VERSION','Accepted trip changed. Refresh before recording a closure.');
+    const now=await this.now(c,a,load.provenance);demand(timestamp(input.observedAt)<=timestamp(now),'FUTURE_EVENT','Closure observation cannot be in the future.');
+    demand(timestamp(input.observedAt)>=timestamp(trip.startAt),'BEFORE_TRIP','Closure observation precedes this trip.');
+    const id=randomUUID();await c.query('INSERT INTO road_closures(carrier_id,id,assignment_id,area,observed_at,source_ref,reason,provenance,recorded_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)',[a.carrierId,id,trip.id,JSON.stringify(input.area),input.observedAt,input.sourceRef,input.reason,load.provenance,a.uid]);
+    await c.query('UPDATE assignments SET version=version+1 WHERE carrier_id=$1 AND id=$2',[a.carrierId,trip.id]);
+    return {id,assignmentId:trip.id,assignmentVersion:trip.version+1,status:'unresolved',note:'Closure retained. Prepare and approve a remaining-route revision before relying on the prior plan.'};
+  });}
+  rehearseRoute(a:Actor,cmd:Command,input:Row){this.dispatcher(a);return this.command(a,cmd,'route.rehearsed',input,async c=>{
+    const trip=await this.getAssignment(c,a,input.assignmentId);demand(trip.version===cmd.expectedVersion,'STALE_VERSION','Trip changed. Refresh.');
+    const proof=await routeRevisionProof(this,c,a,trip.id),id=randomUUID(),status=proof.eligible?'pending':'unresolved';
+    await c.query('INSERT INTO route_revisions(carrier_id,id,assignment_id,status,body,created_by) VALUES($1,$2,$3,$4,$5,$6)',[a.carrierId,id,trip.id,status,JSON.stringify(proof),a.uid]);return {id,revision:1,status,body:proof};
+  });}
+  approveRoute(a:Actor,cmd:Command,input:Row){this.dispatcher(a);return this.command(a,cmd,'route.approved',input,async c=>{
+    demand(input.acknowledgeModeledRoute===true,'REVIEW_REQUIRED','Acknowledge the modeled route before approval.',400);
+    const row=(await c.query('SELECT * FROM route_revisions WHERE carrier_id=$1 AND id=$2',[a.carrierId,input.routeRevisionId])).rows[0];
+    demand(row,'NOT_FOUND','Route review not found.',404);demand(row.status==='pending'&&row.revision===cmd.expectedVersion,'STALE_PROPOSAL','Route review changed. Rehearse again.');
+    const fresh=await routeRevisionProof(this,c,a,row.assignment_id),prior=row.body;
+    demand(fresh.assignmentVersion===prior.assignmentVersion&&fresh.loadVersion===prior.loadVersion&&canonical(fresh.closures)===canonical(prior.closures)&&canonical('resources' in fresh?fresh.resources:null)===canonical(prior.resources)&&('telemetryId' in fresh?fresh.telemetryId:null)===prior.telemetryId,'STALE_PROPOSAL','Trip, closure, GPS or resource evidence changed. Rehearse again.');
+    demand(fresh.eligible,'INELIGIBLE',fresh.reasons.join(' '));demand('routeFingerprint' in fresh&&fresh.routeFingerprint===prior.routeFingerprint,'STALE_PROPOSAL','Truck route changed since rehearsal.');
+    const trip=await this.getAssignment(c,a,row.assignment_id);
+    await c.query("UPDATE route_revisions SET status='approved',revision=revision+1,approved_by=$3,approved_at=now(),body=$4 WHERE carrier_id=$1 AND id=$2",[a.carrierId,row.id,a.uid,JSON.stringify({...prior,approvalEvidence:fresh})]);
+    await c.query('UPDATE assignments SET version=version+1 WHERE carrier_id=$1 AND id=$2',[a.carrierId,trip.id]);
+    await c.query('INSERT INTO outbox(carrier_id,id,kind,payload) VALUES($1,$2,$3,$4)',[a.carrierId,randomUUID(),'driver.assignment',JSON.stringify({assignmentId:trip.id,driverId:trip.driverId,routeRevisionId:row.id,notifyDriverIds:[trip.driverId]})]);
+    return {id:row.id,revision:row.revision+1,status:'approved',assignmentVersion:trip.version+1,body:fresh,note:'Reviewed route revision is available. Driver receipt/adoption is separate; original observations and reservations are unchanged.'};
+  });}
+  async routeReviews(a:Actor,assignmentId:string){
+    const c=await this.db.connect();try{await c.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');const trip=await this.getAssignment(c,a,assignmentId),load=await this.load(c,a,trip.loadId);
+      demand(a.role==='dispatcher'||(a.role==='driver'&&a.driverId===trip.driverId)||(a.role==='simulator'&&load.provenance==='synthetic'),'FORBIDDEN','Route evidence belongs to another driver or operation.',403);
+      const result={assignmentId,assignmentVersion:trip.version,closures:(await c.query('SELECT * FROM road_closures WHERE carrier_id=$1 AND assignment_id=$2 ORDER BY recorded_at',[a.carrierId,assignmentId])).rows,revisions:(await c.query('SELECT * FROM route_revisions WHERE carrier_id=$1 AND assignment_id=$2 ORDER BY created_at DESC',[a.carrierId,assignmentId])).rows};
+      await c.query('COMMIT');return result;
+    }catch(error){await c.query('ROLLBACK');throw error;}finally{c.release();}
+  }
   async simulationAssignment(a:Actor,id:string){
     demand(a.role==='simulator'||a.role==='dispatcher','FORBIDDEN','Simulation control identity required.',403);
     const row=(await this.db.query("SELECT a.id,a.version,a.end_at,a.status,l.body FROM assignments a JOIN loads l ON l.carrier_id=a.carrier_id AND l.id=a.load_id WHERE a.carrier_id=$1 AND a.id=$2",[a.carrierId,id])).rows[0];
@@ -89,9 +126,13 @@ export class Store {
     let driver=await this.resource<Driver>(c,a,input.driverId,'driver'),truck=await this.resource<Truck>(c,a,input.truckId,'truck'),trailer=await this.resource<Trailer>(c,a,input.trailerId,'trailer');
     const rows=await c.query("SELECT a.*,greatest(a.end_at,coalesce((SELECT max(d.expected_end) FROM disruptions d WHERE d.carrier_id=a.carrier_id AND d.assignment_id=a.id),a.end_at)) AS end_at FROM assignments a WHERE carrier_id=$1 AND status IN ('offered','accepted')",[a.carrierId]);
     const now=await this.now(c,a,load.provenance);
+    for(const trip of rows.rows.filter(r=>r.id!==ignoreId&&r.driver_id===driver.id)){
+      const closures=await closureAreas(c,a.carrierId,[trip.id]);if(closures.length){await requireReviewedClosure(c,a.carrierId,trip.id);demand(new Date(trip.end_at).getTime()>timestamp(now),'CLOSURE_PROGRESS_UNAVAILABLE','Closure-affected trip has passed its planned end; review completion before committing more work.');}
+    }
     const previous=rows.rows.filter(r=>r.id!==ignoreId&&r.driver_id===driver.id&&new Date(r.start_at).getTime()<timestamp(load.startAt)&&new Date(r.end_at).getTime()>timestamp(now)).sort((x,y)=>new Date(x.end_at).getTime()-new Date(y.end_at).getTime());
     let availableAt=now;const projectedGroups=new Set<string>();const projections=[];
     for(const prior of previous){
+      await requireReviewedClosure(c,a.carrierId,prior.id);
       const group=await groupFor(c,a.carrierId,prior.id);
       if(group&&projectedGroups.has(group.id))continue;
       if(group)projectedGroups.add(group.id);
@@ -135,6 +176,7 @@ export class Store {
     const load=await this.load(c,a,input.loadId);demand(load.version===cmd.expectedVersion,'STALE_VERSION','Load changed.');
     const current=await c.query("SELECT * FROM assignments WHERE carrier_id=$1 AND load_id=$2 AND status IN ('offered','accepted')",[a.carrierId,load.id]);
     const old=current.rows[0]?assignment(current.rows[0]):undefined;
+    demand(!old||!(await closureAreas(c,a.carrierId,[old.id])).length,'CLOSURE_ROUTE_REVIEW_REQUIRED','Closure-affected trips require a remaining-route review; reassignment cannot discard closure evidence.');
     demand(!old||old.status!=='accepted'||load.status!=='in_transit','IN_PROGRESS','An in-transit load needs a reviewed physical handoff; automatic reassignment is unavailable.');
     demand(!old||!await groupFor(c,a.carrierId,old.id),'GROUP_RECOVERY_REQUIRED','Consolidated trips require review of the complete manifest.');
     const proof=await this.check(c,a,load,input,old?.id);demand(proof.eligible,'INELIGIBLE',proof.reasons.join(' '));
@@ -334,6 +376,7 @@ export class Store {
       if(!driver.budget||!driver.budgetAsOf||!truck.routingProfile){rejected.push({vehicle_id:truck.id,reason:'Missing HOS or truck dimensions'});continue;}
       demand(loads[0].provenance==='synthetic'||truck.routingProfile.evidence==='operator-verified','ROUTING_INPUT_UNVERIFIED','Live vehicle dimensions require review.');
       const assigned=(await c.query("SELECT a.*,greatest(a.end_at,coalesce((SELECT max(expected_end) FROM disruptions d WHERE d.carrier_id=a.carrier_id AND d.assignment_id=a.id),a.end_at)) AS effective_end FROM assignments a WHERE carrier_id=$1 AND status IN ('offered','accepted') AND (driver_id=$2 OR truck_id=$3 OR trailer_id=$4) ORDER BY end_at",[a.carrierId,driver.id,truck.id,trailer.id])).rows;
+      if((await closureAreas(c,a.carrierId,assigned.map(r=>r.id))).length){rejected.push({vehicle_id:truck.id,reason:'Active closure-affected commitment requires completion or dedicated route review; batch planning cannot assume its old travel time.'});continue;}
       let availableAt=0;const projectedGroups=new Set<string>();
       for(const prior of assigned){
         if(minute(iso(prior.effective_end))<=0)continue;

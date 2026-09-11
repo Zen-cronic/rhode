@@ -1,3 +1,4 @@
+import {closureAreas} from './closures.ts';
 import type pg from 'pg';
 import type {Point,Truck} from '../../../packages/domain/src/index.ts';
 import {computation} from './planning.ts';
@@ -8,6 +9,7 @@ export async function remainingWork(c:pg.PoolClient,carrierId:string,input:{
  assignmentIds:string[];stops:Stop[];truck:Truck;provenance:string;now:string;startAt:string;
  releaseAt:string;availableAt:string;drivingMinutes:number;serviceMinutes:number;
 }){
+ const activeClosures=await closureAreas(c,carrierId,input.assignmentIds);
  const now=timestamp(input.now),start=timestamp(input.startAt);
  let drivingMinutes=input.drivingMinutes,source='full declared work; current trip progress unavailable';
  let telemetryId:string|null=null,completedStops=0;
@@ -23,7 +25,8 @@ export async function remainingWork(c:pg.PoolClient,carrierId:string,input:{
    demand(profile&&(input.provenance==='synthetic'||profile.evidence==='operator-verified'),'ROUTING_INPUT_UNVERIFIED','Remaining work requires reviewed truck dimensions.');
    const locations=[latest.body.position,...stops.map(s=>s.point)].map(p=>({lat:p.lat,lon:p.lng}));
    if(stops.length){
-    const route=await computation('/route',{locations,truck:profile});
+    const closures=await closureAreas(c,carrierId,input.assignmentIds);
+    const route=await computation('/route',{locations,truck:profile,closures});
     const legs=route.route?.trip?.legs;
     demand(route.routing_evidence==='valhalla-truck'&&legs?.length===locations.length-1&&legs.every((l:any)=>Number.isFinite(l.summary?.time)&&l.summary.time>=0&&l.shape?.type==='LineString'),'ROUTING_INVALID','Remaining truck route could not be verified.',503);
     drivingMinutes=Math.ceil(legs.reduce((total:number,l:any)=>total+l.summary.time,0)/60);
@@ -31,6 +34,7 @@ export async function remainingWork(c:pg.PoolClient,carrierId:string,input:{
    telemetryId=latest.id;source='Valhalla from recent same-trip GPS through dated uncompleted manifest stops';
   }
  }
+ demand(!activeClosures.length||telemetryId,'CLOSURE_PROGRESS_UNAVAILABLE','A closure-affected trip requires current GPS to project remaining work.');
  // Time already consumed belongs to the historical budget. Future dock/road waits
  // until release remain on duty; no rest is inferred from unused appointment time.
  const futureWindow=Math.max(0,(timestamp(input.releaseAt)-Math.max(now,start,timestamp(input.availableAt)))/60000);
