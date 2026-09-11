@@ -173,3 +173,17 @@ test('late duty observations revise feasibility evidence without rewinding curre
  const after=(await store.snapshot(dispatcher)).resources.find(r=>r.id==='D-01')!;
  assert.equal(after.version,before.version+1);assert.equal(after.budget.drivingMinutes,330);assert.deepEqual(after.position,london);
 });
+
+test('simulator clock advancement is explicit, versioned, monotonic and isolated from live time',async()=>{
+ const {dispatcher,driver,simulator,carrierId}=await setup();const before=await store.simulationClock(simulator),cmd=command(before.version),at='2026-09-13T15:00:00Z';
+ await assert.rejects(store.simulationClock(driver),{code:'FORBIDDEN'});
+ const liveBefore=Date.now();const result:any=await store.advanceSimulationClock(simulator,cmd,{at});assert.equal(result.version,2);assert.deepEqual(await store.advanceSimulationClock(simulator,cmd,{at}),result);
+ await assert.rejects(store.advanceSimulationClock(simulator,command(1),{at:'2026-09-13T16:00:00Z'}),{code:'STALE_VERSION'});
+ await assert.rejects(store.advanceSimulationClock(simulator,command(2),{at:DEMO_NOW}),{code:'CLOCK_REWIND'});
+ const state=await store.snapshot(dispatcher);assert.ok(Date.parse(state.serverTime)>=liveBefore);assert.ok(Date.parse(state.serverTime)<=Date.now());assert.equal(new Date(state.scenarios[0].clock).toISOString(),'2026-09-13T15:00:00.000Z');assert.equal(state.resources.find(r=>r.id==='D-01')!.budget.onDutyMinutes,300);
+ const another=await setup();assert.equal((await store.simulationClock(another.simulator)).clock,DEMO_NOW);assert.notEqual(another.carrierId,carrierId);
+});
+
+ test('an idle database disconnect is observed and the pool reconnects for the next request',async()=>{
+ const probe=pool(process.env.TEST_DATABASE_URL);try{const pid=(await probe.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const closed=new Promise<unknown>(resolve=>probe.once('error',resolve));await db.query('SELECT pg_terminate_backend($1)',[pid]);await closed;assert.equal((await probe.query('SELECT 42 AS answer')).rows[0].answer,42);}finally{await probe.end();}
+});

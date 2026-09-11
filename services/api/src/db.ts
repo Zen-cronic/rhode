@@ -3,7 +3,10 @@ import {readFile,readdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 export const pool = (connectionString=process.env.DATABASE_URL) => {
   if(!connectionString) throw new Error('DATABASE_URL is required; server SQLite is unsupported.');
-  return new pg.Pool({connectionString,max:20,connectionTimeoutMillis:5000,statement_timeout:10000});
+  const db=new pg.Pool({connectionString,max:20,connectionTimeoutMillis:5000,statement_timeout:10000});
+  // A disconnected idle socket is removed by pg; it must not crash the API process.
+  db.on('error',error=>console.error('PostgreSQL idle connection closed','code' in error?String(error.code):'CONNECTION_ERROR'));
+  return db;
 };
 export async function migrate(db: pg.Pool) {
   const c=await db.connect();

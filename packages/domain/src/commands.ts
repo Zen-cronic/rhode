@@ -2,6 +2,7 @@ import {z} from 'zod';
 const id=z.string().min(1).max(128),uuid=z.string().uuid();
 const assignmentInput=z.object({loadId:id,driverId:id,truckId:id,trailerId:id});
 export const schemas={
+  'simulation-clock':z.object({at:z.string().datetime({offset:true})}),
   'bind-contract':z.object({loadId:id,contractId:id}),
   'approve-plan':z.object({planId:uuid}),
   optimize:z.object({loadIds:z.array(id).min(1).max(20),vehicles:z.array(z.object({driverId:id,truckId:id,trailerId:id})).min(1).max(8)}),

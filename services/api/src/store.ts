@@ -57,6 +57,18 @@ export class Store {
   async getAssignment(c:pg.PoolClient,a:Actor,id:string){
     const r=await c.query('SELECT * FROM assignments WHERE carrier_id=$1 AND id=$2',[a.carrierId,id]);demand(r.rows[0],'NOT_FOUND','Assignment not found.',404);return assignment(r.rows[0]);
   }
+  async simulationClock(a:Actor){
+    demand(a.role==='simulator'||a.role==='dispatcher','FORBIDDEN','Simulation control identity required.',403);
+    const row=(await this.db.query("SELECT clock,version FROM scenarios WHERE carrier_id=$1 AND id='recovery'",[a.carrierId])).rows[0];demand(row,'NO_SCENARIO','Scenario unavailable.',404);return {clock:iso(row.clock),version:row.version};
+  }
+  advanceSimulationClock(a:Actor,cmd:Command,input:Row){return this.command(a,cmd,'simulation.clock_advanced',input,async c=>{
+    demand(a.role==='simulator'||a.role==='dispatcher','FORBIDDEN','Simulation control identity required.',403);timestamp(input.at);
+    const row=(await c.query("SELECT clock,version FROM scenarios WHERE carrier_id=$1 AND id='recovery'",[a.carrierId])).rows[0];demand(row,'NO_SCENARIO','Scenario unavailable.',404);
+    demand(row.version===cmd.expectedVersion,'STALE_VERSION','Scenario clock changed. Refresh before advancing.');
+    demand(timestamp(input.at)>=new Date(row.clock).getTime(),'CLOCK_REWIND','Use a fresh scenario for an independent replay.');
+    if(timestamp(input.at)>new Date(row.clock).getTime())await c.query("UPDATE scenarios SET clock=$2,version=version+1 WHERE carrier_id=$1 AND id='recovery'",[a.carrierId,input.at]);
+    return {clock:iso(input.at),version:row.version+(timestamp(input.at)>new Date(row.clock).getTime()?1:0),provenance:'synthetic'};
+  });}
   async now(c:pg.PoolClient,a:Actor,provenance:string){
     if(provenance!=='synthetic')return new Date().toISOString();
     const r=await c.query("SELECT clock FROM scenarios WHERE carrier_id=$1 AND id='recovery'",[a.carrierId]);demand(r.rows[0],'NO_SCENARIO','Scenario clock is unavailable.');return iso(r.rows[0].clock);
@@ -167,8 +179,10 @@ export class Store {
       if(disposition==='retained_out_of_order'&&event.accuracyM<=100)await c.query('UPDATE resources SET version=version+1 WHERE carrier_id=$1 AND id=$2',[a.carrierId,v.driverId]);
       return {duplicate:false,disposition};
     }
-    const driver=await this.resource<Driver>(c,a,v.driverId,'driver');
-    await c.query('UPDATE resources SET body=$3,version=version+1 WHERE carrier_id=$1 AND id=$2',[a.carrierId,v.driverId,JSON.stringify({...driver,position:event.position,duty:event.duty})]);
+    // Keep ingestion proportional to one observation; snapshots/planning derive duty budgets.
+    const driver=(await c.query("SELECT body FROM resources WHERE carrier_id=$1 AND id=$2 AND kind='driver' FOR UPDATE",[a.carrierId,v.driverId])).rows[0].body;
+    const newer=(await c.query("SELECT 1 FROM telemetry t JOIN assignments a ON a.carrier_id=t.carrier_id AND a.id=t.assignment_id WHERE t.carrier_id=$1 AND a.driver_id=$2 AND t.disposition='applied' AND t.at>$3 LIMIT 1",[a.carrierId,v.driverId,event.at])).rows.length>0;
+    await c.query('UPDATE resources SET body=$3,version=version+1 WHERE carrier_id=$1 AND id=$2',[a.carrierId,v.driverId,JSON.stringify(newer?driver:{...driver,position:event.position,duty:event.duty})]);
     const stops=await c.query('SELECT *,ST_Distance(location,ST_SetSRID(ST_MakePoint($3,$4),4326)::geography) AS distance FROM stops WHERE carrier_id=$1 AND load_id=$2',[a.carrierId,load.id,event.position.lng,event.position.lat]);
     for(const stop of stops.rows){
       const inside=Number(stop.distance)+event.accuracyM<stop.radius_m,outside=Number(stop.distance)-event.accuracyM>stop.radius_m;

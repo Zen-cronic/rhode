@@ -1,94 +1,175 @@
-# Run as a separate process: poetry run uvicorn app:app --app-dir ../simulator --port 4020
-# No operational database connection. All telemetry enters through the authenticated API.
+# Run separately: poetry run uvicorn app:app --app-dir ../simulator --host 127.0.0.1 --port 4020
+# No operational database connection; observations enter through authenticated commands.
 import asyncio
 import os
 from datetime import datetime, timezone
 from hashlib import sha256
-import json
 from uuid import uuid4
 import httpx
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from roadstar_optimizer.simulation import Replay
 from roadstar_optimizer.routing import RouteRequest, valhalla_route
-app=FastAPI(title='RoadStar independent simulator')
-runs:dict[str,dict]={}
-lock=asyncio.Lock()
+
+app = FastAPI(title='RoadStar independent simulator')
+runs: dict[str, dict] = {}
+lock = asyncio.Lock()
+
+
 class Start(BaseModel):
-    assignment_id:str
-    carrier_id:str
-    start_time:datetime
-    route:RouteRequest
-    dock_wait_seconds:int=Field(default=0,ge=0,le=86400)
-    disruption_seconds:int=Field(default=0,ge=0,le=86400)
-    seed:int=42
+    assignment_id: str
+    carrier_id: str
+    start_time: datetime
+    route: RouteRequest
+    dock_wait_seconds: int = Field(default=0, ge=0, le=86400)
+    stop_wait_seconds: list[int] | None = None
+    disruption_seconds: int = Field(default=0, ge=0, le=86400)
+    disruption_start_seconds: int = Field(default=60, ge=0, le=86400)
+    seed: int = 42
+
+
 class Advance(BaseModel):
-    seconds:int=Field(ge=1,le=3600)
-    emit:bool=True
+    seconds: int = Field(ge=1, le=3600)
+    emit: bool = True
+
 
 @app.post('/runs')
-async def create(data:Start):
+async def create(data: Start):
     if data.start_time.tzinfo is None:
-        raise HTTPException(400,'Scenario time requires timezone')
+        raise HTTPException(400, 'Scenario time requires timezone')
     try:
-        routed=await valhalla_route(data.route)
-    except (RuntimeError,ValueError,httpx.HTTPError) as e:
-        raise HTTPException(503,str(e)) from e
-    coordinates=[]
+        routed = await valhalla_route(data.route)
+    except (RuntimeError, ValueError, httpx.HTTPError) as error:
+        raise HTTPException(503, str(error)) from error
+    coordinates, stops = [], [0]
     for leg in routed['route']['trip']['legs']:
-        shape=leg['shape']
-        if not isinstance(shape,dict) or shape.get('type')!='LineString':
-            raise HTTPException(502,'Valhalla GeoJSON route shape required')
-        points=shape['coordinates']
+        shape = leg['shape']
+        if not isinstance(shape, dict) or shape.get('type') != 'LineString' or len(shape.get('coordinates', [])) < 2:
+            raise HTTPException(502, 'Valhalla GeoJSON route legs required')
+        points = shape['coordinates']
+        if coordinates and any(abs(a-b) > 1e-6 for a, b in zip(coordinates[-1], points[0])):
+            raise HTTPException(502, 'Disconnected route legs; no straight-line bridge is inferred')
         coordinates.extend(points[1:] if coordinates else points)
-    replay=Replay(coordinates,int(data.start_time.timestamp()*1000),seed=data.seed,dock_wait_seconds=data.dock_wait_seconds,disruption_seconds=data.disruption_seconds,route_evidence='valhalla-truck')
-    run_id=str(uuid4())
-    runs[run_id]={'replay':replay,'assignment_id':data.assignment_id,'carrier_id':data.carrier_id,'events':[],'pending':None}
-    return {'id':run_id,'conditions_hash':replay.conditions_hash(),'paused':True,'route':routed,'provenance':'synthetic'}
+        stops.append(len(coordinates)-1)
+    try:
+        replay = Replay(coordinates, int(data.start_time.timestamp()*1000), seed=data.seed, dock_wait_seconds=data.dock_wait_seconds, stop_indices=stops, stop_wait_seconds=data.stop_wait_seconds, disruption_seconds=data.disruption_seconds, disruption_start_seconds=data.disruption_start_seconds, route_evidence='valhalla-truck')
+    except (ValueError, IndexError) as error:
+        raise HTTPException(400, str(error)) from error
+    run_id = str(uuid4())
+    runs[run_id] = {'replay': replay, 'assignment_id': data.assignment_id, 'carrier_id': data.carrier_id, 'events': [], 'pending': None, 'emit_mode': None}
+    return {'id': run_id, 'conditions_hash': replay.conditions_hash(), 'paused': True, 'route': routed, 'provenance': 'synthetic', 'stop_indices': stops}
+
 
 def get(run_id):
     if run_id not in runs:
-        raise HTTPException(404,'Run not found; recreate from saved initial conditions')
+        raise HTTPException(404, 'Run not found; recreate from exported initial conditions')
     return runs[run_id]
 
+
 @app.post('/runs/{run_id}/resume')
-def resume(run_id:str):
-    get(run_id)['replay'].paused=False
-    return {'paused':False}
-@app.post('/runs/{run_id}/pause')
-def pause(run_id:str):
-    get(run_id)['replay'].paused=True
-    return {'paused':True}
-@app.post('/runs/{run_id}/reset')
-def reset(run_id:str):
-    run=get(run_id)
-    run['replay'].reset()
-    # Replay uses identical IDs; server dedup preserves operational truth.
-    # A comparison with independent side effects requires a fresh scenario/assignment.
-    run['events']=[];run['pending']=None
-    return {'paused':True,'conditions_hash':run['replay'].conditions_hash(),'note':'Same-trip replay reuses event IDs. Create a separate scenario assignment for independent comparison.'}
-@app.post('/runs/{run_id}/advance')
-async def advance(run_id:str,data:Advance):
+async def resume(run_id: str):
     async with lock:
-        run=get(run_id);replay=run['replay']
-        if run['pending'] is None:
-            event=replay.advance(data.seconds)
-            at_ms=event.pop('at_ms')
-            event.update(at=datetime.fromtimestamp(at_ms/1000,timezone.utc).isoformat(),assignmentId=run['assignment_id'])
-            event['id']=sha256(f'{run_id}:{at_ms}'.encode()).hexdigest()
-            run['pending']=event
-        event=run['pending']
+        get(run_id)['replay'].paused = False
+        return {'paused': False}
+
+
+@app.post('/runs/{run_id}/pause')
+async def pause(run_id: str):
+    async with lock:
+        get(run_id)['replay'].paused = True
+        return {'paused': True}
+
+
+@app.post('/runs/{run_id}/reset')
+async def reset(run_id: str):
+    async with lock:
+        run = get(run_id)
+        if run.get('advancing') or run['pending'] is not None:
+            raise HTTPException(409, 'Retry the pending batch before reset; accepted observations cannot be discarded')
+        run['replay'].reset()
+        run['events'] = []
+        run['emit_mode'] = None
+        return {'paused': True, 'conditions_hash': run['replay'].conditions_hash(), 'note': 'Same-trip replay reuses IDs and never rewinds operational time. Use a fresh scenario assignment for an independent comparison.'}
+
+
+
+def emitted_seconds(run):
+    if not run['events']:
+        return 0
+    latest = datetime.fromisoformat(run['events'][-1]['at']).timestamp()*1000
+    return round((latest-run['replay'].start_time_ms)/1000)
+
+async def synchronize_clock(client, run, at, headers):
+    response = await client.get('/api/simulation-clock', headers=headers)
+    response.raise_for_status()
+    clock = response.json()
+    if datetime.fromisoformat(at) <= datetime.fromisoformat(clock['clock'].replace('Z', '+00:00')):
+        return
+    key = sha256(f"clock:{run['carrier_id']}:{at}".encode()).hexdigest()
+    response = await client.post('/api/simulation-clock', headers={**headers, 'Idempotency-Key': key, 'If-Match': str(clock['version'])}, json={'at': at})
+    response.raise_for_status()
+
+
+@app.post('/runs/{run_id}/advance')
+async def advance(run_id: str, data: Advance):
+    run = get(run_id)
+    replay = run['replay']
+    if run.get('advancing'):
+        raise HTTPException(409, 'This run already has an active advance request')
+    if replay.paused:
+        return {'events': [], 'paused': True, 'elapsed_seconds': emitted_seconds(run), 'emitted': False, 'pending': run['pending'] is not None}
+    if run['emit_mode'] is not None and run['emit_mode'] != data.emit:
+        raise HTTPException(409, 'Reset or create another run to change emission mode; pending observations are retained')
+    if run['pending'] is None:
+        events = replay.advance_samples(data.seconds)
+        if not events:
+            return {'events': [], 'paused': True, 'elapsed_seconds': replay.elapsed_seconds, 'emitted': False}
+        fingerprint = replay.conditions_hash()
+        for event in events:
+            at_ms = event.pop('at_ms')
+            event.update(at=datetime.fromtimestamp(at_ms/1000, timezone.utc).isoformat(), assignmentId=run['assignment_id'])
+            event['id'] = sha256(f'{run_id}:{fingerprint}:{at_ms}'.encode()).hexdigest()
+        run['emit_mode'] = data.emit
+        run['pending'] = {'events': events, 'sent': 0}
+    pending = run['pending']
+    run['advancing'] = True
+    try:
         if data.emit:
-            token=os.environ.get('SIMULATOR_TOKEN')
+            token = os.environ.get('SIMULATOR_TOKEN')
             if not token:
-                raise HTTPException(503,'SIMULATOR_TOKEN required; pending telemetry retained')
-            async with httpx.AsyncClient(timeout=15) as client:
-                r=await client.post(os.environ.get('ROADSTAR_API','http://127.0.0.1:4010')+'/api/telemetry',headers={'Authorization':f'Bearer {token}','X-Carrier-Id':run['carrier_id'],'Idempotency-Key':event['id'],'If-Match':'1'},json=event)
-                if r.status_code>=400:
-                    raise HTTPException(r.status_code,{'error':r.text,'pending_event_id':event['id']})
-        run['events'].append(event);run['pending']=None
-        return {'event':event,'emitted':data.emit,'conditions_hash':replay.conditions_hash(),'elapsed_seconds':replay.elapsed_seconds,'modeled':True}
+                raise HTTPException(503, 'SIMULATOR_TOKEN required; pending batch retained')
+            headers = {'Authorization': f'Bearer {token}', 'X-Carrier-Id': run['carrier_id']}
+            try:
+                async with httpx.AsyncClient(base_url=os.environ.get('ROADSTAR_API', 'http://127.0.0.1:4010'), timeout=15) as client:
+                    if pending['sent']:
+                        await synchronize_clock(client, run, pending['events'][pending['sent']-1]['at'], headers)
+                    while pending['sent'] < len(pending['events']) and not replay.paused:
+                        event = pending['events'][pending['sent']]
+                        response = await client.post('/api/telemetry', headers={**headers, 'Idempotency-Key': event['id'], 'If-Match': '1'}, json=event)
+                        response.raise_for_status()
+                        run['events'].append(event)
+                        pending['sent'] += 1
+                        if pending['sent'] % 2 == 0:
+                            await synchronize_clock(client, run, event['at'], headers)
+                    if pending['sent']:
+                        await synchronize_clock(client, run, pending['events'][pending['sent']-1]['at'], headers)
+            except httpx.HTTPError as error:
+                raise HTTPException(503, {'error': 'Operational API did not confirm the batch and clock; retry unchanged pending observations', 'acknowledged': pending['sent'], 'total': len(pending['events'])}) from error
+        else:
+            run['events'].extend(pending['events'])
+            pending['sent'] = len(pending['events'])
+        events = pending['events'][:pending['sent']]
+        complete = pending['sent'] == len(pending['events'])
+        if complete:
+            run['pending'] = None
+        return {'event': events[-1] if events else None, 'events': events, 'emitted': data.emit, 'conditions_hash': replay.conditions_hash(), 'elapsed_seconds': emitted_seconds(run), 'generated_until_seconds': replay.elapsed_seconds, 'phase': replay.phase() if complete else 'paused_with_pending_batch', 'pending': not complete, 'modeled': True}
+    finally:
+        run['advancing'] = False
+
+
 @app.get('/runs/{run_id}')
-def state(run_id:str):
-    run=get(run_id);r=run['replay']
-    return {'paused':r.paused,'elapsed_seconds':r.elapsed_seconds,'conditions_hash':r.conditions_hash(),'pending':run['pending'],'events':run['events'],'initial_conditions':{'coordinates':r.coordinates,'start_time_ms':r.start_time_ms,'seed':r.seed,'speed_kph':r.speed_kph,'dock_wait_seconds':r.dock_wait_seconds,'disruption_seconds':r.disruption_seconds},'persistence':'process-local; export this response to preserve replay','provenance':'synthetic'}
+async def state(run_id: str):
+    async with lock:
+        run = get(run_id)
+        replay = run['replay']
+        return {'paused': replay.paused, 'elapsed_seconds': emitted_seconds(run), 'generated_until_seconds': replay.elapsed_seconds, 'advancing': run.get('advancing', False), 'phase': replay.phase() if run['pending'] is None else 'streaming_or_paused', 'conditions_hash': replay.conditions_hash(), 'pending': run['pending'], 'events': run['events'], 'initial_conditions': replay.initial_conditions(), 'emit_mode': run['emit_mode'], 'persistence': 'process-local; export this response to preserve replay', 'provenance': 'synthetic'}
