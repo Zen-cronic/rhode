@@ -1,0 +1,89 @@
+{
+  "verifiedAt": "2026-09-11T18:46:53.103Z",
+  "carrier": "route-review-bde9dd61-1edc-41ad-9bf3-96a14ea5062a",
+  "assignmentId": "bee85bd6-3ee5-4317-8170-919f479edfe5",
+  "closure": {
+    "id": "151a1771-5db0-4a01-bb35-5ff933229c85",
+    "assignmentId": "bee85bd6-3ee5-4317-8170-919f479edfe5",
+    "assignmentVersion": 4,
+    "status": "unresolved",
+    "note": "Closure retained. Prepare and approve a remaining-route revision before relying on the prior plan."
+  },
+  "routeRevisionId": "81c4667d-e1cb-418f-8dae-a74e4f7cca65",
+  "routeFingerprint": "5e4cb1d60abde604e178100eecb5c4ad402d96886543a5af7b72d60cf127e111",
+  "completionAt": "2026-09-13T15:26:00.000Z",
+  "drivingMinutes": 116,
+  "dutyMinutes": 176,
+  "hasToll": true,
+  "reviewedOrigin": {
+    "lat": 43.5183,
+    "lng": -79.8774
+  },
+  "originalTelemetryPreserved": true,
+  "reservationsUnchanged": true,
+  "repeatApprovalIdentical": true,
+  "approvedRevision": 2,
+  "checks": [
+    {
+      "path": "dispatch",
+      "status": 200,
+      "role": "demo-dispatcher"
+    },
+    {
+      "path": "respond",
+      "status": 200,
+      "role": "demo-driver-1"
+    },
+    {
+      "path": "simulation-clock",
+      "status": 200,
+      "role": "demo-simulator"
+    },
+    {
+      "path": "telemetry",
+      "status": 200,
+      "role": "demo-simulator"
+    },
+    {
+      "path": "complete-stop",
+      "status": 200,
+      "role": "demo-driver-1"
+    },
+    {
+      "path": "report-closure",
+      "status": 200,
+      "role": "demo-simulator"
+    },
+    {
+      "path": "rehearse-route",
+      "status": 200,
+      "role": "demo-dispatcher"
+    },
+    {
+      "path": "approve-route",
+      "status": 403,
+      "role": "demo-driver-1"
+    },
+    {
+      "path": "approve-route",
+      "status": 200,
+      "role": "demo-dispatcher"
+    },
+    {
+      "path": "approve-route",
+      "status": 200,
+      "role": "demo-dispatcher"
+    },
+    {
+      "path": "route-reviews?assignmentId=bee85bd6-3ee5-4317-8170-919f479edfe5",
+      "status": 200,
+      "role": "demo-driver-1"
+    },
+    {
+      "path": "route-reviews?assignmentId=bee85bd6-3ee5-4317-8170-919f479edfe5",
+      "status": 403,
+      "role": "demo-driver-2"
+    }
+  ],
+  "scope": "Actual local HTTP API and PostgreSQL with Ontario Valhalla. Synthetic closure only; route UI, driver acknowledgement and simulator adoption are separate outstanding steps."
+}

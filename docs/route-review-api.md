@@ -1,0 +1,20 @@
+# Observed closures and route reviews
+
+Local API foundation for the closure recovery workflow. This is not yet exposed in web/mobile UI or deployed to the cloud preview.
+
+- `POST /api/report-closure`: dispatcher, or simulator for a synthetic accepted trip. Supply assignment ID/version, bounded rectangle, occurred-at timestamp, source reference and reason. Records the observation separately and bumps the assignment version. Reporting does not erase GPS, change reservations or invent a route. Future/pre-trip observations are rejected.
+- `POST /api/rehearse-route`: dispatcher with the current assignment version. Persists either a pending route review or an unresolved result with reasons. A routing failure does not remove the original closure.
+- `POST /api/approve-route`: dispatcher with route-review ID/revision and `acknowledgeModeledRoute: true`. Rechecks current GPS, trip/load/resource versions, all recorded closure bounds, route fingerprint and current constraints. Writes approval actor/time and evidence, increments assignment version and queues a generic driver update. Repeated identical commands return the original result.
+- `GET /api/route-reviews?assignmentId=…`: consistent read of closure sources and revision history. Only dispatcher, assigned driver or synthetic-trip simulator may read it. A read is not driver acknowledgment/adoption.
+
+Every POST carries the standard idempotency key and expected version. Route rehearsal starts from the latest same-trip GPS sample, at/after trip start, no more than 120 seconds old, not future-dated and with accuracy <=100m. It visits only dated uncompleted stops, retains the complete truck profile and closure exclusions, and refuses an origin-to-road snap gap over50m. Current HOS driving/on-duty/cycle/elapsed limits, equipment/weight/axle evidence, maintenance, appointment and reserved-interval limits are rechecked. Full service time remains conservative because per-stop allocation is missing. Toll presence remains in the review evidence.
+
+Unresolved closures block optimistic follow-on work even after the old end time; closure-affected batch-planning resources are explicitly rejected until their existing commitment is complete. Approved prior work still needs current GPS to estimate remaining travel, using the closures rather than the original route. Ordinary reassignment cannot discard a closure record. The original route cache fingerprint includes the closure inputs.
+
+## Proof and limits
+
+`node scripts/verify-route-review.ts` uses local4010 HTTP/PostgreSQL and the actual Ontario routing worker. It creates a fresh synthetic carrier, records a closure, rehearses/approves the alternate, verifies authorized driver access and unauthorized-driver denial, repeats approval and compares original telemetry/reservations byte-for-byte at the database object level. Receipt: `docs/evidence/route-review-api-2026-09-11.json`.
+
+Full backend suite:68 passed,0skipped,21.492seconds. Final route-specific suite:4passed,0skipped,3.048seconds after reserved-interval and consistent-read hardening. TypeScript passed. Coverage includes blocked-stop persistence, idempotency, role/owner denial, bad bounds, original observations/reservations unchanged, stale GPS/new closures, exhausted cycle and preventing fallback to old travel without GPS. Initial test failures were fixture issues: synchronous role throws needed async assertions, load version after pickup was4, and fake SQL routing needed distinct closure/stop responses. The final tests pass without weakening those checks.
+
+Remaining: web/native review controls; driver acknowledgment; simulator pause/revision adoption without teleportation or odometer reset; cloud deployment; scoped closure resolution and multi-stop/group reroute approval. Reviews currently require the route to fit the existing appointment and reservation, otherwise they stay unresolved. They do not extend a schedule automatically. Closures are scoped to the affected assignment; this is not a region-wide live traffic feed. These steps leave research scenarios S03/S04 incomplete until the connected user journey is verified.
