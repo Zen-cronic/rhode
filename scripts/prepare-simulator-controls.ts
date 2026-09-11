@@ -1,0 +1,21 @@
+import {randomUUID} from 'node:crypto';import {writeFile} from 'node:fs/promises';import assert from 'node:assert/strict';
+import {pool} from '../services/api/src/db.ts';import {Store} from '../services/api/src/store.ts';import {milton,london} from '../services/api/src/fixtures.ts';
+const db=pool('postgresql://roadstar:local-roadstar-only@127.0.0.1:55432/roadstar'),store=new Store(db),carrier='sim-adoption-'+randomUUID();
+async function api(path:string,body?:unknown,version=1,role='demo-dispatcher'){const r=await fetch('http://127.0.0.1:4010/api/'+path,{method:body===undefined?'GET':'POST',headers:{'Content-Type':'application/json',authorization:'Bearer '+role,'x-carrier-id':carrier,'idempotency-key':randomUUID(),'if-match':String(version)},body:body===undefined?undefined:JSON.stringify(body)});const value=await r.json();assert.ok(r.ok,JSON.stringify(value));return value as any;}
+async function sim(path:string,body?:unknown,expected=200){const r=await fetch('http://127.0.0.1:4020'+path,{method:body===undefined?'GET':'POST',headers:{'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});const value=await r.json();assert.equal(r.status,expected,JSON.stringify(value));return value as any;}
+const truck={height:4.1,width:2.6,length:23,weight:40,axle_load:9,hazmat:false,evidence:'synthetic-scenario'};
+try{
+ for(const url of ['http://127.0.0.1:4010/api/health','http://127.0.0.1:4020/runs']){let ready=false;for(let i=0;i<100;i++){try{if((await fetch(url)).ok){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,100));}assert.ok(ready,'Local service not ready: '+url);}
+ await store.seed(carrier);const trip=await api('dispatch',{loadId:'RS-1042',driverId:'D-01',truckId:'T-101',trailerId:'V-101'});await api('respond',{assignmentId:trip.id,action:'accept'},1,'demo-driver-1');
+ const raw=await fetch('http://127.0.0.1:4040/route',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({locations:[milton,london].map(p=>({lat:p.lat,lon:p.lng})),truck})});assert.ok(raw.ok);const baseline:any=await raw.json(),vertex=baseline.route.trip.legs[0].shape.coordinates[10];
+ const run=await sim('/runs',{assignment_id:trip.id,carrier_id:carrier,start_time:trip.startAt,stop_wait_seconds:[20,0,0],route:{locations:[{lat:milton.lat,lon:milton.lng},{lat:vertex[1],lon:vertex[0]},{lat:london.lat,lon:london.lng}],truck}});
+ await sim(`/runs/${run.id}/resume`,{});await sim(`/runs/${run.id}/advance`,{seconds:1});await api('complete-stop',{assignmentId:trip.id,stopId:milton.id,occurredAt:trip.startAt},2,'demo-driver-1');
+ let before:any;for(let i=0;i<300;i++){before=await sim(`/runs/${run.id}/advance`,{seconds:1});if(before.event.position.lng===vertex[0]&&before.event.position.lat===vertex[1])break;}
+ assert.deepEqual(before.event.position,{lng:vertex[0],lat:vertex[1]});await sim(`/runs/${run.id}/pause`,{});const original=await sim(`/runs/${run.id}`),reservations=(await db.query('SELECT * FROM reservations WHERE carrier_id=$1 ORDER BY id',[carrier])).rows;
+ const context=await api('simulation-assignment?assignmentId='+trip.id,undefined,1,'demo-simulator');await api('report-closure',{assignmentId:trip.id,area:{west:-80.5314,east:-80.5294,south:43.273031,north:43.275031},observedAt:before.event.at,sourceRef:'Synthetic 401 closure at a modeled road waypoint',reason:'Synthetic road closure ahead; retain the received approved alternate'},context.version);
+ await sim(`/runs/${run.id}/resume`,{});await sim(`/runs/${run.id}/advance`,{seconds:1},409);assert.equal((await sim(`/runs/${run.id}`)).generated_until_seconds,original.generated_until_seconds);
+ const review=await api('rehearse-route',{assignmentId:trip.id},context.version+1);assert.equal(review.status,'pending',JSON.stringify(review));await api('approve-route',{routeRevisionId:review.id,acknowledgeModeledRoute:true},1);
+ await sim(`/runs/${run.id}/adopt-route`,{revision_id:review.id,expected_revision:2},409);
+ await api('acknowledge-route',{routeRevisionId:review.id,acknowledgeReceipt:true},2,'demo-driver-1');
+ await writeFile('/tmp/roadstar-simulator-controls-fixture.json',JSON.stringify({carrier,trip,runId:run.id,reviewId:review.id,original,reservations},null,2));console.log('Prepared received route at '+original.generated_until_seconds+' seconds in '+carrier);
+}finally{await db.end();}

@@ -1,3 +1,4 @@
+import {SimulatorControls} from './SimulatorControls';
 import { VisitReconciliation } from './VisitReconciliation';
 import {DriverRouteReview} from './DriverRouteReview';
 import {ClosureReview} from './ClosureReview';
@@ -568,6 +569,7 @@ export function App() {
               {isDriver && (view === "Recovery" || view === "Trips") && state.assignments.filter(t=>t.status==='accepted').map(trip=><DriverRouteReview key={trip.id} trip={trip} session={session} send={send} online={online}/>)}
               {view === "Recovery" && !isDriver && (
                 <>
+                  <SimulatorControls state={state} session={session} send={send} execute={execute} online={online}/>
                   <DelayPanel state={state} send={send} disabled={!online} />
                   <ClosureReview state={state} session={session} send={send} online={online}/>
                   <div className="recovery-layout">
