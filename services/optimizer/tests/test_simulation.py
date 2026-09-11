@@ -62,3 +62,20 @@ def test_pause_emits_nothing_and_geometry_and_stops_are_validated():
         Replay([[0,0],[1,1]],0,stop_indices=[0,0,1],route_evidence='synthetic-test-route')
     with pytest.raises(ValueError):
         Replay([[0,0],[float('nan'),1]],0,route_evidence='synthetic-test-route')
+
+
+def test_completion_forecast_is_exact_bounded_and_does_not_mutate_replay():
+    import copy
+    import pytest
+    r=replay(disruption_seconds=60,disruption_start_seconds=5)
+    before=copy.deepcopy(r.__dict__)
+    end=r.forecast_completion_ms(True)
+    assert r.__dict__==before
+    assert r.forecast_completion_ms(False)<end
+    r.paused=False
+    r.advance_samples((end-r.start_time_ms)//1000-1)
+    assert r.phase()!='route_complete'
+    r.advance_samples(1)
+    assert r.phase()=='route_complete'
+    with pytest.raises(ValueError,match='forecast horizon'):
+        r.forecast_completion_ms(True,max_seconds=1)

@@ -206,3 +206,26 @@ test('recovery comparison approval invalidates when the current driver evidence 
  const {dispatcher,carrierId}=await setup();await store.dispatch(dispatcher,command(),input);const p:any=await store.propose(dispatcher,command(2),{...input,driverId:'D-02',truckId:'T-102',trailerId:'V-102'});
  await db.query("UPDATE resources SET version=version+1 WHERE carrier_id=$1 AND id='D-01'",[carrierId]);await assert.rejects(store.approve(dispatcher,command(),{proposalId:p.id}),{code:'STALE_PROPOSAL'});assert.equal((await store.snapshot(dispatcher)).assignments.length,1);
 });
+
+test('simulator context and delay preserve tenant, synthetic-data and approval boundaries',async()=>{
+ const {dispatcher,driver,simulator,carrierId}=await setup();const trip:any=await store.dispatch(dispatcher,command(),input);
+ await assert.rejects(store.simulationAssignment(simulator,trip.id),{code:'INVALID_TRANSITION'});
+ await store.respond(driver,command(),{assignmentId:trip.id,action:'accept'});
+ const next:any=await store.dispatch(dispatcher,command(),{...input,loadId:'RS-1043'});
+ const app=createApi(store,{localDemo:true});
+ try{
+ const headers={Authorization:'Bearer demo-simulator','X-Carrier-Id':carrierId};
+ const context=await app.inject({url:`/api/simulation-assignment?assignmentId=${trip.id}`,headers});assert.equal(context.statusCode,200);assert.equal(context.json().version,2);
+ assert.equal((await app.inject({url:`/api/simulation-assignment?assignmentId=${trip.id}`,headers:{...headers,Authorization:'Bearer demo-driver-1'}})).statusCode,403);
+ const other=await setup();assert.equal((await app.inject({url:`/api/simulation-assignment?assignmentId=${trip.id}`,headers:{...headers,'X-Carrier-Id':other.carrierId}})).statusCode,404);
+ const reservations=(await db.query('SELECT * FROM reservations WHERE carrier_id=$1 ORDER BY id',[carrierId])).rows;
+ const cmd=command(2),body={assignmentId:trip.id,expectedEnd:'2026-09-13T17:30:00Z',observedAt:'2026-09-13T15:00:00Z',reason:'Modeled simulator dock hold'};
+ const result:any=await store.delay(simulator,cmd,body);assert.equal(result.status,'awaiting_recovery');assert.ok(result.impactedLoads.some((x:any)=>x.id===next.id));
+ assert.deepEqual(await store.delay(simulator,cmd,body),JSON.parse(JSON.stringify(result)));
+ assert.deepEqual((await db.query('SELECT * FROM reservations WHERE carrier_id=$1 ORDER BY id',[carrierId])).rows,reservations);
+ assert.equal((await db.query('SELECT * FROM approvals WHERE carrier_id=$1',[carrierId])).rows.length,0);
+ await db.query("UPDATE loads SET body=jsonb_set(body,'{provenance}','\"live\"') WHERE carrier_id=$1 AND id='RS-1042'",[carrierId]);
+ await assert.rejects(store.simulationAssignment(simulator,trip.id),{code:'FORBIDDEN'});
+ await assert.rejects(store.delay(simulator,command(3),body),{code:'FORBIDDEN'});
+ }finally{await app.close();}
+});

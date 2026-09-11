@@ -114,3 +114,55 @@ def test_pause_and_status_remain_responsive_during_a_slow_batch(monkeypatch):
         assert resumed['elapsed_seconds']==10 and not resumed['pending']
         assert len(run['events'])==11
     asyncio.run(exercise())
+
+
+def test_delay_lost_ack_retries_exact_command_after_observation_and_clock(monkeypatch):
+    import json
+    run=install_run(monkeypatch)
+    run['replay']=Replay([[-79.9,43.5],[-79.91,43.5]],1000,disruption_start_seconds=2,disruption_seconds=120,route_evidence='synthetic-test-route')
+    run['replay'].paused=False
+    monkeypatch.setenv('SIMULATOR_TOKEN','synthetic-test-token')
+    posts=[];stored={};observed=[];contexts=[];clock={'clock':'1970-01-01T00:00:01Z','version':1}
+    def handler(request):
+        if request.url.path=='/api/simulation-assignment':
+            contexts.append(request)
+            return httpx.Response(200,json={'version':2+len(stored),'endAt':'1970-01-01T00:01:00Z'})
+        if request.method=='GET':
+            return httpx.Response(200,json=clock)
+        body=json.loads(request.content)
+        if request.url.path=='/api/telemetry':
+            observed.append(body['at']);return httpx.Response(200,json={})
+        if request.url.path=='/api/simulation-clock':
+            clock.update(clock=body['at'],version=clock['version']+1);return httpx.Response(200,json=clock)
+        assert request.url.path=='/api/delay'
+        assert body['observedAt']==clock['clock']==observed[-1]
+        posts.append((request.headers['Idempotency-Key'],request.headers['If-Match'],body))
+        stored[posts[-1][0]]={'status':'awaiting_recovery','impactedLoads':[{'load_id':'next-load'}]}
+        return httpx.Response(503 if len(posts)==1 else 200,json=stored[posts[-1][0]])
+    original=httpx.AsyncClient
+    monkeypatch.setattr(sim.httpx,'AsyncClient',lambda **kwargs:original(**kwargs,transport=httpx.MockTransport(handler)))
+    async def exercise():
+        await sim.advance('run',sim.Advance(seconds=1))
+        assert not posts and not contexts  # A future configured road hold is not yet observed.
+        with pytest.raises(sim.HTTPException):
+            await sim.advance('run',sim.Advance(seconds=4))
+        assert run['pending']['sent']==1
+        result=await sim.advance('run',sim.Advance(seconds=999))
+        assert result['elapsed_seconds']==5 and not result['pending']
+        assert posts[0]==posts[1] and len(posts)==2 and len(stored)==len(contexts)==1
+        assert (await sim.state('run'))['delay_reports'][0]['result']['impactedLoads'][0]['load_id']=='next-load'
+        await sim.reset('run');await sim.resume('run')
+        await sim.advance('run',sim.Advance(seconds=5))
+        assert len(posts)==2
+    asyncio.run(exercise())
+
+
+def test_export_dock_wait_never_calls_operational_api(monkeypatch):
+    run=install_run(monkeypatch)
+    run['replay']=Replay([[-79.9,43.5],[-79.91,43.5]],1000,dock_wait_seconds=7200,route_evidence='synthetic-test-route')
+    run['replay'].paused=False
+    def forbidden(**kwargs):
+        raise AssertionError('Export must not call operational API')
+    monkeypatch.setattr(sim.httpx,'AsyncClient',forbidden)
+    result=asyncio.run(sim.advance('run',sim.Advance(seconds=10,emit=False)))
+    assert not result['emitted'] and run.get('delay_reports') is None

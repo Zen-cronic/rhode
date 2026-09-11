@@ -57,6 +57,14 @@ export class Store {
   async getAssignment(c:pg.PoolClient,a:Actor,id:string){
     const r=await c.query('SELECT * FROM assignments WHERE carrier_id=$1 AND id=$2',[a.carrierId,id]);demand(r.rows[0],'NOT_FOUND','Assignment not found.',404);return assignment(r.rows[0]);
   }
+  async simulationAssignment(a:Actor,id:string){
+    demand(a.role==='simulator'||a.role==='dispatcher','FORBIDDEN','Simulation control identity required.',403);
+    const row=(await this.db.query("SELECT a.id,a.version,a.end_at,a.status,l.body FROM assignments a JOIN loads l ON l.carrier_id=a.carrier_id AND l.id=a.load_id WHERE a.carrier_id=$1 AND a.id=$2",[a.carrierId,id])).rows[0];
+    demand(row,'NOT_FOUND','Assignment not found.',404);
+    demand(row.body.provenance==='synthetic','FORBIDDEN','Simulation context is restricted to synthetic trips.',403);
+    demand(row.status==='accepted','INVALID_TRANSITION','Simulation delay reporting requires an accepted trip.');
+    return {id:row.id,version:row.version,endAt:iso(row.end_at),provenance:'synthetic'};
+  }
   async simulationClock(a:Actor){
     demand(a.role==='simulator'||a.role==='dispatcher','FORBIDDEN','Simulation control identity required.',403);
     const row=(await this.db.query("SELECT clock,version FROM scenarios WHERE carrier_id=$1 AND id='recovery'",[a.carrierId])).rows[0];demand(row,'NO_SCENARIO','Scenario unavailable.',404);return {clock:iso(row.clock),version:row.version};

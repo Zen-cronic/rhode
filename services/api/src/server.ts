@@ -50,6 +50,7 @@ export function createApi(store:Store,options:{localDemo?:boolean;verifyToken?:(
   });
   app.get<{Params:{id:string}}>('/api/documents/:id/content',async(req,reply)=>{const doc=await store.getDocument(await auth(req),req.params.id,files);return reply.header('Cache-Control','private, no-store').header('X-Content-Type-Options','nosniff').header('Content-Disposition','attachment').type(doc.mediaType).send(doc.bytes);});
   app.get<{Querystring:{loadId:string;truckId:string}}>('/api/route',async req=>store.route(await auth(req),req.query.loadId,req.query.truckId));
+  app.get<{Querystring:{assignmentId:string}}>('/api/simulation-assignment',async(req,reply)=>{reply.header('Cache-Control','private, no-store');return store.simulationAssignment(await auth(req),z.string().uuid().parse(req.query.assignmentId));});
   app.get('/api/simulation-clock',async req=>store.simulationClock(await auth(req)));
   app.get('/api/health',async()=>{await store.db.query('SELECT 1');return {ok:true,database:'postgresql',auth:options.localDemo?'local-demo':'firebase'};});
   app.get<{Querystring:{assignmentId:string;before?:string}}>('/api/tracking',async(req,reply)=>{reply.header('Cache-Control','private, no-store');return store.tracking(await auth(req),req.query.assignmentId,req.query.before);});

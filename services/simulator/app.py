@@ -110,6 +110,43 @@ async def synchronize_clock(client, run, at, headers):
     response.raise_for_status()
 
 
+async def report_delay(client, run, event, headers):
+    if event.get('phase') not in ('dock_wait', 'road_hold'):
+        return
+    # Keep exact commands and receipts across retries and same-trip resets. A lost
+    # acknowledgement must not silently acquire a different expected version.
+    reports = run.setdefault('delay_reports', {})
+    key = sha256(f"delay:{event['id']}".encode()).hexdigest()
+    report = reports.get(key)
+    if report is None:
+        include_hold = event['phase'] == 'road_hold' or run.get('road_hold_observed', False)
+        run['road_hold_observed'] = include_hold
+        forecasts = run.setdefault('completion_forecasts', {})
+        if include_hold not in forecasts:
+            forecasts[include_hold] = run['replay'].forecast_completion_ms(include_hold)
+        end_ms = forecasts[include_hold]
+        if end_ms <= run.get('reported_end_ms', 0):
+            return
+        response = await client.get('/api/simulation-assignment', params={'assignmentId': run['assignment_id']}, headers=headers)
+        response.raise_for_status()
+        assignment = response.json()
+        if end_ms <= datetime.fromisoformat(assignment['endAt'].replace('Z', '+00:00')).timestamp()*1000:
+            run['reported_end_ms'] = end_ms
+            return
+        report = {'key': key, 'version': assignment['version'], 'end_ms': end_ms, 'body': {
+            'assignmentId': run['assignment_id'],
+            'expectedEnd': datetime.fromtimestamp(end_ms/1000, timezone.utc).isoformat(),
+            'observedAt': event['at'],
+            'reason': f"Simulator observed {event['phase']}; modeled completion uses seeded road speeds and configured stop dwell. Road disruption included: {include_hold}. Conditions {run['replay'].conditions_hash()}. Dispatcher review required."
+        }, 'result': None}
+        reports[key] = report
+    if report['result'] is None:
+        response = await client.post('/api/delay', headers={**headers, 'Idempotency-Key': report['key'], 'If-Match': str(report['version'])}, json=report['body'])
+        response.raise_for_status()
+        report['result'] = response.json()
+    run['reported_end_ms'] = max(run.get('reported_end_ms', 0), report['end_ms'])
+
+
 @app.post('/runs/{run_id}/advance')
 async def advance(run_id: str, data: Advance):
     run = get(run_id)
@@ -143,18 +180,21 @@ async def advance(run_id: str, data: Advance):
                 async with httpx.AsyncClient(base_url=os.environ.get('ROADSTAR_API', 'http://127.0.0.1:4010'), timeout=15) as client:
                     if pending['sent']:
                         await synchronize_clock(client, run, pending['events'][pending['sent']-1]['at'], headers)
+                        await report_delay(client, run, pending['events'][pending['sent']-1], headers)
                     while pending['sent'] < len(pending['events']) and not replay.paused:
                         event = pending['events'][pending['sent']]
                         response = await client.post('/api/telemetry', headers={**headers, 'Idempotency-Key': event['id'], 'If-Match': '1'}, json=event)
                         response.raise_for_status()
                         run['events'].append(event)
                         pending['sent'] += 1
-                        if pending['sent'] % 2 == 0:
+                        if pending['sent'] % 2 == 0 or event.get('phase') in ('dock_wait', 'road_hold'):
                             await synchronize_clock(client, run, event['at'], headers)
+                        await report_delay(client, run, event, headers)
                     if pending['sent']:
                         await synchronize_clock(client, run, pending['events'][pending['sent']-1]['at'], headers)
-            except httpx.HTTPError as error:
-                raise HTTPException(503, {'error': 'Operational API did not confirm the batch and clock; retry unchanged pending observations', 'acknowledged': pending['sent'], 'total': len(pending['events'])}) from error
+                        await report_delay(client, run, pending['events'][pending['sent']-1], headers)
+            except (httpx.HTTPError, ValueError) as error:
+                raise HTTPException(503, {'error': 'Operational API did not confirm observations, clock or delay report; retry unchanged pending commands', 'acknowledged': pending['sent'], 'total': len(pending['events'])}) from error
         else:
             run['events'].extend(pending['events'])
             pending['sent'] = len(pending['events'])
@@ -172,4 +212,4 @@ async def state(run_id: str):
     async with lock:
         run = get(run_id)
         replay = run['replay']
-        return {'paused': replay.paused, 'elapsed_seconds': emitted_seconds(run), 'generated_until_seconds': replay.elapsed_seconds, 'advancing': run.get('advancing', False), 'phase': replay.phase() if run['pending'] is None else 'streaming_or_paused', 'conditions_hash': replay.conditions_hash(), 'pending': run['pending'], 'events': run['events'], 'initial_conditions': replay.initial_conditions(), 'emit_mode': run['emit_mode'], 'persistence': 'process-local; export this response to preserve replay', 'provenance': 'synthetic'}
+        return {'paused': replay.paused, 'elapsed_seconds': emitted_seconds(run), 'generated_until_seconds': replay.elapsed_seconds, 'advancing': run.get('advancing', False), 'phase': replay.phase() if run['pending'] is None else 'streaming_or_paused', 'conditions_hash': replay.conditions_hash(), 'pending': run['pending'], 'events': run['events'], 'initial_conditions': replay.initial_conditions(), 'emit_mode': run['emit_mode'], 'delay_reports': list(run.get('delay_reports', {}).values()), 'persistence': 'process-local; export this response to preserve replay', 'provenance': 'synthetic'}

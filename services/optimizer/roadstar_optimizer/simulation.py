@@ -87,7 +87,37 @@ class Replay:
             segment = self._lengths[index]-self._lengths[index-1]
             fraction = 0 if segment == 0 else (self._distance-self._lengths[index-1])/segment
             position = [a[0]+fraction*(b[0]-a[0]), a[1]+fraction*(b[1]-a[1])]
-        return {'at_ms': self.start_time_ms+self.elapsed_seconds*1000, 'position': {'lng': position[0], 'lat': position[1]}, 'speedKph': self._last_speed, 'odometerKm': self._distance, 'duty': 'driving' if self.phase() == 'driving' else 'on_duty', 'provenance': 'synthetic', 'accuracyM': 5}
+        return {'at_ms': self.start_time_ms+self.elapsed_seconds*1000, 'position': {'lng': position[0], 'lat': position[1]}, 'speedKph': self._last_speed, 'odometerKm': self._distance, 'duty': 'driving' if self.phase() == 'driving' else 'on_duty', 'provenance': 'synthetic', 'accuracyM': 5, 'phase': self.phase()}
+
+    def _step(self):
+        before = self._distance
+        if self._wait > 0:
+            self._wait -= 1
+        elif self._next_stop < len(self.stop_indices) and not self._held():
+            target = self._lengths[self.stop_indices[self._next_stop]]
+            self._distance = min(target, self._distance+self._speed()/3600)
+            if self._distance >= target:
+                self._wait = self.stop_wait_seconds[self._next_stop]
+                self._next_stop += 1
+        self.elapsed_seconds += 1
+        self._last_speed = (self._distance-before)*3600
+
+    def forecast_completion_ms(self, include_disruption: bool, max_seconds: int = 7*86400):
+        """Exact modeled finish, including configured stop dwell; never advances this replay.
+
+        A road hold is included only after it is observed. This is a scenario forecast,
+        not a traffic prediction or physical completion timestamp.
+        """
+        options = self.initial_conditions().copy()
+        options.pop('model_version')
+        if not include_disruption:
+            options['disruption_seconds'] = 0
+        forecast = Replay(**options)
+        while forecast.phase() != 'route_complete' and forecast.elapsed_seconds < max_seconds:
+            forecast._step()
+        if forecast.phase() != 'route_complete':
+            raise ValueError('Modeled completion exceeds seven-day forecast horizon')
+        return forecast.start_time_ms + forecast.elapsed_seconds*1000
 
     def advance_samples(self, seconds: int):
         if not isinstance(seconds, int) or seconds < 0:
@@ -99,17 +129,7 @@ class Replay:
             events.append(self.sample())
             self._initial_emitted = True
         for _ in range(seconds):
-            before = self._distance
-            if self._wait > 0:
-                self._wait -= 1
-            elif self._next_stop < len(self.stop_indices) and not self._held():
-                target = self._lengths[self.stop_indices[self._next_stop]]
-                self._distance = min(target, self._distance+self._speed()/3600)
-                if self._distance >= target:
-                    self._wait = self.stop_wait_seconds[self._next_stop]
-                    self._next_stop += 1
-            self.elapsed_seconds += 1
-            self._last_speed = (self._distance-before)*3600
+            self._step()
             events.append(self.sample())
         return events
 
