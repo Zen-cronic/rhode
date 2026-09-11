@@ -1,0 +1,17 @@
+# Received route adoption
+
+The independent local simulator selects a dispatcher-approved, driver-received alternate through `POST /runs/{id}/adopt-route` with `{revision_id, expected_revision}`. The run must be paused with no pending/in-flight batch. It must have emitted operational telemetry, and the received route must name its exact latest event, position, timestamp and odometer. Repeating the same selection returns its retained record. Resume remains a separate action.
+
+`GET /api/simulation-route?revisionId=…` is simulator-only and synthetic-only. In a consistent database snapshot it checks the latest approval and exact driver receipt, recomputes remaining-work feasibility and verifies unchanged assignment/load/resource/GPS/closure/route evidence. The local transition records the approved fingerprint, driver receipt, real selection timestamp, scenario elapsed second, prior sample and exact fork state. It does not alter reservations or past telemetry.
+
+Before generating each new emitted batch, the simulator checks accepted trip status and current closure/approval/receipt coverage. Failed reads, unresolved/new closures or missing credentials pause it before new samples are generated. An existing pending batch is retried unchanged; the guard is a batch boundary check, not continuous closure detection during delivery of that batch. Local controls bind to127.0.0.1 and are not a public multi-tenant simulation control service.
+
+## Restart and replay
+
+Atomic checkpoints retain original initial conditions and a dated transition timeline, including the active cursor and corrected path lengths. Restart restores paused. Reset starts the original replay and installs each saved transition at its original elapsed second; sample IDs use the conditions active for that sample. Earlier observations therefore retain their IDs and payloads. No transition can be appended while a retained timeline is being replayed. Local durable storage remains required; cloud container replacement/disk-loss resilience is not established.
+
+## Evidence
+
+72 backend tests passed without skips;38 Python tests and root TypeScript passed. The actual Ontario route smoke drives a synthetic trip to a zero-dwell road control point at40seconds/0.300142356km. It records a closure, verifies blocked emission without adoption, approves the alternate, rejects adoption without receipt, acknowledges as the driver and adopts. A real simulator process restart restores paused; it continues to50seconds, then reset/unequal-tick replay produces the same51telemetry records and IDs with unchanged reservations. Evidence: `docs/evidence/simulator-adoption-2026-09-11.json`. Run `node scripts/verify-simulator-adoption.ts` with the existing local API4010, simulator4020, optimizer4040, PostgreSQL55432 and Valhalla48002 services. The script waits for readiness before creating its fresh synthetic carrier and restarts only the local simulator during its explicit restart test.
+
+The first integration attempt exposed duplicate Valhalla leg vertices referenced by a completed stop; preserving those indices fixed the defect and has a regression test. A later startup-readiness race was fixed in the verifier. Provider start discrepancies over10cm remain unresolved rather than teleported. Native closure/receipt controls, dispatcher-visible simulator adoption controls, combined cloud deployment and complete S03/S04 presentation proof remain outstanding. No public or native navigation certification is claimed.

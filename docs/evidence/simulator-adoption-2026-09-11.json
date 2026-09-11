@@ -1,0 +1,21 @@
+{
+  "verifiedAt": "2026-09-11T19:31:46.738Z",
+  "carrier": "sim-adoption-a06e6642-980d-4fe6-bcd8-07629aa942a3",
+  "assignmentId": "2328f641-15ad-46d8-8410-c637b4292008",
+  "runId": "3566d003-0208-48eb-aab6-037e1cbc6a28",
+  "routeRevisionId": "f5f6d9d8-7c25-4a56-947c-32568744b6ee",
+  "routeFingerprint": "65de867927e79d421cd7501b9ee20d811fb2e1a7a3a80091ca430868436cf1d7",
+  "hasToll": true,
+  "transitionAtSeconds": 40,
+  "retainedOdometerKm": 0.3001423561278658,
+  "continuedUntilSeconds": 50,
+  "uniqueTelemetry": 51,
+  "originalEventsUnchanged": true,
+  "restartRestoredPaused": true,
+  "exactAdoptionRetry": true,
+  "resetReplayEventsAndIdsIdentical": true,
+  "reservationsUnchanged": true,
+  "unreceivedRouteRejected": true,
+  "unadoptedClosurePausedBeforeGeneration": true,
+  "scope": "Actual separate local simulator → authenticated API → PostgreSQL with Ontario Valhalla. Existing route waypoint is a synthetic zero-dwell control point, not an asserted facility visit. Native adoption UI and cloud deployment remain outstanding."
+}
