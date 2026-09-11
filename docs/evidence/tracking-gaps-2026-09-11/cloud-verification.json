@@ -1,0 +1,16 @@
+{
+  "cloud": true,
+  "carrierId": "functional-20260911",
+  "overflow": false,
+  "errors": [],
+  "assertions": [
+    "two separate sample segments for sparse telemetry",
+    "reported odometer unknown across a gap",
+    "Google attribution rendered"
+  ],
+  "webRevision": "roadstar-web-00026-bq5",
+  "visuallyInspected": true,
+  "isolatedGpsDistance": "Unknown",
+  "webTestsPassed": 13,
+  "webConfigSkips": 2
+}

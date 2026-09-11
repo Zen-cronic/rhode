@@ -3,7 +3,7 @@
 Updated: 2026-09-11. Status: THIRD_DESIGN_ACCEPTED; PRIORITY_FIXES_DEPLOYED; FULL_PLATFORM_VERIFICATION_IN_PROGRESS.
 Current accepted state: operator selected keeping the third design pass (f3a003c). Detention lifecycle and automatic shipment-linked draft packets verified locally and committed on main. Dated HOS budget consumption and absolute shift deadline now pass locally. Stop-aware deterministic replay and recoverable API batches are verified and committed through 66fbfec.
 Branch: main, created from existing build history by explicit user request. Commit-split each passing packet as work proceeds; no push requested. Local web http://localhost:5174; physical Android/native iOS remain deferred.
-Cloud: web00024-4ts, API00011-6bb, optimizer00005-t4l and documents00002-5xp serve the accepted update. Firebase recovery/detention smoke22 checks passes. All four third-pass film/deck/caption assets match local SHA256. Existing approved seven-day preview persists; no new resources, push or final submission.
+Cloud: web00026-bq5, API00011-6bb, optimizer00005-t4l and documents00002-5xp serve the accepted update. Firebase recovery/detention smoke22 checks passes. All four third-pass film/deck/caption assets match local SHA256. Existing approved seven-day preview persists; no new resources, push or final submission.
 
 
 ## Authorized objective
@@ -158,3 +158,8 @@ Deployment corrected explicit traffic pins and misleading prior-ready revision o
 
 ## Current Android driver parity accepted — September11 15:21 UTC
 API35 emulator current standalone APK passed Firebase D-02 login, recovered RS-1043 offer, offline acceptance, force-stop/restart persistence, and reconnect to acceptedversion2. Server stayed offeredversion1 while offline; device queue has one Synced acceptance. Three screenshots directly inspected; receipt includes APK SHA256 at docs/evidence/native-current-2026-09-11/verification.json. No application mutation required. Existing seed job reused; no new resources. Emulator networking restored and app left on accepted trip; no pickup completed. Next bounded implementation: time-gap segmentation and measured tracking distance; native dispatcher UI/backgroundGPS remain unverified current-build checks. Physicaltesting stilldeferred.
+
+
+## Tracking continuity accepted — September11
+Commits d22b475 and492521e split trails at excluded/poor GPS, intervals over120seconds, non-increasing timestamps, provenancechanges and uncertainty-adjusted impliedspeed over160km/h. These are disclosed display assumptions, not legal/navigation guarantees. Loaded-history odometer distance sums only valid nonnegative plausible increments; gaps/resets/missing readings are excluded. GPS chords are separate estimates with stationary uncertainty suppressed; no connected intervals meansUnknown. Fullshiftmileage and deviceofflineGPS retention remain unfinished.
+Web13tests passed/2Firebaseconfigskips;6focusedtrackingtests; productionbuild/typecheck passed. Localbuilt fixture yields2segments and0.24km measuredodometer, with four-minutegap excluded. Localscreenshot inspected:lines/labels correct, basetiles notloaded ontemporary5175. HostedFirebase/GoogleMaps check passed on00025; finalUnknowncorrection00026-bq5 now100%traffic, finalfreshcapture passed Firebase login, UnknownGPSdistance, two separate samples, actualGooglebasemap/attribution, zero pageerrors and nooverflow. Screenshotdirectlyinspected. See docs/evidence/tracking-gaps-2026-09-11. No thirdpassrestyling ornewresources.

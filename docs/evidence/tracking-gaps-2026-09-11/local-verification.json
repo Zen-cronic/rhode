@@ -1,0 +1,22 @@
+{
+  "builtArtifact": true,
+  "fixture": {
+    "carrier": "tracking-gap-d89852db-8a47-4605-8d9a-422783bbce9e",
+    "assignmentId": "d6526c57-b86a-4969-8810-26123ba29470"
+  },
+  "overflow": false,
+  "errors": [],
+  "assertions": [
+    "two separate segments",
+    "0.24km reported odometer distance excludes four-minute gap",
+    "loaded history and GPS estimate labels visible"
+  ],
+  "visualInspection": "Two separate lines and correctly scoped distance labels visible; local base tiles/Google attribution did not complete loading. Not proof of loaded basemap.",
+  "tests": {
+    "webPass": 12,
+    "webConfigSkips": 2,
+    "trackingTestsPass": 5,
+    "productionBuild": "passed",
+    "typecheck": "passed"
+  }
+}
