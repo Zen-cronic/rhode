@@ -1,0 +1,18 @@
+{
+  "verifiedAt": "2026-09-11T20:21:56.718Z",
+  "carrier": "visit-ui-4160d5e9-0719-4735-8624-56f0fa3fe62b",
+  "assignmentId": "1140cd47-a189-454f-8255-ae7f9ef53efe",
+  "reconciliationId": "96664c78-f532-4ef2-aa9a-0be2f34e63bb",
+  "approvedInvoicePreserved": "7ce65c3b-d52c-4707-b9c4-01f5f7634c22",
+  "currentDraftCents": 7500,
+  "errors": [],
+  "checks": [
+    "built dispatcher before/after review",
+    "new GPS disables open confirmation",
+    "explicit reviewed approval",
+    "original approved invoice preserved byte-for-byte",
+    "one effective visit and one revised draft",
+    "responsive history and offline warning"
+  ],
+  "limits": "Local built web/API/PostgreSQL. No native reconciliation UI or cloud rollout."
+}
