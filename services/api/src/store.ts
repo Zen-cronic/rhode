@@ -1,3 +1,4 @@
+import {hosReviewSchema,importedHosProfile,type HosReviewInput} from '../../../packages/domain/src/hos-import.ts';
 import {mileageReport} from './mileage.ts';
 import {emulatorVerification} from './verification.ts';
 import {remainingWork} from './remaining-work.ts';
@@ -355,6 +356,20 @@ export class Store {
     const id=randomUUID(),request={now,vehicles,loads:shipments,locations,profiles,evidence_ref:id,time_limit_seconds:3};
     const result=vehicles.length&&shipments.length?await computation('/optimize-roads',request):{status:'no_eligible_inputs',routes:[],infeasible_loads:[]};result.infeasible_loads.push(...rejected);result.assumptions=[...(result.assumptions??[]),'Pickup appointment fixed at supplied start; delivery must finish by supplied end','26-pallet synthetic trailer allowance; verify before live use','Optimization is a proposal; route execution still requires dispatcher approval'];
     await c.query('INSERT INTO planning_runs(carrier_id,id,input,result,created_by) VALUES($1,$2,$3,$4,$5)',[a.carrierId,id,JSON.stringify({...request,versions,commitmentHash:await commitmentHash(c,a.carrierId)}),JSON.stringify(result),a.uid]);return {id,version:1,status:'proposal',result};
+  });}
+  async hosHistory(a:Actor,driverId:string){
+    demand(a.role==='dispatcher'||a.role==='driver'&&a.driverId===driverId,'FORBIDDEN','Duty history belongs to another driver.',403);
+    const row=(await this.db.query('SELECT revision,body,provenance,source_ref,source_text,source_sha256,review_reason,reviewed_by,reviewed_at FROM hos_profiles WHERE carrier_id=$1 AND driver_id=$2 ORDER BY revision DESC LIMIT 1',[a.carrierId,driverId])).rows[0];return {driverId,record:row??null};
+  }
+  async previewHos(a:Actor,raw:HosReviewInput){
+    this.dispatcher(a);const input=hosReviewSchema.parse(raw),c=await this.db.connect();
+    try{await c.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');const row=(await c.query("SELECT body,version FROM resources WHERE carrier_id=$1 AND id=$2 AND kind='driver'",[a.carrierId,input.driverId])).rows[0];demand(row,'NOT_FOUND','Driver unavailable.',404);const profile=importedHosProfile(input);const [driver]=await withDutyHistory(c,a.carrierId,[row.body],{driverId:input.driverId,body:profile});await c.query('COMMIT');return {driverId:input.driverId,expectedVersion:row.version,profile,sourceSha256:createHash('sha256').update(input.sourceCsv).digest('hex'),budget:driver.budget,budgetAsOf:driver.budgetAsOf,hosEvidence:driver.hosEvidence};}catch(error){await c.query('ROLLBACK');throw error;}finally{c.release();}
+  }
+  reviewHos(a:Actor,cmd:Command,raw:HosReviewInput){const input=hosReviewSchema.parse(raw);return this.command(a,cmd,'hos.reviewed',input,async c=>{
+    this.dispatcher(a);const row=(await c.query("SELECT body,version FROM resources WHERE carrier_id=$1 AND id=$2 AND kind='driver'",[a.carrierId,input.driverId])).rows[0];demand(row,'NOT_FOUND','Driver unavailable.',404);demand(row.version===cmd.expectedVersion,'STALE_VERSION','Driver evidence changed. Preview the history again.');const profile=importedHosProfile(input);const [driver]=await withDutyHistory(c,a.carrierId,[row.body],{driverId:input.driverId,body:profile});demand(driver.hosEvidence.status!=='incomplete'||input.acceptIncomplete,'INCOMPLETE_HISTORY','History is incomplete. Explicitly acknowledge unavailable driving budgets before saving it.');
+    const revision=(await c.query('SELECT coalesce(max(revision),0)+1 AS n FROM hos_profiles WHERE carrier_id=$1 AND driver_id=$2',[a.carrierId,input.driverId])).rows[0].n;const hash=createHash('sha256').update(input.sourceCsv).digest('hex');
+    await c.query('INSERT INTO hos_profiles(carrier_id,driver_id,revision,body,provenance,source_ref,reviewed_by,source_text,source_sha256,review_reason) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',[a.carrierId,input.driverId,revision,JSON.stringify(profile),row.body.provenance,input.sourceName,a.uid,input.sourceCsv,hash,input.reason]);
+    await c.query('UPDATE resources SET version=version+1,body=$3 WHERE carrier_id=$1 AND id=$2',[a.carrierId,input.driverId,JSON.stringify(driver)]);return {driverId:input.driverId,version:row.version+1,revision,sourceSha256:hash,budget:driver.budget,hosEvidence:{...driver.hosEvidence,revision,sourceRef:input.sourceName,reviewedBy:a.uid}};
   });}
   async mileage(a:Actor,scope:{assignmentId?:string;sessionId?:string}) {return mileageReport(this,a,scope);}
   async tracking(a:Actor,assignmentId:string,before?:string){
