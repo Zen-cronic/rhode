@@ -1,0 +1,11 @@
+import {randomUUID} from 'node:crypto';
+import {writeFile} from 'node:fs/promises';
+import {pool} from '../services/api/src/db.ts';
+import {Store} from '../services/api/src/store.ts';
+import {milton} from '../services/api/src/fixtures.ts';
+const db=pool('postgresql://roadstar:local-roadstar-only@127.0.0.1:55432/roadstar'),store=new Store(db),cmd=(expectedVersion=1)=>({key:randomUUID(),expectedVersion});
+async function setup(){const carrierId='visit-policy-'+randomUUID();await store.seed(carrierId);const dispatcher=await store.membership('demo-dispatcher',carrierId),driver=await store.membership('demo-driver-1',carrierId),simulator=await store.membership('demo-simulator',carrierId),trip:any=await store.dispatch(dispatcher,cmd(),{loadId:'RS-1042',driverId:'D-01',truckId:'T-101',trailerId:'V-101'});await store.respond(driver,cmd(),{assignmentId:trip.id,action:'accept'});return {carrierId,dispatcher,driver,simulator,trip};}
+const event=(f:any,id:string,minute:number,position=milton,accuracyM=10)=>({id,assignmentId:f.trip.id,at:new Date(Date.parse('2026-09-13T12:30:00Z')+minute*60000).toISOString(),position,accuracyM,odometerKm:1000,speedKph:0,duty:'on_duty' as const,provenance:'synthetic' as const});
+async function boundary(f:any,offset:number){return (await db.query("SELECT jsonb_build_object('lat',ST_Y(p::geometry),'lng',ST_X(p::geometry)) AS position FROM (SELECT ST_Project(location,(radius_m+$2)::double precision,0::double precision) p FROM stops WHERE carrier_id=$1 AND load_id='RS-1042' AND id=$3) x",[f.carrierId,offset,milton.id])).rows[0].position;}
+
+try{const f=await setup();await store.ingest(f.simulator,cmd(),event(f,'arrival',0));for(let n=1;n<=24;n++)await store.ingest(f.simulator,cmd(),event(f,'jitter-'+n,n*5,await boundary(f,n%2?-5:5)));for(const [id,minute,position] of [['exit',150,await boundary(f,30)],['return',151,milton],['leave',301,await boundary(f,30)]] as const)await store.ingest(f.simulator,cmd(),event(f,id,minute,position));const state=await store.snapshot(f.dispatcher);await writeFile('/tmp/roadstar-visit-policy-fixture.json',JSON.stringify({carrier:f.carrierId,assignmentId:f.trip.id,visits:state.visits,invoices:state.invoices},null,2));console.log('Prepared '+f.carrierId+' with '+state.visits.length+' visits and '+state.invoices.length+' drafts');}finally{await db.end();}

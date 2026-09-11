@@ -35,6 +35,7 @@ export function EvidenceBilling({
         through approval. Billing approval records a reviewed revision; it does
         not initiate payment.
       </p>
+      <details className="visit-session-policy"><summary>How visits and free time are counted</summary><p>Boundary uncertainty holds the current visit open. A confident exit closes it; a confident return starts a separate visit, even after a short absence. No exit grace period is applied.</p><p>Each separate observed visit receives the shipment contract’s free-time allowance. Confirm that this rule matches the shipment terms before approving detention. Sample timestamps are observations, not exact dock crossing times.</p></details>
       <div className="evidence-ledger"><div><span className="step-index">01</span><strong>Observe</strong><small>{state.visits.length} recorded stop visits</small></div><i aria-hidden="true"/><div><span className="step-index">02</span><strong>Review</strong><small>{state.invoices.filter(invoice=>invoice.status === "draft").length} draft revisions</small></div><i aria-hidden="true"/><div><span className="step-index">03</span><strong>Approve</strong><small>{state.invoices.filter(invoice=>invoice.status === "approved").length} approved revisions</small></div></div>
       {!state.visits.length ? (
         <div className="empty">
@@ -53,6 +54,7 @@ export function EvidenceBilling({
                 {visit.departure ? date(visit.departure) : "Visit still open"}
               </p>
             </div>
+            <p className="fine">{visit.session_policy==='confidence-disk-split-v1'?'Separate visit · confident exit ends this visit':'Visit policy not recorded'}</p>
             <button onClick={() => onVisit(visit)}>Review stop evidence</button>
           </div>
         ))
@@ -87,6 +89,7 @@ export function EvidenceBilling({
                   {invoice.status}
                 </span>
               </div>
+              {visit&&<p className="fine">Observed visit: {date(visit.arrival)} → {visit.departure?date(visit.departure):'Still open'} · {visit.stop_id}</p>}
               <p className="fine">
                 Timestamp precision:{" "}
                 {invoice.body.precision.replaceAll("_", " ")}
@@ -94,6 +97,7 @@ export function EvidenceBilling({
                   ? ` · historical revision; latest is ${latest}`
                   : ""}
               </p>
+              <p className="fine">{invoice.body.visitPolicy?'Free-time allowance applies to this observed visit. Exit and return are not merged.':'Historical invoice: visit-session policy was not recorded in this revision.'}</p>
               {invoice.body.review && (
                 <details>
                   <summary>Approval evidence</summary>
@@ -180,6 +184,8 @@ function InvoiceApproval({
             ? `${contract.id} · v${contract.version} · ${contract.free_minutes} free minutes · ${new Intl.NumberFormat("en-CA", { style: "currency", currency: contract.currency }).format(contract.rate_cents_per_hour / 100)} per hour`
             : `${invoice.contract_id || "Contract"} · v${invoice.contract_version || "unknown"}`}
         </dd>
+        <dt>Visit-session rule</dt>
+        <dd>{invoice.body.visitPolicy?'Confident exit and return are separate visits. The free-time allowance applies separately to each visit.':'Visit-session policy was not recorded in this historical revision; review the original evidence and terms.'}</dd>
         <dt>Source telemetry samples</dt>
         <dd>
           {invoice.body.evidence.map((id) => (

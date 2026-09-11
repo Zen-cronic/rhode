@@ -38,6 +38,7 @@ export type Proposal = {
   };
 };
 export type Visit = {
+  session_policy?: string;
   assignment_id?: string;
   id: string;
   load_id: string;
@@ -55,6 +56,7 @@ export type Invoice = {
   revision: number;
   status: string;
   body: {
+    visitPolicy?: {id:string;boundaryRule:string;reentryRule:string;freeTimeScope:string};
     dwellMinutes: number;
     billableMinutes: number;
     amountCents: number;
