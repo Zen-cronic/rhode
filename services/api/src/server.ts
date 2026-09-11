@@ -59,6 +59,7 @@ export function createApi(store:Store,options:{localDemo?:boolean;verifyToken?:(
   app.post('/api/hos-preview',async(req,reply)=>{reply.header('Cache-Control','private, no-store');const actor=await auth(req),parsed=hosReviewSchema.safeParse(req.body);demand(parsed.success,'INVALID_BODY',parsed.success?'':parsed.error.issues.map(issue=>`${issue.path.join('.')}: ${issue.message}`).join('; '),400);return store.previewHos(actor,parsed.data);});
   app.get<{Querystring:{assignmentId?:string;sessionId?:string}}>('/api/mileage',async(req,reply)=>{reply.header('Cache-Control','private, no-store');return store.mileage(await auth(req),req.query);});
   app.get<{Querystring:{assignmentId:string;before?:string}}>('/api/tracking',async(req,reply)=>{reply.header('Cache-Control','private, no-store');return store.tracking(await auth(req),req.query.assignmentId,req.query.before);});
+  app.get<{Querystring:{revisionId:string}}>('/api/simulation-route',async req=>store.simulationRoute(await auth(req),req.query.revisionId));
   app.get('/api/state',async req=>store.snapshot(await auth(req)));
   app.get<{Querystring:{cursor?:string}}>('/api/updates',async req=>store.updates(await auth(req),req.query.cursor??'0'));
   app.get('/api/imports',async req=>store.imports(await auth(req)));

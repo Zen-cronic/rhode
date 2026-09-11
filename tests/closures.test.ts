@@ -64,3 +64,12 @@ test('new closures and newer approved routes cannot receive a stale driver ackno
  await store.reportClosure(f.simulator,cmd(6),report(f.trip));await assert.rejects(store.acknowledgeRoute(f.driver,cmd(2),{routeRevisionId:newer.id,acknowledgeReceipt:true}),{code:'STALE_ROUTE'});
  assert.equal((await store.routeReviews(f.driver,f.trip.id)).receipts.length,0);
 });
+
+test('simulator adoption evidence requires current approval, exact receipt and unchanged current GPS',async()=>{
+ const f=await approvedFixture();await assert.rejects(store.simulationRoute(f.simulator,f.review.id),{code:'ROUTE_NOT_RECEIVED'});
+ await store.acknowledgeRoute(f.driver,cmd(2),{routeRevisionId:f.review.id,acknowledgeReceipt:true});
+ const evidence=await store.simulationRoute(f.simulator,f.review.id);assert.equal(evidence.revision,3);assert.equal(evidence.assignmentId,f.trip.id);assert.equal(evidence.receipt.route_fingerprint,f.review.body.routeFingerprint);
+ await assert.rejects(async()=>store.simulationRoute(f.driver,f.review.id),{code:'FORBIDDEN'});
+ await store.ingest(f.simulator,cmd(),{id:randomUUID(),assignmentId:f.trip.id,at:f.trip.startAt,position:milton,accuracyM:5,speedKph:0,odometerKm:100,duty:'on_duty',provenance:'synthetic'} as any);
+ await assert.rejects(store.simulationRoute(f.simulator,f.review.id),{code:'STALE_ROUTE'});
+});

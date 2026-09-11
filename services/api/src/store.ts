@@ -110,10 +110,24 @@ export class Store {
       return {routeRevisionId:row.id,revision:row.revision+1,assignmentId:trip.id,receipt:{...receipt,acknowledged_at:iso(receipt.acknowledged_at)},note:'Driver receipt recorded. This does not prove route adoption or execution.'};
     });
   }
+  async simulationRoute(a:Actor,revisionId:string){
+    demand(a.role==='simulator','FORBIDDEN','Simulator identity required.',403);
+    const c=await this.db.connect();try{await c.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
+      const row=(await c.query('SELECT * FROM route_revisions WHERE carrier_id=$1 AND id=$2',[a.carrierId,revisionId])).rows[0];demand(row,'NOT_FOUND','Route revision not found.',404);
+      const trip=await this.getAssignment(c,a,row.assignment_id),load=await this.load(c,a,trip.loadId);demand(load.provenance==='synthetic','FORBIDDEN','Simulation route requires synthetic data.',403);
+      const latest=(await c.query("SELECT id FROM route_revisions WHERE carrier_id=$1 AND assignment_id=$2 AND status='approved' ORDER BY approved_at DESC,id DESC LIMIT 1",[a.carrierId,trip.id])).rows[0];
+      const receipt=(await c.query('SELECT * FROM route_receipts WHERE carrier_id=$1 AND route_revision_id=$2',[a.carrierId,row.id])).rows[0];
+      demand(row.status==='approved'&&latest?.id===row.id&&receipt&&receipt.route_fingerprint===row.body.routeFingerprint,'ROUTE_NOT_RECEIVED','Latest approved route requires the assigned driver receipt.');
+      const fresh=await routeRevisionProof(this,c,a,trip.id),prior=row.body;
+      demand(fresh.eligible,'INELIGIBLE',fresh.reasons.join(' '));
+      demand(fresh.assignmentVersion===prior.assignmentVersion+1&&fresh.loadVersion===prior.loadVersion&&canonical(fresh.closures)===canonical(prior.closures)&&canonical('resources' in fresh?fresh.resources:null)===canonical(prior.resources)&&('telemetryId' in fresh?fresh.telemetryId:null)===prior.telemetryId&&('routeFingerprint' in fresh?fresh.routeFingerprint:null)===prior.routeFingerprint,'STALE_ROUTE','Route, trip, GPS or resource evidence changed after approval. Rehearse again.');
+      await c.query('COMMIT');return {assignmentId:trip.id,revisionId:row.id,revision:row.revision,receipt,proof:fresh};
+    }catch(error){await c.query('ROLLBACK');throw error;}finally{c.release();}
+  }
   async routeReviews(a:Actor,assignmentId:string){
     const c=await this.db.connect();try{await c.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');const trip=await this.getAssignment(c,a,assignmentId),load=await this.load(c,a,trip.loadId);
       demand(a.role==='dispatcher'||(a.role==='driver'&&a.driverId===trip.driverId)||(a.role==='simulator'&&load.provenance==='synthetic'),'FORBIDDEN','Route evidence belongs to another driver or operation.',403);
-      const result={assignmentId,assignmentVersion:trip.version,receipts:(await c.query('SELECT r.* FROM route_receipts r JOIN route_revisions v ON v.carrier_id=r.carrier_id AND v.id=r.route_revision_id WHERE v.carrier_id=$1 AND v.assignment_id=$2 ORDER BY r.acknowledged_at',[a.carrierId,assignmentId])).rows,closures:(await c.query('SELECT * FROM road_closures WHERE carrier_id=$1 AND assignment_id=$2 ORDER BY recorded_at',[a.carrierId,assignmentId])).rows,revisions:(await c.query('SELECT * FROM route_revisions WHERE carrier_id=$1 AND assignment_id=$2 ORDER BY created_at DESC',[a.carrierId,assignmentId])).rows};
+      const result={assignmentId,assignmentVersion:trip.version,assignmentStatus:trip.status,receipts:(await c.query('SELECT r.* FROM route_receipts r JOIN route_revisions v ON v.carrier_id=r.carrier_id AND v.id=r.route_revision_id WHERE v.carrier_id=$1 AND v.assignment_id=$2 ORDER BY r.acknowledged_at',[a.carrierId,assignmentId])).rows,closures:(await c.query('SELECT * FROM road_closures WHERE carrier_id=$1 AND assignment_id=$2 ORDER BY recorded_at',[a.carrierId,assignmentId])).rows,revisions:(await c.query('SELECT * FROM route_revisions WHERE carrier_id=$1 AND assignment_id=$2 ORDER BY created_at DESC',[a.carrierId,assignmentId])).rows};
       await c.query('COMMIT');return result;
     }catch(error){await c.query('ROLLBACK');throw error;}finally{c.release();}
   }
