@@ -2,6 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 export DATABASE_URL="${DATABASE_URL:-postgresql://roadstar:local-roadstar-only@127.0.0.1:55432/roadstar}"
+export SIMULATOR_CONTROL_URL=http://127.0.0.1:4020
 export AUTH_MODE=local-demo AUTO_MIGRATE=true PORT=4010
 export WEB_ORIGIN=http://localhost:5174,http://127.0.0.1:5174
 if [[ -z "${VITE_GOOGLE_MAPS_KEY:-}" && -f apps/web/.env.production ]]; then
