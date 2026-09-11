@@ -2,6 +2,11 @@
 # No operational database connection; observations enter through authenticated commands.
 import asyncio
 import os
+import json
+import re
+import fcntl
+from pathlib import Path
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from hashlib import sha256
 from uuid import uuid4
@@ -11,9 +16,91 @@ from pydantic import BaseModel, Field
 from roadstar_optimizer.simulation import Replay
 from roadstar_optimizer.routing import RouteRequest, valhalla_route
 
-app = FastAPI(title='RoadStar independent simulator')
+def state_directory():
+    directory = Path(os.environ.get('SIMULATOR_STATE_DIR', Path(__file__).resolve().parents[2] / 'data' / 'simulator'))
+    directory.mkdir(parents=True, exist_ok=True, mode=0o700)
+    return directory
+
+
+@asynccontextmanager
+async def lifespan(_):
+    # One local writer. Independent preview processes must use different directories.
+    with (state_directory() / '.writer.lock').open('a') as owner:
+        try:
+            fcntl.flock(owner, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as error:
+            raise RuntimeError('Simulator state directory already has a writer; use one worker or a separate directory') from error
+        yield
+
+
+app = FastAPI(title='RoadStar independent simulator', lifespan=lifespan)
 runs: dict[str, dict] = {}
 lock = asyncio.Lock()
+
+
+PROGRESS_FIELDS = ('elapsed_seconds', '_distance', '_next_stop', '_wait', '_last_speed', '_initial_emitted')
+
+
+def checkpoint_path(run_id):
+    if not re.fullmatch(r'[A-Za-z0-9_-]{1,80}', run_id):
+        raise HTTPException(400, 'Invalid run identity')
+    return state_directory() / f'{run_id}.json'
+
+
+def save_run(run):
+    replay = run['replay']
+    # Credentials, clients and in-flight flags are never serialized. Cached forecasts
+    # are recomputed; pending command bodies, versions and receipts are retained.
+    data = {k: v for k, v in run.items() if k not in ('replay', 'advancing', 'completion_forecasts')}
+    data['replay'] = {'initial': replay.initial_conditions(), 'progress': {k: getattr(replay, k) for k in PROGRESS_FIELDS}, 'paused': replay.paused, 'conditions_hash': replay.conditions_hash()}
+    encoded = json.dumps({'format': 1, 'run': data}, allow_nan=False).encode()
+    try:
+        target = checkpoint_path(run['run_id'])
+        temporary = target.with_suffix('.tmp')
+        fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, 'wb') as output:
+            output.write(encoded)
+            output.flush()
+            os.fsync(output.fileno())
+        os.replace(temporary, target)
+        directory_fd = os.open(target.parent, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    except OSError as error:
+        replay.paused = True
+        raise HTTPException(503, 'Simulator checkpoint could not be saved; run paused. Repair storage before resuming.') from error
+
+
+def restore_run(run_id):
+    target = checkpoint_path(run_id)
+    if not target.exists():
+        raise HTTPException(404, 'Run not found; no persisted checkpoint for this identity')
+    try:
+        envelope = json.loads(target.read_text())
+        if envelope['format'] != 1:
+            raise ValueError('Unsupported checkpoint format')
+        run = envelope['run']
+        saved = run.pop('replay')
+        initial = saved['initial'].copy()
+        if initial.pop('model_version') != 'road-events-v2' or run['run_id'] != run_id:
+            raise ValueError('Run identity or model version changed')
+        replay = Replay(**initial)
+        if saved['conditions_hash'] != replay.conditions_hash():
+            raise ValueError('Initial conditions changed')
+        for field in PROGRESS_FIELDS:
+            setattr(replay, field, saved['progress'][field])
+        if replay.elapsed_seconds < 0 or not 0 <= replay._distance <= replay._lengths[-1] or not 1 <= replay._next_stop <= len(replay.stop_indices) or replay._wait < 0:
+            raise ValueError('Invalid motion checkpoint')
+        pending = run['pending']
+        if pending is not None and not 0 <= pending['sent'] <= len(pending['events']):
+            raise ValueError('Invalid pending receipt cursor')
+        replay.paused = True  # A restart never begins emitting without an explicit resume.
+        run.update(replay=replay, advancing=False, restored=True)
+        return run
+    except (OSError, ValueError, KeyError, TypeError, AttributeError, IndexError) as error:
+        raise HTTPException(503, 'Run checkpoint is unreadable or incompatible; preserve it for review, do not silently recreate the run') from error
 
 
 class Start(BaseModel):
@@ -56,27 +143,34 @@ async def create(data: Start):
     except (ValueError, IndexError) as error:
         raise HTTPException(400, str(error)) from error
     run_id = str(uuid4())
-    runs[run_id] = {'replay': replay, 'assignment_id': data.assignment_id, 'carrier_id': data.carrier_id, 'events': [], 'pending': None, 'emit_mode': None}
+    runs[run_id] = {'run_id': run_id, 'api_origin': os.environ.get('ROADSTAR_API', 'http://127.0.0.1:4010').rstrip('/'), 'replay': replay, 'assignment_id': data.assignment_id, 'carrier_id': data.carrier_id, 'events': [], 'pending': None, 'emit_mode': None}
+    save_run(runs[run_id])
     return {'id': run_id, 'conditions_hash': replay.conditions_hash(), 'paused': True, 'route': routed, 'provenance': 'synthetic', 'stop_indices': stops}
 
 
 def get(run_id):
     if run_id not in runs:
-        raise HTTPException(404, 'Run not found; recreate from exported initial conditions')
+        runs[run_id] = restore_run(run_id)
+    runs[run_id].setdefault('run_id', run_id)
+    runs[run_id].setdefault('api_origin', os.environ.get('ROADSTAR_API', 'http://127.0.0.1:4010').rstrip('/'))
     return runs[run_id]
 
 
 @app.post('/runs/{run_id}/resume')
 async def resume(run_id: str):
     async with lock:
-        get(run_id)['replay'].paused = False
+        run = get(run_id)
+        run['replay'].paused = False
+        save_run(run)
         return {'paused': False}
 
 
 @app.post('/runs/{run_id}/pause')
 async def pause(run_id: str):
     async with lock:
-        get(run_id)['replay'].paused = True
+        run = get(run_id)
+        run['replay'].paused = True
+        save_run(run)
         return {'paused': True}
 
 
@@ -89,6 +183,7 @@ async def reset(run_id: str):
         run['replay'].reset()
         run['events'] = []
         run['emit_mode'] = None
+        save_run(run)
         return {'paused': True, 'conditions_hash': run['replay'].conditions_hash(), 'note': 'Same-trip replay reuses IDs and never rewinds operational time. Use a fresh scenario assignment for an independent comparison.'}
 
 
@@ -140,10 +235,12 @@ async def report_delay(client, run, event, headers):
             'reason': f"Simulator observed {event['phase']}; modeled completion uses seeded road speeds and configured stop dwell. Road disruption included: {include_hold}. Conditions {run['replay'].conditions_hash()}. Dispatcher review required."
         }, 'result': None}
         reports[key] = report
+        save_run(run)  # Durable exact expected version before the consequential POST.
     if report['result'] is None:
         response = await client.post('/api/delay', headers={**headers, 'Idempotency-Key': report['key'], 'If-Match': str(report['version'])}, json=report['body'])
         response.raise_for_status()
         report['result'] = response.json()
+        save_run(run)
     run['reported_end_ms'] = max(run.get('reported_end_ms', 0), report['end_ms'])
 
 
@@ -151,6 +248,8 @@ async def report_delay(client, run, event, headers):
 async def advance(run_id: str, data: Advance):
     run = get(run_id)
     replay = run['replay']
+    if data.emit and run['api_origin'] != os.environ.get('ROADSTAR_API', 'http://127.0.0.1:4010').rstrip('/'):
+        raise HTTPException(409, 'Run is bound to a different operational API; restore the original API configuration')
     if run.get('advancing'):
         raise HTTPException(409, 'This run already has an active advance request')
     if replay.paused:
@@ -168,7 +267,9 @@ async def advance(run_id: str, data: Advance):
             event['id'] = sha256(f'{run_id}:{fingerprint}:{at_ms}'.encode()).hexdigest()
         run['emit_mode'] = data.emit
         run['pending'] = {'events': events, 'sent': 0}
+        save_run(run)  # Generated samples become durable before any network delivery.
     pending = run['pending']
+    save_run(run)  # Also recheck storage before retrying a previously unsaved batch.
     run['advancing'] = True
     try:
         if data.emit:
@@ -205,6 +306,7 @@ async def advance(run_id: str, data: Advance):
         return {'event': events[-1] if events else None, 'events': events, 'emitted': data.emit, 'conditions_hash': replay.conditions_hash(), 'elapsed_seconds': emitted_seconds(run), 'generated_until_seconds': replay.elapsed_seconds, 'phase': replay.phase() if complete else 'paused_with_pending_batch', 'pending': not complete, 'modeled': True}
     finally:
         run['advancing'] = False
+        save_run(run)
 
 
 @app.get('/runs/{run_id}')
@@ -212,4 +314,9 @@ async def state(run_id: str):
     async with lock:
         run = get(run_id)
         replay = run['replay']
-        return {'paused': replay.paused, 'elapsed_seconds': emitted_seconds(run), 'generated_until_seconds': replay.elapsed_seconds, 'advancing': run.get('advancing', False), 'phase': replay.phase() if run['pending'] is None else 'streaming_or_paused', 'conditions_hash': replay.conditions_hash(), 'pending': run['pending'], 'events': run['events'], 'initial_conditions': replay.initial_conditions(), 'emit_mode': run['emit_mode'], 'delay_reports': list(run.get('delay_reports', {}).values()), 'persistence': 'process-local; export this response to preserve replay', 'provenance': 'synthetic'}
+        return {'paused': replay.paused, 'elapsed_seconds': emitted_seconds(run), 'generated_until_seconds': replay.elapsed_seconds, 'advancing': run.get('advancing', False), 'phase': replay.phase() if run['pending'] is None else 'streaming_or_paused', 'conditions_hash': replay.conditions_hash(), 'pending': run['pending'], 'events': run['events'], 'initial_conditions': replay.initial_conditions(), 'emit_mode': run['emit_mode'], 'delay_reports': list(run.get('delay_reports', {}).values()), 'restored': run.get('restored', False), 'persistence': 'atomic local checkpoint; restart restores paused with pending commands intact', 'provenance': 'synthetic'}
+
+
+@app.get('/runs')
+async def list_runs():
+    return {'runs': sorted({*runs.keys(), *(p.stem for p in state_directory().glob('*.json'))}), 'restart_policy': 'restored runs are paused; explicitly resume to retry pending commands'}
