@@ -5,6 +5,7 @@ import os
 import json
 import re
 import copy
+from contextvars import ContextVar
 import fcntl
 from pathlib import Path
 from contextlib import asynccontextmanager
@@ -53,7 +54,7 @@ def save_run(run):
     replay = run['replay']
     # Credentials, clients and in-flight flags are never serialized. Cached forecasts
     # are recomputed; pending command bodies, versions and receipts are retained.
-    data = {k: v for k, v in run.items() if k not in ('replay', 'advancing', 'completion_forecasts')}
+    data = {k: v for k, v in run.items() if k not in ('replay', 'advancing', 'completion_forecasts', '_control_busy')}
     data['replay'] = {'initial': replay.initial_conditions(), 'progress': {k: getattr(replay, k) for k in PROGRESS_FIELDS}, 'paused': replay.paused, 'conditions_hash': replay.conditions_hash()}
     encoded = json.dumps({'format': 1, 'run': data}, allow_nan=False).encode()
     try:
@@ -183,6 +184,7 @@ async def pause(run_id: str):
 async def reset(run_id: str):
     async with lock:
         run = get(run_id)
+        assert_control_owner(run)
         if run.get('advancing') or run['pending'] is not None:
             raise HTTPException(409, 'Retry the pending batch before reset; accepted observations cannot be discarded')
         if run.get('original_initial'):
@@ -257,6 +259,7 @@ async def report_delay(client, run, event, headers):
 @app.post('/runs/{run_id}/advance')
 async def advance(run_id: str, data: Advance):
     run = get(run_id)
+    assert_control_owner(run)
     replay = run['replay']
     if data.emit and run['api_origin'] != os.environ.get('ROADSTAR_API', 'http://127.0.0.1:4010').rstrip('/'):
         raise HTTPException(409, 'Run is bound to a different operational API; restore the original API configuration')
@@ -413,7 +416,7 @@ class AdoptRoute(BaseModel):
 @app.post('/runs/{run_id}/adopt-route')
 async def adopt_route(run_id: str, data: AdoptRoute):
     async with lock:
-        run=get(run_id);previous=run['replay']
+        run=get(run_id);assert_control_owner(run);previous=run['replay']
         # A lost local HTTP acknowledgment can repeat the exact selection safely.
         for transition in run.get('route_transitions',[]):
             if transition['revision_id']==data.revision_id:
@@ -444,3 +447,136 @@ async def adopt_route(run_id: str, data: AdoptRoute):
         save_run(candidate)  # Publish the new selection in memory only after durable storage.
         runs[run_id]=candidate
         return {'adopted':True,'paused':True,'transition':transition,'note':'Simulation plan selected; resume separately. Original observations remain unchanged.'}
+
+
+# Local dispatcher controls. Operational authorization belongs to the API adapter;
+# this process remains loopback-only and stores no user credentials.
+control_owner = ContextVar('roadstar_control_owner', default=None)
+
+
+def assert_control_owner(run):
+    pending = run.get('control_pending')
+    if pending and control_owner.get() != pending['key']:
+        raise HTTPException(409, 'Retry the pending dispatcher control before another advance, reset or adoption')
+
+
+def control_view(run):
+    replay = run['replay']
+    pending = run['pending']
+    view = {'run_id': run['run_id'], 'carrier_id': run['carrier_id'], 'assignment_id': run['assignment_id'],
+            'api_origin': run['api_origin'], 'paused': replay.paused, 'advancing': run.get('advancing', False),
+            'elapsed_seconds': emitted_seconds(run), 'generated_until_seconds': replay.elapsed_seconds,
+            'conditions_hash': replay.conditions_hash(), 'event_count': len(run['events']), 'phase': replay.phase(),
+            'pending_samples': len(pending['events'])-pending['sent'] if pending else 0,
+            'last_sample': run['events'][-1] if run['events'] else None,
+            'control_revision': run.get('control_revision', 0), 'closure_block': run.get('closure_block'),
+            'transitions': [{k:t[k] for k in ('revision_id','revision','at_seconds','adopted_at','route_fingerprint')} for t in run.get('route_transitions', [])],
+            'restored': run.get('restored', False), 'provenance': 'synthetic'}
+    view['state_hash'] = sha256(json.dumps(view, sort_keys=True, allow_nan=False).encode()).hexdigest()
+    intent = run.get('control_pending')
+    view['pending_control'] = {'key':intent['key'], 'command':intent['command']} if intent else None
+    return view
+
+
+class Control(BaseModel):
+    key: str = Field(min_length=8, max_length=128)
+    expected_state: str = Field(pattern=r'^[a-f0-9]{64}$')
+    action: str = Field(pattern=r'^(pause|resume|reset|advance|adopt-route)$')
+    seconds: int = Field(default=1, ge=1, le=60)
+    revision_id: str | None = Field(default=None, max_length=100)
+    expected_revision: int | None = Field(default=None, ge=1)
+    requested_by: str = Field(min_length=1, max_length=128)
+
+
+@app.get('/control/runs')
+async def control_runs(carrier_id: str):
+    result, unavailable = [], 0
+    for run_id in (await list_runs())['runs']:
+        try:
+            run = get(run_id)
+            if run['carrier_id'] == carrier_id:
+                result.append(control_view(run))
+        except HTTPException:
+            unavailable += 1  # No identity or path from another carrier is exposed.
+    return {'runs':result, 'unavailable_checkpoints':unavailable}
+
+
+@app.get('/control/runs/{run_id}')
+async def control_state(run_id: str):
+    async with lock:
+        return control_view(get(run_id))
+
+
+def finish_control(run, data, fingerprint, error=None, clear_pending=True):
+    if clear_pending: run.pop('control_pending', None)
+    run['control_revision'] = run.get('control_revision', 0)+1
+    result = {'action':data.action, 'requested_by':data.requested_by, 'recorded_at':datetime.now(timezone.utc).isoformat(),
+              'state':control_view(run), 'error':error}
+    run.setdefault('control_receipts', {})[data.key] = {'fingerprint':fingerprint, 'result':result}
+    save_run(run)
+    return result
+
+
+@app.post('/control/runs/{run_id}')
+async def control(run_id: str, data: Control):
+    command = data.model_dump()
+    fingerprint = sha256(json.dumps(command, sort_keys=True).encode()).hexdigest()
+    async with lock:
+        run = get(run_id)
+        old = run.get('control_receipts', {}).get(data.key)
+        if old:
+            if old['fingerprint'] != fingerprint:
+                raise HTTPException(409, 'Control key was already used for different content')
+            return old['result']
+        intent = run.get('control_pending')
+        retry = bool(intent and intent['key'] == data.key)
+        if retry and intent['fingerprint'] != fingerprint:
+            raise HTTPException(409, 'Retry the exact pending command')
+        if not retry and control_view(run)['state_hash'] != data.expected_state:
+            raise HTTPException(409, 'Simulator state changed; refresh before controlling this run')
+        if len(run.get('control_receipts', {})) >= 10000:
+            raise HTTPException(409, 'Control history is full; preserve this run and create a new scenario')
+        # Pause/resume can surround an interrupted advance without discarding its intent.
+        if data.action in ('pause', 'resume'):
+            if data.action == 'resume' and (run.get('advancing') or run.get('_control_busy')):
+                raise HTTPException(409, 'Wait for the active batch before resuming')
+            run['replay'].paused = data.action == 'pause'
+            return finish_control(run, data, fingerprint, clear_pending=False)
+        if intent and not retry:
+            raise HTTPException(409, 'Retry the pending dispatcher command first')
+        if run.get('_control_busy') or run.get('advancing'):
+            raise HTTPException(409, 'This run has an active control request')
+        if data.action == 'adopt-route' and (not data.revision_id or data.expected_revision is None):
+            raise HTTPException(400, 'Approved route revision and driver receipt version required')
+        # Crash after completed advance but before its HTTP receipt: acknowledge
+        # durable progress instead of generating a second batch.
+        if retry and data.action == 'advance' and run['pending'] is None and run['replay'].elapsed_seconds > intent['before_generated']:
+            return finish_control(run, data, fingerprint)
+        if data.action == 'advance' and run['replay'].paused:
+            raise HTTPException(409, 'Resume explicitly before advancing or retrying a pending batch')
+        if not retry:
+            run['control_pending'] = {'key':data.key, 'fingerprint':fingerprint, 'command':command,
+                                      'before_generated':run['replay'].elapsed_seconds}
+            save_run(run)
+        run['_control_busy'] = True
+    owner = control_owner.set(data.key)
+    try:
+        if data.action == 'advance':
+            await advance(run_id, Advance(seconds=data.seconds, emit=True))
+        elif data.action == 'reset':
+            await reset(run_id)
+        else:
+            await adopt_route(run_id, AdoptRoute(revision_id=data.revision_id, expected_revision=data.expected_revision))
+        run = get(run_id)
+        if data.action == 'advance' and run['pending'] is not None:
+            return {'action':data.action, 'pending':True, 'state':control_view(run)}
+        return finish_control(run, data, fingerprint)
+    except HTTPException as error:
+        run = get(run_id)
+        if run['pending'] is None:
+            return finish_control(run, data, fingerprint, {'status':error.status_code, 'detail':error.detail})
+        raise
+    finally:
+        control_owner.reset(owner)
+        get(run_id)['_control_busy'] = False
+        save_run(get(run_id))

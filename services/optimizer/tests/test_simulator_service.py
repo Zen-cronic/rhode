@@ -348,3 +348,96 @@ def test_guarded_run_with_missing_token_does_not_generate_an_unreviewed_batch(mo
         with pytest.raises(sim.HTTPException):await sim.advance('run',sim.Advance(seconds=10))
         assert run['replay'].paused and run['pending'] is None and run['replay'].elapsed_seconds==0
     asyncio.run(exercise())
+
+
+def control_request(action, key, **kwargs):
+    return sim.Control(key=key,expected_state=sim.control_view(sim.get('run'))['state_hash'],action=action,requested_by='dispatcher',**kwargs)
+
+
+def control_transport(monkeypatch, fail_after=None):
+    original=httpx.AsyncClient
+    seen=[]
+    def handler(request):
+        import json
+        if request.url.path=='/api/telemetry':
+            seen.append(json.loads(request.content)['id'])
+            if fail_after and len(seen)==fail_after:return httpx.Response(503,json={'error':'lost ack'})
+        return httpx.Response(200,json={})
+    monkeypatch.setattr(sim.httpx,'AsyncClient',lambda **kwargs:original(**kwargs,transport=httpx.MockTransport(handler)))
+    async def no_op(*args):pass
+    monkeypatch.setattr(sim,'synchronize_clock',no_op)
+    monkeypatch.setattr(sim,'report_delay',no_op)
+    monkeypatch.setenv('SIMULATOR_TOKEN','synthetic-test-token')
+    return seen
+
+
+def test_dispatcher_controls_repeat_once_and_reject_stale_or_changed_commands(monkeypatch):
+    install_run(monkeypatch);seen=control_transport(monkeypatch)
+    async def exercise():
+        command=control_request('advance','advance-1',seconds=3)
+        result=await sim.control('run',command);assert result['state']['generated_until_seconds']==3
+        assert await sim.control('run',command)==result
+        assert len(seen)==4
+        with pytest.raises(sim.HTTPException):await sim.control('run',command.model_copy(update={'seconds':4}))
+        with pytest.raises(sim.HTTPException):await sim.control('run',command.model_copy(update={'key':'stale-new'}))
+        await sim.control('run',control_request('pause','pause-01'))
+        assert sim.get('run')['replay'].paused
+        await sim.control('run',control_request('reset','reset-01'))
+        assert sim.get('run')['replay'].elapsed_seconds==0
+        assert len(seen)==4
+    asyncio.run(exercise())
+
+
+def test_pending_control_survives_pause_restart_resume_and_exact_retry(monkeypatch):
+    install_run(monkeypatch);seen=control_transport(monkeypatch,fail_after=3)
+    async def exercise():
+        command=control_request('advance','advance-1',seconds=5)
+        with pytest.raises(sim.HTTPException):await sim.control('run',command)
+        assert sim.get('run')['control_pending']['key']=='advance-1'
+        await sim.control('run',control_request('pause','pause-01'))
+        assert sim.restore_run('run')['control_pending']['key']=='advance-1'
+        with pytest.raises(sim.HTTPException):await sim.advance('run',sim.Advance(seconds=20))
+        with pytest.raises(sim.HTTPException):await sim.control('run',control_request('reset','reset-01'))
+        sim.runs.clear();restored=sim.get('run');assert restored['replay'].paused
+        with pytest.raises(sim.HTTPException):await sim.control('run',command)
+        await sim.control('run',control_request('resume','resume-01'))
+        result=await sim.control('run',command)
+        assert result['state']['generated_until_seconds']==5
+        assert len(set(seen))==6
+        assert len(sim.get('run')['events'])==6
+        assert not sim.get('run').get('control_pending')
+    asyncio.run(exercise())
+
+
+def test_completed_advance_with_lost_control_receipt_cannot_advance_twice_after_restart(monkeypatch):
+    install_run(monkeypatch);seen=control_transport(monkeypatch)
+    original=sim.finish_control
+    def crash(*args,**kwargs):raise RuntimeError('simulated process failure before receipt')
+    async def exercise():
+        command=control_request('advance','advance-1',seconds=5)
+        monkeypatch.setattr(sim,'finish_control',crash)
+        with pytest.raises(RuntimeError):await sim.control('run',command)
+        assert sim.get('run')['pending'] is None
+        assert sim.get('run')['control_pending']
+        sim.runs.clear();monkeypatch.setattr(sim,'finish_control',original)
+        result=await sim.control('run',command)
+        assert result['state']['generated_until_seconds']==5
+        assert result['state']['paused']
+        assert len(seen)==6
+    asyncio.run(exercise())
+
+
+def test_control_run_inventory_is_carrier_scoped_and_closed_route_errors_are_retryable_new_actions(monkeypatch):
+    run=install_run(monkeypatch);control_transport(monkeypatch);run['closure_checks']=True
+    async def blocked(*args):
+        run['replay'].paused=True
+        raise sim.HTTPException(409,'Closure requires review')
+    monkeypatch.setattr(sim,'check_route_guard',blocked)
+    async def exercise():
+        assert not (await sim.control_runs('other'))['runs']
+        assert len((await sim.control_runs('test'))['runs'])==1
+        result=await sim.control('run',control_request('advance','advance-1'))
+        assert result['error']['status']==409
+        assert not sim.get('run').get('control_pending')
+        assert sim.get('run')['replay'].paused
+    asyncio.run(exercise())
