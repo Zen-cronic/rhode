@@ -25,3 +25,8 @@ test('missing history, potential reset and operator-day rollover require review'
 test('cycle exhaustion never produces a renewed positive work allowance',()=>{
  assert.equal(consumeDutyHistory({...basis,budget:{...basis.budget,cycleMinutes:30}},[],'2026-09-13T13:00:00Z').budget?.cycleMinutes,0);
 });
+
+ test('thousands of one-second samples cannot round away a full remaining duty minute',()=>{
+ const observations=Array.from({length:7801},(_,i)=>({at:new Date(Date.parse('2026-09-13T12:30:00Z')+i*1000).toISOString(),duty:'on_duty' as const,source:'sample-'+i}));
+ const result=consumeDutyHistory(basis,observations,'2026-09-13T14:40:00Z');assert.ok('onDutyMinutes' in result.hosEvidence);assert.equal(result.hosEvidence.onDutyMinutes,160);assert.equal(result.budget?.onDutyMinutes,320);assert.equal(result.budget?.cycleMinutes,740);
+});

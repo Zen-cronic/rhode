@@ -13,13 +13,13 @@ export function consumeDutyHistory(basis:DutyBasis|null,observations:DutyObserva
  let cursor=start,duty=basis.duty,drive=0,work=0,rest=0;
  for(let i=0;i<=events.length;i++){
   const next=i<events.length?Date.parse(events[i].at):end;
-  const minutes=(next-cursor)/60000;
-  if(duty==='driving')drive+=minutes;
-  if(duty==='driving'||duty==='on_duty'){work+=minutes;rest=0;}else rest+=minutes;
-  if(rest>=480)return incomplete('Potential rest reset requires reviewed rest/day/cycle history; no automatic budget reset.');
+  const duration=next-cursor;
+  if(duty==='driving')drive+=duration;
+  if(duty==='driving'||duty==='on_duty'){work+=duration;rest=0;}else rest+=duration;
+  if(rest>=480*60000)return incomplete('Potential rest reset requires reviewed rest/day/cycle history; no automatic budget reset.');
   if(i<events.length){if(i>0&&next===Date.parse(events[i-1].at)&&events[i].duty!==events[i-1].duty)return incomplete('Conflicting duty observations at the same timestamp.');duty=events[i].duty;}
   cursor=next;
  }
  const elapsed=(end-start)/60000,b=basis.budget;
- return {duty,budget:{drivingMinutes:Math.max(0,Math.floor(b.drivingMinutes-drive)),onDutyMinutes:Math.max(0,Math.floor(b.onDutyMinutes-work)),cycleMinutes:Math.max(0,Math.floor(b.cycleMinutes-work)),shiftMinutes:Math.max(0,Math.floor(b.shiftMinutes-elapsed))},budgetAsOf:at,hosEvidence:{status:'modeled',profile:'declared-budget-history',basisAt:basis.at,shiftDeadline:new Date(start+b.shiftMinutes*60000).toISOString(),observations:events.length,drivingMinutes:drive,onDutyMinutes:work,elapsedMinutes:elapsed,certifiedELD:false,note:'Dated duty intervals consume declared initial budgets. No automatic rest/day/cycle reset or certified ELD claim.'}};
+ return {duty,budget:{drivingMinutes:Math.max(0,Math.floor(b.drivingMinutes-drive/60000)),onDutyMinutes:Math.max(0,Math.floor(b.onDutyMinutes-work/60000)),cycleMinutes:Math.max(0,Math.floor(b.cycleMinutes-work/60000)),shiftMinutes:Math.max(0,Math.floor(b.shiftMinutes-elapsed))},budgetAsOf:at,hosEvidence:{status:'modeled',profile:'declared-budget-history',basisAt:basis.at,shiftDeadline:new Date(start+b.shiftMinutes*60000).toISOString(),observations:events.length,drivingMinutes:drive/60000,onDutyMinutes:work/60000,elapsedMinutes:elapsed,certifiedELD:false,note:'Dated duty intervals consume declared initial budgets. No automatic rest/day/cycle reset or certified ELD claim.'}};
 }
