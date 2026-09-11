@@ -300,3 +300,14 @@ test('mileage reads beyond cursor pages, separates sessions and trips, and enfor
  const empty=randomUUID();await db.query("INSERT INTO work_sessions(carrier_id,id,driver_id,started_at,ended_at) VALUES($1,$2,'D-01',now(),now())",[carrierId,empty]);const noSamples=await store.mileage(driver,{sessionId:empty});assert.equal(noSamples.samples,0);assert.equal(noSamples.odometerKm,null);assert.equal(noSamples.gpsChordKm,null);
  const app=createApi(store,{localDemo:true});const response=await app.inject({url:`/api/mileage?sessionId=${session}`,headers:{authorization:'Bearer demo-driver-1','x-carrier-id':carrierId}});assert.equal(response.statusCode,200);assert.equal(response.headers['cache-control'],'private, no-store');await app.close();
 });
+
+test('persisted HOS profile drives snapshot and dispatch rejection without erasing prior revisions',async()=>{
+ const {dispatcher,driver,carrierId}=await setup(),clock=Date.parse(DEMO_NOW),H=3600000,D=24*H,day=Date.parse('2026-09-13T04:00:00Z');
+ const span=(start:number,end:number,duty:string)=>({start:new Date(start).toISOString(),end:new Date(end).toISOString(),duty,source:'reviewed synthetic ledger'});
+ const profile={ruleset:'federal-south-60-solo-ordinary-v1',cycle:1,dayAnchor:new Date(day).toISOString(),timeZone:'America/Toronto',exceptions:[],history:[span(day-16*D,clock,'off_duty')]};
+ await db.query("INSERT INTO hos_profiles(carrier_id,driver_id,revision,body,provenance,source_ref,reviewed_by) VALUES($1,'D-01',1,$2,'synthetic','test:rested-ledger',$3)",[carrierId,JSON.stringify(profile),dispatcher.uid]);
+ const rested=(await store.snapshot(driver)).resources.find(r=>r.id==='D-01')!;assert.equal(rested.budget?.drivingMinutes,780);assert.equal(rested.hosEvidence.profile,'federal-south-60-solo-ordinary-v1');assert.equal(rested.hosEvidence.sourceRef,'test:rested-ledger');assert.equal(rested.hosEvidence.revision,1);assert.equal((await store.propose(dispatcher,command(),input) as any).body.proof.eligible,true);
+ const periods=[span(day-16*D,day-6*D+8*H,'off_duty')];for(let n=-6;n<0;n++)periods.push(span(day+n*D+8*H,day+n*D+20*H,'on_duty'),span(day+n*D+20*H,day+(n+1)*D+8*H,'off_duty'));
+ await db.query("INSERT INTO hos_profiles(carrier_id,driver_id,revision,body,provenance,source_ref,reviewed_by) VALUES($1,'D-01',2,$2,'synthetic','test:cycle-exhausted-ledger',$3)",[carrierId,JSON.stringify({...profile,history:periods}),dispatcher.uid]);
+ const exhausted=(await store.snapshot(driver)).resources.find(r=>r.id==='D-01')!;assert.equal(exhausted.budget?.drivingMinutes,780);assert.equal(exhausted.budget?.cycleMinutes,0);await assert.rejects(store.propose(dispatcher,command(),input),{code:'INELIGIBLE',message:'Insufficient cycle budget.'});assert.equal((await db.query('SELECT count(*)::int AS n FROM hos_profiles WHERE carrier_id=$1',[carrierId])).rows[0].n,2);
+});
