@@ -1,0 +1,57 @@
+{
+  "verifiedAt": "2026-09-11T19:18:44.627157+00:00",
+  "routeEvidence": "Actual Ontario Valhalla truck route",
+  "baselinePoints": 864,
+  "alternatePoints": 1016,
+  "hasToll": true,
+  "transitionAtSeconds": 40,
+  "retainedOdometerKm": 0.3001423561278658,
+  "retainedWaitSeconds": 0,
+  "previousConditionsHash": "717322112e00edc3d987a63fb484ab48f3c6457178f3c4b0734f681c4c4bc886",
+  "conditionsHash": "3c078742620ba5222c4a7e3de9c97cb8b56fefea8dd2ae0b5ccac644b7603ddd",
+  "interiorSampleProviderGapMeters": 0.7979911155356825,
+  "interiorGapRejected": true,
+  "providerOriginGapMeters": 0.0,
+  "originalReplayUnchanged": true,
+  "transitionSampleExactlyEqual": true,
+  "lastOriginalSample": {
+    "at_ms": 1789302640000,
+    "position": {
+      "lng": -79.879976,
+      "lat": 43.520199
+    },
+    "speedKph": 29.812482060316924,
+    "odometerKm": 0.3001423561278658,
+    "duty": "driving",
+    "provenance": "synthetic",
+    "accuracyM": 5,
+    "phase": "driving"
+  },
+  "firstAlternateSample": {
+    "at_ms": 1789302641000,
+    "position": {
+      "lng": -79.87984585336582,
+      "lat": 43.52009811487888
+    },
+    "speedKph": 55.29999999999997,
+    "odometerKm": 0.3155034672389769,
+    "duty": "driving",
+    "provenance": "synthetic",
+    "accuracyM": 5,
+    "phase": "driving"
+  },
+  "lastAlternateSample": {
+    "at_ms": 1789302660000,
+    "position": {
+      "lng": -79.87739333947064,
+      "lat": 43.51819747932514
+    },
+    "speedKph": 55.30000000000017,
+    "odometerKm": 0.6073645783500882,
+    "duty": "driving",
+    "provenance": "synthetic",
+    "accuracyM": 5,
+    "phase": "driving"
+  },
+  "scope": "Motion prerequisite only. No operational adoption command, driver receipt consumption, checkpoint transition timeline or historical-ID replay integration is claimed."
+}
