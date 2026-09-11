@@ -1,0 +1,23 @@
+{
+  "verifiedAt": "2026-09-11T21:02:49.942Z",
+  "carrier": "sim-adoption-9d781044-464d-4d74-9dd3-fa295814e3bd",
+  "assignmentId": "7777f8ca-a7b6-4b7d-9d88-e4160c216cf0",
+  "runId": "62d05ef7-7f4f-4828-9d7a-362f17bab5d6",
+  "routeRevisionId": "3a4f81e0-b6e9-4896-b8f6-42260777b6cd",
+  "originalSeconds": 40,
+  "continuedSeconds": 50,
+  "events": 51,
+  "errors": [],
+  "checks": [
+    "built dispatcher adopts exact approved and driver-received route",
+    "retains original motion and observations",
+    "resume and advance emit through separate simulator and operational API",
+    "same command retry does not generate another batch",
+    "pause/reset warning/reset/replay through UI reproduces identical 51 events and IDs",
+    "390px no horizontal overflow",
+    "offline controls disabled"
+  ],
+  "limits": "Local separate simulator and PostgreSQL; no hosted control service or physical-device test. Fixture setup uses CLI and actual Ontario routing; dashboard controls existing runs.",
+  "uniqueDatabaseObservations": 51,
+  "reservationsUnchanged": true
+}
