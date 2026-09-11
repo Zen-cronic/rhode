@@ -1,3 +1,4 @@
+import {HosReview} from './HosReview';
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -44,7 +45,7 @@ const date = (value: string) =>
     dateStyle: "medium",
     timeStyle: "short",
   });
-const label = (value: string) => value.replaceAll("_", " ");
+const label = (value: string) => value === "review-hos" ? "Duty history review" : value.replaceAll("_", " ");
 function BrandMark() {
   return <svg className="brand-mark" viewBox="0 0 36 40" fill="none" aria-hidden="true"><path d="M7 35V8h10c8 0 11 4 11 9 0 6-5 9-12 9H7" stroke="currentColor" strokeWidth="5"/><path d="m17 26 12 10M16 9v14" stroke="#E65C32" strokeWidth="5"/><path d="M16 3v3M16 30v7" stroke="#E65C32" strokeWidth="2"/></svg>;
 }
@@ -622,6 +623,7 @@ export function App() {
               {view === "Fleet" && (
                 <>
                   <Fleet resources={state.resources} />
+                  <HosReview state={state} session={session} send={send} online={online}/>
                   {!isDriver && (
                     <Maintenance
                       state={state}
@@ -1210,7 +1212,7 @@ function Fleet({ resources }: { resources: Resource[] }) {
       column.accessor(
         (r) =>
           r.budget ? `${r.budget.drivingMinutes} min driving` : "Not available",
-        { id: "budget", header: "Declared budget" },
+        { id: "budget", header: "Driving headroom" },
       ),
       column.accessor("provenance", {
         header: "Source",

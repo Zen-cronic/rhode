@@ -13,6 +13,7 @@ export type Resource = (Driver | Truck | Trailer) & {
   kind: "driver" | "truck" | "trailer";
   version: number;
   name?: string;
+  hosEvidence?: import("@roadstar/domain/hos-profile").HosProfileResult["hosEvidence"] & {revision?:number;sourceRef?:string;reviewedBy?:string};
   duty?: string;
   position?: { lat: number; lng: number };
   equipment?: string;
