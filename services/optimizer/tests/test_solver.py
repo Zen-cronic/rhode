@@ -32,3 +32,15 @@ def test_overweight_and_stale_hos_are_exposed():
     p=problem()
     p.now=p.now.replace(hour=13)
     assert solve(p)['routes']==[]
+
+def test_later_availability_cannot_restart_the_absolute_shift_window():
+    p=problem()
+    p.vehicles[0].available_at=100
+    p.vehicles[0].shift_minutes=150
+    p.loads[0].pickup_window=(100,140)
+    p.loads[0].delivery_window=(140,240)
+    assert solve(p)['routes']==[]  # 70 minutes needed; only 50 remain, not a fresh 150.
+    p.vehicles[0].shift_minutes=180
+    assert len(solve(p)['routes'])==1
+    p.vehicles[0].available_at=200
+    assert solve(p)['routes']==[]  # Exhausted vehicle remains an unused optional vehicle.

@@ -85,7 +85,7 @@ def solve(problem: Problem):
     time = routing.GetDimensionOrDie('Time')
     for vehicle, v in enumerate(problem.vehicles):
         time.CumulVar(routing.Start(vehicle)).SetRange(v.available_at, v.available_at)
-        time.CumulVar(routing.End(vehicle)).SetRange(v.available_at, min(1440, v.available_at + min(v.shift_minutes, v.duty_minutes, v.cycle_minutes)))
+        time.CumulVar(routing.End(vehicle)).SetRange(v.available_at, max(v.available_at, min(1440, v.shift_minutes, v.available_at + min(v.duty_minutes, v.cycle_minutes))))
     for name, demands, capacities in [('Weight', weights, [v.capacity_lb for v in problem.vehicles]), ('Pallets', pallets, [v.pallet_capacity for v in problem.vehicles])]:
         callback = routing.RegisterUnaryTransitCallback(lambda a, d=demands: d[manager.IndexToNode(a)])
         routing.AddDimensionWithVehicleCapacity(callback, 0, capacities, True, name)
@@ -100,7 +100,7 @@ def solve(problem: Problem):
         time.CumulVar(d).SetRange(*load.delivery_window)
         routing.AddDisjunction([p], 1000000)
         routing.AddDisjunction([d], 1000000)
-        allowed = [j for j, v in enumerate(problem.vehicles) if v.equipment == load.equipment and v.capacity_lb >= load.weight_lb and v.pallet_capacity >= load.pallets and not v.maintenance_hold and 0 <= (problem.now - v.evidence_at).total_seconds() <= 900]
+        allowed = [j for j, v in enumerate(problem.vehicles) if v.available_at < v.shift_minutes and v.equipment == load.equipment and v.capacity_lb >= load.weight_lb and v.pallet_capacity >= load.pallets and not v.maintenance_hold and 0 <= (problem.now - v.evidence_at).total_seconds() <= 900]
         # SetValues includes -1 so optional incompatible shipments can be dropped.
         routing.VehicleVar(p).SetValues([-1] + allowed)
         routing.VehicleVar(d).SetValues([-1] + allowed)

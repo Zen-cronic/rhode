@@ -149,3 +149,27 @@ test('shipment terms require dispatcher ownership, current version and binding b
  await store.ingest(simulator,command(),{id:'terms-exit',assignmentId:a.id,at:'2026-09-13T17:00:00Z',position:milton,speedKph:0,odometerKm:0,accuracyM:5,duty:'on_duty',provenance:'synthetic'});
  const state=await store.snapshot(dispatcher);await assert.rejects(store.detentionDraft(dispatcher,command(1),{visitId:state.visits.find(v=>v.departure)!.id,contractId:'unrelated'}),{code:'CONTRACT_MISMATCH'});assert.equal((await store.snapshot(dispatcher)).invoices.length,1);
 });
+
+test('dated duty history changes dispatch budgets and rejects a formerly feasible follow-on load',async()=>{
+ const {dispatcher,driver,carrierId}=await setup();assert.equal((await store.snapshot(dispatcher)).resources.find(r=>r.id==='D-01')!.budget.onDutyMinutes,480);
+ await store.duty(driver,command(),{at:'2026-09-13T12:30:00Z',duty:'driving'});
+ await store.duty(driver,command(2),{at:'2026-09-13T14:00:00Z',duty:'on_duty'});
+ await db.query("UPDATE scenarios SET clock='2026-09-13T16:00:00Z' WHERE carrier_id=$1",[carrierId]);
+ const state=await store.snapshot(dispatcher),d=state.resources.find(r=>r.id==='D-01')!;
+ assert.equal(d.budget.drivingMinutes,330);assert.equal(d.budget.onDutyMinutes,240);assert.equal(d.budget.shiftMinutes,300);assert.equal(d.hosEvidence.profile,'declared-budget-history');
+ // A long dock interval consumes the remaining cycle budget; history, not a new resource declaration, changes feasibility.
+ await db.query("UPDATE hos_bases SET budget=jsonb_set(budget,'{cycleMinutes}','200') WHERE carrier_id=$1 AND driver_id='D-01'",[carrierId]);
+ await assert.rejects(store.dispatch(dispatcher,command(),{...input,loadId:'RS-1043'}),{code:'INELIGIBLE'});
+ assert.equal((await store.snapshot(dispatcher)).resources.find(r=>r.id==='D-01')!.budget.cycleMinutes,0);
+});
+
+test('late duty observations revise feasibility evidence without rewinding current GPS',async()=>{
+ const {dispatcher,driver,simulator,carrierId}=await setup();const a:any=await store.dispatch(dispatcher,command(),input);await store.respond(driver,command(),{assignmentId:a.id,action:'accept'});
+ const event=(id:string,at:string,duty:'driving'|'on_duty',position:any)=>({id,at,assignmentId:a.id,duty,position,speedKph:0,odometerKm:null,accuracyM:5,provenance:'synthetic' as const});
+ await store.ingest(simulator,command(),event('hos-latest','2026-09-13T14:00:00Z','on_duty',london));
+ await db.query("UPDATE scenarios SET clock='2026-09-13T14:00:00Z' WHERE carrier_id=$1",[carrierId]);
+ const before=(await store.snapshot(dispatcher)).resources.find(r=>r.id==='D-01')!;
+ await store.ingest(simulator,command(),event('hos-late','2026-09-13T12:30:00Z','driving',milton));
+ const after=(await store.snapshot(dispatcher)).resources.find(r=>r.id==='D-01')!;
+ assert.equal(after.version,before.version+1);assert.equal(after.budget.drivingMinutes,330);assert.deepEqual(after.position,london);
+});

@@ -1,3 +1,4 @@
+import {withDutyHistory} from './hos.ts';
 import {prepareDetention} from './billing.ts';
 import {approvePlan,commitmentHash,groupFor,respondGroup,checkGroupStop,releaseCompletedGroup} from './trip-groups.ts';
 import {roadRoute,computation} from './planning.ts';
@@ -51,7 +52,7 @@ export class Store {
     const r=await c.query('SELECT * FROM loads WHERE carrier_id=$1 AND id=$2',[a.carrierId,id]);demand(r.rows[0],'NOT_FOUND','Load not found.',404);return {...r.rows[0].body,version:r.rows[0].version,status:r.rows[0].status};
   }
   async resource<T>(c:pg.PoolClient,a:Actor,id:string,kind:string):Promise<T>{
-    const r=await c.query('SELECT body FROM resources WHERE carrier_id=$1 AND id=$2 AND kind=$3',[a.carrierId,id,kind]);demand(r.rows[0],'NOT_FOUND',`${kind} not found.`,404);return r.rows[0].body;
+    const r=await c.query('SELECT body FROM resources WHERE carrier_id=$1 AND id=$2 AND kind=$3',[a.carrierId,id,kind]);demand(r.rows[0],'NOT_FOUND',`${kind} not found.`,404);return (kind==='driver'?(await withDutyHistory(c,a.carrierId,[r.rows[0].body]))[0]:r.rows[0].body) as T;
   }
   async getAssignment(c:pg.PoolClient,a:Actor,id:string){
     const r=await c.query('SELECT * FROM assignments WHERE carrier_id=$1 AND id=$2',[a.carrierId,id]);demand(r.rows[0],'NOT_FOUND','Assignment not found.',404);return assignment(r.rows[0]);
@@ -161,7 +162,11 @@ export class Store {
     if(previous&&!stale&&event.odometerKm!==null&&previous.odometerKm!==null)demand(event.odometerKm>=previous.odometerKm,'ODOMETER_REWIND','Odometer cannot decrease.');
     const disposition=stale?'retained_out_of_order':event.accuracyM>100?'uncertain':'applied';
     await c.query('INSERT INTO telemetry(carrier_id,id,assignment_id,session_id,at,location,accuracy_m,body,disposition) VALUES($1,$2,$3,$4,$5,ST_SetSRID(ST_MakePoint($6,$7),4326)::geography,$8,$9,$10)',[a.carrierId,event.id,v.id,event.sessionId??null,event.at,event.position.lng,event.position.lat,event.accuracyM,JSON.stringify(event),disposition]);
-    if(disposition!=='applied')return {duplicate:false,disposition};
+    if(disposition!=='applied'){
+      // Late valid duty history can change feasibility without moving the current GPS marker.
+      if(disposition==='retained_out_of_order'&&event.accuracyM<=100)await c.query('UPDATE resources SET version=version+1 WHERE carrier_id=$1 AND id=$2',[a.carrierId,v.driverId]);
+      return {duplicate:false,disposition};
+    }
     const driver=await this.resource<Driver>(c,a,v.driverId,'driver');
     await c.query('UPDATE resources SET body=$3,version=version+1 WHERE carrier_id=$1 AND id=$2',[a.carrierId,v.driverId,JSON.stringify({...driver,position:event.position,duty:event.duty})]);
     const stops=await c.query('SELECT *,ST_Distance(location,ST_SetSRID(ST_MakePoint($3,$4),4326)::geography) AS distance FROM stops WHERE carrier_id=$1 AND load_id=$2',[a.carrierId,load.id,event.position.lng,event.position.lat]);
@@ -202,8 +207,10 @@ export class Store {
     demand(['off_duty','on_duty','driving','sleeper'].includes(input.duty),'INVALID_DUTY','Unknown duty state.',400);timestamp(input.at);
     const id=randomUUID();await c.query('INSERT INTO duty_events VALUES($1,$2,$3,$4,$5,$6)',[a.carrierId,id,a.driverId,input.at,input.duty,input.note??'']);
     const latest=await c.query('SELECT max(at) AS at FROM duty_events WHERE carrier_id=$1 AND driver_id=$2',[a.carrierId,a.driverId]);
-    // Manual duty entries are evidence, not enough to recompute a certified HOS budget.
-    const body={...driver.body,duty:new Date(latest.rows[0].at).getTime()===timestamp(input.at)?input.duty:driver.body.duty};
+    // Consume dated intervals from the retained basis; never grant a rest reset.
+    if(driver.body.provenance!=='synthetic')demand(timestamp(input.at)<=Date.now()+60000,'FUTURE_DUTY','Duty timestamp is in the future.',400);
+    const [derived]=await withDutyHistory(c,a.carrierId,[driver.body]);
+    const body={...derived,duty:new Date(latest.rows[0].at).getTime()===timestamp(input.at)?input.duty:derived.duty};
     await c.query('UPDATE resources SET version=version+1,body=$3 WHERE carrier_id=$1 AND id=$2',[a.carrierId,a.driverId,JSON.stringify(body)]);return {id,driverId:a.driverId,version:driver.version+1,duty:body.duty,certifiedELD:false};
   });}
   completeStop(a:Actor,cmd:Command,input:Row){return this.command(a,cmd,'stop.completed',input,async c=>{
@@ -325,8 +332,9 @@ export class Store {
   }
   async snapshot(a:Actor){
     const own=a.role==='driver';demand(own||a.role==='dispatcher','FORBIDDEN','Operational view unavailable for this role.',403);
-    // One SQL statement gives a single MVCC snapshot without fifteen network round trips.
-    const r=(await this.db.query(`WITH own_assignments AS (
+    // The aggregate and derived duty history share one read-only MVCC snapshot.
+    const c=await this.db.connect();try{await c.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
+    const r=(await c.query(`WITH own_assignments AS (
       SELECT * FROM assignments WHERE carrier_id=$1 AND ($2::text IS NULL OR driver_id=$2)
     ), load_ids AS (SELECT DISTINCT load_id FROM own_assignments), resource_ids AS (
       SELECT driver_id AS id FROM own_assignments UNION SELECT truck_id FROM own_assignments UNION SELECT trailer_id FROM own_assignments UNION SELECT $2::text
@@ -349,7 +357,11 @@ export class Store {
       (SELECT coalesce(jsonb_agg(t),'[]') FROM stop_completions t WHERE carrier_id=$1 AND ($2::text IS NULL OR assignment_id IN (SELECT id FROM own_assignments))) AS "stopCompletions",
       (SELECT coalesce(jsonb_agg(t),'[]') FROM trip_groups t WHERE carrier_id=$1 AND ($2::text IS NULL OR driver_id=$2)) AS "tripGroups",
       (SELECT coalesce(jsonb_agg(t),'[]') FROM manifests t WHERE carrier_id=$1 AND ($2::text IS NULL OR assignment_id IN (SELECT id FROM own_assignments))) AS manifests`,[a.carrierId,own?a.driverId:null])).rows[0] as {cursor:string;assignments:Row[];loads:Row[];resources:Row[];scenarios:Row[];proposals:Row[];visits:Row[];invoices:Row[];maintenanceHolds:Row[];planningRuns:Row[];disruptions:Row[];documents:Row[];facilityNotes:Row[];workSessions:Row[];dutyEvents:Row[];stopCompletions:Row[];tripGroups:Row[];manifests:Row[]};
-    return {...r,actor:{role:a.role,driverId:a.driverId,carrierId:a.carrierId},serverTime:new Date().toISOString(),loads:r.loads.map((l:Row)=>({...l.body,version:l.version,status:l.status})),assignments:r.assignments.map(assignment),resources:r.resources.map((v:Row)=>({...v.body,kind:v.kind,version:v.version}))};
+    const resources=r.resources.map((v:Row)=>({...v.body,kind:v.kind,version:v.version}));
+    const drivers=await withDutyHistory(c,a.carrierId,resources.filter(v=>v.kind==='driver'));
+    const result={...r,actor:{role:a.role,driverId:a.driverId,carrierId:a.carrierId},serverTime:new Date().toISOString(),loads:r.loads.map((l:Row)=>({...l.body,version:l.version,status:l.status})),assignments:r.assignments.map(assignment),resources:resources.map(v=>v.kind==='driver'?drivers.find(d=>d.id===v.id)!:v)};
+    await c.query('COMMIT');return result;
+    }catch(error){await c.query('ROLLBACK');throw error;}finally{c.release();}
   }
   async updates(a:Actor,cursor:string){
     demand(/^\d+$/.test(cursor),'INVALID_CURSOR','Cursor must be a nonnegative integer.',400);
@@ -364,6 +376,7 @@ export class Store {
       for(const load of data.loads){await c.query('INSERT INTO loads VALUES($1,$2,$3,$4,$5)',[carrierId,load.id,load.version,load.status,JSON.stringify(load)]);for(const [i,s] of [load.pickup,load.delivery].entries())await c.query('INSERT INTO stops VALUES($1,$2,$3,$4,ST_SetSRID(ST_MakePoint($5,$6),4326)::geography,$7,$8)',[carrierId,load.id,s.id,i,s.lng,s.lat,s.radiusM,JSON.stringify(s)]);}
       await c.query("INSERT INTO scenarios(carrier_id,id,clock,initial_state,seed) VALUES($1,'recovery',$2,$3,42)",[carrierId,DEMO_NOW,JSON.stringify(data)]);
       for(const [uid,role,driver] of [['demo-dispatcher','dispatcher',null],['demo-driver-1','driver','D-01'],['demo-driver-2','driver','D-02'],['demo-simulator','simulator',null]])await c.query('INSERT INTO memberships VALUES($1,$2,$3,$4)',[carrierId,uid,role,driver]);
+      for(const driver of data.drivers)if(driver.budget&&driver.budgetAsOf)await c.query('INSERT INTO hos_bases VALUES($1,$2,$3,$4,$5,$6)',[carrierId,driver.id,driver.budgetAsOf,driver.duty,JSON.stringify(driver.budget),driver.provenance]);
       await c.query("INSERT INTO contracts VALUES($1,'demo-ftl',1,120,10000,'CAD','synthetic scenario terms')",[carrierId]);for(const load of data.loads)await c.query("INSERT INTO load_contracts(carrier_id,load_id,contract_id,bound_by) VALUES($1,$2,'demo-ftl','synthetic-fixture')",[carrierId,load.id]);await c.query('COMMIT');
     }catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
   }
