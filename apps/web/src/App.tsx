@@ -1,3 +1,4 @@
+import {DriverRouteReview} from './DriverRouteReview';
 import {ClosureReview} from './ClosureReview';
 import {HosReview} from './HosReview';
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -563,6 +564,7 @@ export function App() {
                   detail="Evidence accumulating"
                 />
               </div>
+              {isDriver && (view === "Recovery" || view === "Trips") && state.assignments.filter(t=>t.status==='accepted').map(trip=><DriverRouteReview key={trip.id} trip={trip} session={session} send={send} online={online}/>)}
               {view === "Recovery" && !isDriver && (
                 <>
                   <DelayPanel state={state} send={send} disabled={!online} />
