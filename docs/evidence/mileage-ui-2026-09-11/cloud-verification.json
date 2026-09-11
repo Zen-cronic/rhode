@@ -1,0 +1,50 @@
+{
+  "cloud": true,
+  "carrierId": "native-gps-verify-20260911",
+  "report": {
+    "scope": "work-session",
+    "id": "4efa2426-7fc4-4789-a48f-6c5ac629392f",
+    "driverId": "D-02",
+    "asOf": "2026-09-11T17:21:47.832Z",
+    "startedAt": "2026-09-11T16:47:20.618Z",
+    "endedAt": "2026-09-11T16:58:25.946Z",
+    "allRetainedSamples": true,
+    "samples": 4,
+    "odometerKm": null,
+    "gpsChordKm": 0.2745532689841008,
+    "legs": [
+      {
+        "assignmentId": "fb41efc5-0c41-4e00-80f6-0ced73d1b568",
+        "truckId": "T-102",
+        "loadId": "RS-1042",
+        "samples": 4,
+        "firstAt": "2026-09-11T16:49:00.664Z",
+        "lastAt": "2026-09-11T16:52:08.685Z",
+        "odometerKm": null,
+        "gpsChordKm": 0.2745532689841008,
+        "linkedIntervals": 3,
+        "odometerIntervals": 0,
+        "missingOdometerIntervals": 3,
+        "unlinkedIntervals": 0,
+        "observedSeconds": 188.02100000000002,
+        "provenance": [
+          "synthetic"
+        ]
+      }
+    ],
+    "assumptions": [
+      "Work sessions are explicit tracking sessions, not certified HOS shifts.",
+      "All retained in-scope samples at report time; missing and unrecorded travel is unknown.",
+      "Trip boundaries are never joined. Intervals over 120 seconds, source changes, excluded or uncertain GPS and implausible motion are excluded.",
+      "Odometer totals cover usable recorded increments only; GPS chords are separate estimates, not road mileage."
+    ]
+  },
+  "overflow": false,
+  "errors": [],
+  "assertions": [
+    "Firebase dispatcher authorized",
+    "four synthetic sensor observations",
+    "no invented odometer",
+    "closed work-session report rendered"
+  ]
+}

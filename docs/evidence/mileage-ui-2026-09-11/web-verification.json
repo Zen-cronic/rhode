@@ -1,0 +1,16 @@
+{
+  "fixture": {
+    "carrier": "tracking-gap-d89852db-8a47-4605-8d9a-422783bbce9e",
+    "assignmentId": "d6526c57-b86a-4969-8810-26123ba29470"
+  },
+  "sessionId": "070486f0-7837-41c4-984b-f960d3b9c1f4",
+  "productionBuild": true,
+  "overflow": false,
+  "errors": [],
+  "assertions": [
+    "0.32 km trip and explicit session totals",
+    "excluded interval visible",
+    "390 px layout",
+    "offline dated report retained"
+  ]
+}
