@@ -1,0 +1,19 @@
+{
+  "date": "2026-09-11",
+  "device": "API35 emulator-5556",
+  "apkSha256": "b9d231c11739854c3941fc5c04beb10e4981b8c230210adc042e28df159e052b",
+  "nativeTests": 34,
+  "testFailures": 0,
+  "testSkips": 0,
+  "rootAndNativeTypecheck": "passed",
+  "releaseBuildAndInstall": "passed",
+  "seedExecution": "roadstar-film-seed-k8knf",
+  "nativeDispatcherApproved": true,
+  "nativeDriverAccepted": true,
+  "webObservedOfferedThenAccepted": true,
+  "nativeDispatcherRetainsBeforeAssignment": true,
+  "nativeDispatcherShowsAccepted": true,
+  "newResources": 0,
+  "physicalDeviceProof": false,
+  "iosProof": false
+}

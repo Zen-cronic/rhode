@@ -1,0 +1,135 @@
+{
+  "carrier": "consequences-native-approval-20260911",
+  "proposal": {
+    "id": "9962d43b-d5f5-4902-a879-e5270442bd82",
+    "body": {
+      "proof": {
+        "note": "Truck-route travel times with declared work budgets. OSM restrictions and supplied dimensions require review; not certified ELD or legal clearance.",
+        "timing": {
+          "availableAt": "2026-09-13T15:00:00.000Z",
+          "evaluatedAt": "2026-09-13T15:00:00.000Z",
+          "completionAt": "2026-09-13T18:39:00.000Z",
+          "pickupReadyAt": "2026-09-13T16:15:00.000Z",
+          "travelMinutes": 99,
+          "serviceMinutes": 45,
+          "pickupArrivalAt": "2026-09-13T15:00:00.000Z",
+          "pickupLateMinutes": 0
+        },
+        "reasons": [],
+        "eligible": true,
+        "deadheadKm": 0,
+        "routingEvidence": "valhalla-truck",
+        "routeFingerprint": "2d92584ec7f8ae23b438729cc0415f0a015166f4e973bdd0ef7d09ade903d207"
+      },
+      "loadId": "RS-1043",
+      "reason": "Recover at-risk return load",
+      "truckId": "T-102",
+      "driverId": "D-02",
+      "resources": [
+        {
+          "id": "D-01",
+          "version": 2
+        },
+        {
+          "id": "D-02",
+          "version": 1
+        },
+        {
+          "id": "T-101",
+          "version": 2
+        },
+        {
+          "id": "T-102",
+          "version": 1
+        },
+        {
+          "id": "V-101",
+          "version": 2
+        },
+        {
+          "id": "V-102",
+          "version": 1
+        }
+      ],
+      "trailerId": "V-102",
+      "comparison": {
+        "current": {
+          "note": "Truck-route travel times with declared work budgets. OSM restrictions and supplied dimensions require review; not certified ELD or legal clearance. Prior work: RS-1042: 105 min driving, 165 min on duty (full plan; current progress unavailable). Full service allowance retained; future waiting assumed on duty.",
+          "timing": {
+            "availableAt": "2026-09-13T17:30:00.000Z",
+            "evaluatedAt": "2026-09-13T15:00:00.000Z",
+            "completionAt": "2026-09-13T19:54:00.000Z",
+            "pickupReadyAt": "2026-09-13T17:30:00.000Z",
+            "travelMinutes": 99,
+            "serviceMinutes": 45,
+            "pickupArrivalAt": "2026-09-13T17:30:00.000Z",
+            "pickupLateMinutes": 75
+          },
+          "reasons": [
+            "Insufficient on-duty budget.",
+            "Resource reserved by RS-1042.",
+            "Driver cannot reach pickup after prior committed work under the current planning estimate."
+          ],
+          "eligible": false,
+          "deadheadKm": 0,
+          "routingEvidence": "valhalla-truck",
+          "routeFingerprint": "4e19f36505c9b5f6c65f1664b8d9c43032f40615c104e561cb4d571528f16a21"
+        },
+        "proposed": {
+          "note": "Truck-route travel times with declared work budgets. OSM restrictions and supplied dimensions require review; not certified ELD or legal clearance.",
+          "timing": {
+            "availableAt": "2026-09-13T15:00:00.000Z",
+            "evaluatedAt": "2026-09-13T15:00:00.000Z",
+            "completionAt": "2026-09-13T18:39:00.000Z",
+            "pickupReadyAt": "2026-09-13T16:15:00.000Z",
+            "travelMinutes": 99,
+            "serviceMinutes": 45,
+            "pickupArrivalAt": "2026-09-13T15:00:00.000Z",
+            "pickupLateMinutes": 0
+          },
+          "reasons": [],
+          "eligible": true,
+          "deadheadKm": 0,
+          "routingEvidence": "valhalla-truck",
+          "routeFingerprint": "2d92584ec7f8ae23b438729cc0415f0a015166f4e973bdd0ef7d09ade903d207"
+        },
+        "evaluatedAt": "2026-09-13T15:00:00.000Z"
+      },
+      "assumptions": [
+        "Declared HOS budgets",
+        "Valhalla truck route with supplied dimensions; OSM restriction coverage applies"
+      ],
+      "currentAssignmentId": "eec90a96-19ec-4749-b3a5-def28c291718",
+      "currentAssignmentVersion": 1
+    },
+    "status": "approved",
+    "load_id": "RS-1043",
+    "revision": 2,
+    "carrier_id": "consequences-native-approval-20260911",
+    "created_at": "2026-09-11T18:17:45.018257+00:00",
+    "expected_version": 2
+  },
+  "previousAssignment": {
+    "id": "eec90a96-19ec-4749-b3a5-def28c291718",
+    "loadId": "RS-1043",
+    "driverId": "D-01",
+    "truckId": "T-101",
+    "trailerId": "V-101",
+    "startAt": "2026-09-13T16:15:00.000Z",
+    "endAt": "2026-09-13T19:00:00.000Z",
+    "status": "superseded",
+    "version": 2
+  },
+  "resultingAssignment": {
+    "id": "a4f6488b-f128-4eef-89ab-f2d753f05944",
+    "loadId": "RS-1043",
+    "driverId": "D-02",
+    "truckId": "T-102",
+    "trailerId": "V-102",
+    "startAt": "2026-09-13T16:15:00.000Z",
+    "endAt": "2026-09-13T19:00:00.000Z",
+    "status": "accepted",
+    "version": 2
+  },
+  "proposalCount": 1
+}
