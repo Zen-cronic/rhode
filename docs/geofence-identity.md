@@ -15,3 +15,5 @@ Verification on September 11:
 - Evidence: `docs/evidence/geofence-identity-2026-09-11/verification.json` and two screenshots.
 
 Local migration016 is applied and preview http://localhost:5174 is current. Cloud remains on its prior accepted deployment. No new resources, model usage or push.
+
+Update September11: migration016 and reviewed late-GPS reconciliation are now deployed with the retrospective-mileage packet. The newer local visit-policy packet adds explicit boundary classifications and short-exit behavior; see [visit-session-policy.md](visit-session-policy.md). Earlier deployment/late-reconstruction limitations above describe the original packet, not the current accepted state.

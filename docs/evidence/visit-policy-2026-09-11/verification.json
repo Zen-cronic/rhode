@@ -1,0 +1,136 @@
+{
+  "verifiedAt": "2026-09-11T21:13:24.414Z",
+  "carrier": "visit-policy-abd3256a-1266-4827-bf8d-cddc45f4e238",
+  "assignmentId": "18a75045-9faa-4015-b8f9-766d44270188",
+  "visits": [
+    {
+      "id": "1860af67-4010-4a7b-84eb-c3d1f3a3bc4d",
+      "arrival": "2026-09-13T15:01:00+00:00",
+      "load_id": "RS-1042",
+      "stop_id": "milton-yard",
+      "departure": "2026-09-13T17:31:00+00:00",
+      "precision": "observed_samples",
+      "carrier_id": "visit-policy-abd3256a-1266-4827-bf8d-cddc45f4e238",
+      "arrival_event": "return",
+      "assignment_id": "18a75045-9faa-4015-b8f9-766d44270188",
+      "superseded_by": null,
+      "session_policy": "confidence-disk-split-v1",
+      "departure_event": "leave"
+    },
+    {
+      "id": "19796ad0-19ff-462c-ab73-cb9737d8fb0d",
+      "arrival": "2026-09-13T12:30:00+00:00",
+      "load_id": "RS-1042",
+      "stop_id": "milton-yard",
+      "departure": "2026-09-13T15:00:00+00:00",
+      "precision": "observed_samples",
+      "carrier_id": "visit-policy-abd3256a-1266-4827-bf8d-cddc45f4e238",
+      "arrival_event": "arrival",
+      "assignment_id": "18a75045-9faa-4015-b8f9-766d44270188",
+      "superseded_by": null,
+      "session_policy": "confidence-disk-split-v1",
+      "departure_event": "exit"
+    }
+  ],
+  "invoices": [
+    {
+      "id": "0172af86-2ec3-49ba-b058-7146e158b88c",
+      "body": {
+        "contract": {
+          "id": "demo-ftl",
+          "version": 1,
+          "currency": "CAD",
+          "carrier_id": "visit-policy-abd3256a-1266-4827-bf8d-cddc45f4e238",
+          "provenance": "synthetic scenario terms",
+          "free_minutes": 120,
+          "rate_cents_per_hour": 10000
+        },
+        "currency": "CAD",
+        "evidence": [
+          "return",
+          "leave"
+        ],
+        "rounding": "whole-minute floor, nearest cent",
+        "automatic": true,
+        "precision": "observed_samples",
+        "amountCents": 5000,
+        "visitPolicy": {
+          "id": "confidence-disk-split-v1",
+          "reentryRule": "A confidently outside observation closes the visit. A confident return starts a separate visit; no exit grace period.",
+          "boundaryRule": "Accuracy disk touching the fence holds the prior visit state; no inferred crossing time.",
+          "freeTimeScope": "each-observed-visit"
+        },
+        "dwellMinutes": 150,
+        "shipmentTerms": {
+          "mode": "FTL",
+          "loadId": "RS-1042",
+          "boundAt": "2026-09-11T21:10:34.949Z",
+          "boundBy": "synthetic-fixture"
+        },
+        "billableMinutes": 30,
+        "requiresEvidenceReview": true
+      },
+      "status": "draft",
+      "revision": 1,
+      "visit_id": "1860af67-4010-4a7b-84eb-c3d1f3a3bc4d",
+      "carrier_id": "visit-policy-abd3256a-1266-4827-bf8d-cddc45f4e238",
+      "approved_by": null,
+      "contract_id": "demo-ftl",
+      "contract_version": 1
+    },
+    {
+      "id": "265976b2-8144-4197-adba-e40ee6206a9b",
+      "body": {
+        "contract": {
+          "id": "demo-ftl",
+          "version": 1,
+          "currency": "CAD",
+          "carrier_id": "visit-policy-abd3256a-1266-4827-bf8d-cddc45f4e238",
+          "provenance": "synthetic scenario terms",
+          "free_minutes": 120,
+          "rate_cents_per_hour": 10000
+        },
+        "currency": "CAD",
+        "evidence": [
+          "arrival",
+          "exit"
+        ],
+        "rounding": "whole-minute floor, nearest cent",
+        "automatic": true,
+        "precision": "observed_samples",
+        "amountCents": 5000,
+        "visitPolicy": {
+          "id": "confidence-disk-split-v1",
+          "reentryRule": "A confidently outside observation closes the visit. A confident return starts a separate visit; no exit grace period.",
+          "boundaryRule": "Accuracy disk touching the fence holds the prior visit state; no inferred crossing time.",
+          "freeTimeScope": "each-observed-visit"
+        },
+        "dwellMinutes": 150,
+        "shipmentTerms": {
+          "mode": "FTL",
+          "loadId": "RS-1042",
+          "boundAt": "2026-09-11T21:10:34.949Z",
+          "boundBy": "synthetic-fixture"
+        },
+        "billableMinutes": 30,
+        "requiresEvidenceReview": true
+      },
+      "status": "draft",
+      "revision": 1,
+      "visit_id": "19796ad0-19ff-462c-ab73-cb9737d8fb0d",
+      "carrier_id": "visit-policy-abd3256a-1266-4827-bf8d-cddc45f4e238",
+      "approved_by": null,
+      "contract_id": "demo-ftl",
+      "contract_version": 1
+    }
+  ],
+  "errors": [],
+  "checks": [
+    "built desktop and 390px show explicit no-grace split and per-visit free-time policy",
+    "24 boundary-jitter observations retain original visit state",
+    "selected sample exposes confidence, distance, radius and source identity",
+    "one-minute confident exit and return produce two separate 150-minute visits and two 30-minute drafts",
+    "no horizontal overflow or page errors"
+  ],
+  "limits": "Local PostgreSQL/PostGIS and built web. Accuracy is source-reported; confidently wrong GPS can still create a false crossing. No contractual grace merge, manual timestamp correction or native policy UI is claimed."
+}
