@@ -38,6 +38,7 @@ export type Proposal = {
   };
 };
 export type Visit = {
+  assignment_id?: string;
   id: string;
   load_id: string;
   stop_id: string;

@@ -1,3 +1,4 @@
+import { VisitReconciliation } from './VisitReconciliation';
 import {DriverRouteReview} from './DriverRouteReview';
 import {ClosureReview} from './ClosureReview';
 import {HosReview} from './HosReview';
@@ -651,6 +652,7 @@ export function App() {
                         ?.message
                     }
                   />
+                  <VisitReconciliation state={state} session={session} send={send} online={online}/>
                   <EvidenceBilling
                     state={state}
                     send={send}

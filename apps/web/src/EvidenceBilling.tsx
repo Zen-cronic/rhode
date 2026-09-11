@@ -104,7 +104,8 @@ export function EvidenceBilling({
                   </p>
                 </details>
               )}
-              {invoice.status === "draft" && invoice.revision === latest && (
+              {state.assignments.some(a=>a.id===visit?.assignment_id&&a.visitReviewRequired)&&<p className="notice">Late GPS evidence requires visit reconciliation before approval.</p>}
+              {invoice.status === "draft" && invoice.revision === latest && !state.assignments.some(a=>a.id===visit?.assignment_id&&a.visitReviewRequired) && (
                 <button
                   onClick={() => setSelected(invoice)}
                   disabled={!navigator.onLine}
@@ -150,7 +151,7 @@ function InvoiceApproval({
       .filter((item) => item.visit_id === invoice.visit_id)
       .map((item) => item.revision),
   );
-  const stale = latest !== invoice.revision;
+  const stale = latest !== invoice.revision || state.assignments.some(a=>a.id===visit?.assignment_id&&a.visitReviewRequired);
   const contract = invoice.body.contract;
   return (
     <Modal
@@ -230,7 +231,7 @@ function InvoiceApproval({
         </label>
         {stale && (
           <p className="notice">
-            A newer billing revision exists. Close this dialog and review the
+            Billing or visit evidence changed. Close this dialog and review the
             latest draft.
           </p>
         )}
