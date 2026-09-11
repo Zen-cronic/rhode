@@ -10,6 +10,7 @@ export type TrackingPoint = {
   duty: string;
   provenance: string;
   disposition: string;
+  geofenceEvidence?: {status: "ambiguous"; policy: string; stopIds: string[]; reason: string} | null;
 };
 export type TrackingPage = {assignmentId:string;serverTime?:string;clientReceivedAt?:number;latestReceivedAt?:string|null;points:TrackingPoint[];nextBefore?:string|null};
 export function validPosition(point: TrackingPoint): boolean {

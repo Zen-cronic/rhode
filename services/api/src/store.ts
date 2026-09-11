@@ -283,8 +283,13 @@ export class Store {
     const newer=(await c.query("SELECT 1 FROM telemetry t JOIN assignments a ON a.carrier_id=t.carrier_id AND a.id=t.assignment_id WHERE t.carrier_id=$1 AND a.driver_id=$2 AND t.disposition='applied' AND t.at>$3 LIMIT 1",[a.carrierId,v.driverId,event.at])).rows.length>0;
     await c.query('UPDATE resources SET body=$3,version=version+1 WHERE carrier_id=$1 AND id=$2',[a.carrierId,v.driverId,JSON.stringify(newer?driver:{...driver,position:event.position,duty:event.dutyEvidence==='cached-declaration'?driver.duty:event.duty})]);
     const stops=await c.query('SELECT *,ST_Distance(location,ST_SetSRID(ST_MakePoint($3,$4),4326)::geography) AS distance FROM stops WHERE carrier_id=$1 AND load_id=$2',[a.carrierId,load.id,event.position.lng,event.position.lat]);
+    // A fix that can belong to multiple scheduled stops cannot establish an arrival.
+    // Keep location/duty usable and retain the ambiguity separately from raw telemetry.
+    const possibleStops=stops.rows.filter(stop=>Number(stop.distance)-event.accuracyM<=stop.radius_m);
+    const ambiguous=possibleStops.length>1;
+    if(ambiguous)await c.query('UPDATE telemetry SET geofence_evidence=$3 WHERE carrier_id=$1 AND id=$2',[a.carrierId,event.id,JSON.stringify({status:'ambiguous',policy:'unique-possible-trip-stop-v1',stopIds:possibleStops.map(stop=>stop.id).sort(),reason:'GPS accuracy overlaps multiple trip stops. No new arrival established; review facility identity.'})]);
     for(const stop of stops.rows){
-      const inside=Number(stop.distance)+event.accuracyM<stop.radius_m,outside=Number(stop.distance)-event.accuracyM>stop.radius_m;
+      const inside=!ambiguous&&Number(stop.distance)+event.accuracyM<stop.radius_m,outside=Number(stop.distance)-event.accuracyM>stop.radius_m;
       const r=await c.query('SELECT * FROM stop_visits WHERE carrier_id=$1 AND assignment_id=$2 AND stop_id=$3 AND departure IS NULL',[a.carrierId,v.id,stop.id]);const visit=r.rows[0];
       if(v.status==='accepted'&&inside&&!visit)await c.query('INSERT INTO stop_visits(carrier_id,id,assignment_id,load_id,stop_id,arrival,arrival_event) VALUES($1,$2,$3,$4,$5,$6,$7)',[a.carrierId,randomUUID(),v.id,load.id,stop.id,event.at,event.id]);
       if(outside&&visit){
@@ -455,9 +460,9 @@ export class Store {
     if(before){try{if(before.length>1024)throw new Error();const value=JSON.parse(Buffer.from(before,'base64url').toString());if(!Array.isArray(value)||value.length!==2||typeof value[0]!=='string'||!Number.isFinite(Date.parse(value[0]))||typeof value[1]!=='string'||value[1].length>128)throw new Error();cursor=value as [string,string];}catch{throw new DomainError('INVALID_CURSOR','Tracking cursor is invalid.',400);}}
     const c=await this.db.connect();try{
       const trip=await this.getAssignment(c,a,assignmentId);demand(a.role==='dispatcher'||trip.driverId===a.driverId,'FORBIDDEN','Tracking belongs to another driver.',403);
-      const rows=(await c.query('SELECT id,at,recorded_at,body,disposition FROM telemetry WHERE carrier_id=$1 AND assignment_id=$2 AND ($3::timestamptz IS NULL OR (at,id)<($3::timestamptz,$4::text)) ORDER BY at DESC,id DESC LIMIT 501',[a.carrierId,assignmentId,cursor?.[0]??null,cursor?.[1]??null])).rows;
+      const rows=(await c.query('SELECT id,at,recorded_at,body,disposition,geofence_evidence FROM telemetry WHERE carrier_id=$1 AND assignment_id=$2 AND ($3::timestamptz IS NULL OR (at,id)<($3::timestamptz,$4::text)) ORDER BY at DESC,id DESC LIMIT 501',[a.carrierId,assignmentId,cursor?.[0]??null,cursor?.[1]??null])).rows;
       const latest=(await c.query('SELECT max(recorded_at) AS received FROM telemetry WHERE carrier_id=$1 AND assignment_id=$2',[a.carrierId,assignmentId])).rows[0].received;
-      const selected=rows.slice(0,500),last=selected.at(-1);return {assignmentId,serverTime:new Date().toISOString(),latestReceivedAt:latest?iso(latest):null,points:selected.reverse().map(r=>({...r.body,recordedAt:iso(r.recorded_at),disposition:r.disposition})),nextBefore:rows.length>500?Buffer.from(JSON.stringify([iso(last.at),last.id])).toString('base64url'):null};
+      const selected=rows.slice(0,500),last=selected.at(-1);return {assignmentId,serverTime:new Date().toISOString(),latestReceivedAt:latest?iso(latest):null,points:selected.reverse().map(r=>({...r.body,recordedAt:iso(r.recorded_at),disposition:r.disposition,geofenceEvidence:r.geofence_evidence})),nextBefore:rows.length>500?Buffer.from(JSON.stringify([iso(last.at),last.id])).toString('base64url'):null};
     }finally{c.release();}
   }
   async snapshot(a:Actor){
