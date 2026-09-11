@@ -390,6 +390,9 @@ export function App() {
     ? ["Trips", "Tracking", "Fleet", "Activity"]
     : ["Recovery", "Planning", "Tracking", "Fleet", "Evidence & billing", "Imports", "Activity"];
   const selectedNavigation = isDriver && view === "Recovery" ? "Trips" : view;
+  const pendingProposals = state?.proposals.filter(proposal => proposal.status === "pending").slice().reverse() ?? [];
+  const featuredProposals = pendingProposals.length ? pendingProposals : state?.proposals.slice(-1) ?? [];
+  const historicalProposals = state?.proposals.filter(proposal => !featuredProposals.some(featured => featured.id === proposal.id)).slice().reverse() ?? [];
   const logout = async () => {
     clearSession();
     if (!localDemo && firebaseConfigured) await signOut(auth());
@@ -562,22 +565,19 @@ export function App() {
                 <>
                   <DelayPanel state={state} send={send} disabled={!online} />
                   <div className="recovery-layout">
-                    <section className="panel recovery-stage">
+                    <section className="panel recovery-stage decision-workbench">
                       <div className="panel-heading">
                         <div>
                           <p className="eyebrow">RECOVERY WORKBENCH</p>
                           <h2>Compare assignments</h2>
                         </div>
-                        <span className="tag">{state.proposals.some(proposal => proposal.status === "pending") ? "Approval required" : state.proposals.length ? "Reviewed" : "No proposals"}</span>
+                        {!state.proposals.length && <span className="tag">No proposals</span>}
                       </div>
 
                       {!state.proposals.length ? (
                         <div className="recovery-ready"><RouteRail load={state.loads.find(l => l.status !== "completed")}/><div className="ready-message"><span className="ready-symbol" aria-hidden="true">↗</span><div><h3>Ready to rehearse</h3><p>No recovery proposals yet. Select a load to compare an alternative assignment.</p></div></div></div>
                       ) : (
-                        state.proposals
-                          .slice()
-                          .reverse()
-                          .map((p) => (
+                        featuredProposals.map((p) => (
                             <Recovery
                               key={p.id}
                               proposal={p}
@@ -587,6 +587,7 @@ export function App() {
                             />
                           ))
                       )}
+                      {!!historicalProposals.length && <details className="recovery-history"><summary>Earlier reviews · {historicalProposals.length}</summary>{historicalProposals.map(proposal => <Recovery key={proposal.id} proposal={proposal} state={state} onApprove={() => setApprove(proposal)} disabled={!online}/>)}</details>}
                       <details className="recovery-guidance"><summary>Approval & route checks</summary><p>Assignments change only after approval. Route evidence is checked separately.</p></details>
                       <div className="section-footer">
                         {state.loads
@@ -603,7 +604,7 @@ export function App() {
                           ))}
                       </div>
                     </section>
-                    <MapPanel state={state} session={session} />
+                    <MapPanel state={state} session={session} compact />
                   </div>
                   <LoadBoard
                     state={state}
@@ -826,22 +827,12 @@ export function App() {
           {approve && state && (
             <Modal
               title="Approve the recovery?"
-              description="The server will recheck the load version, reservations and supporting evidence before replacing the assignment."
+              description={`${approve.load_id} · revision ${approve.revision}`}
               onClose={() => setApprove(null)}
             >
-              <p>
-                <strong>{approve.load_id}</strong> will be offered to{" "}
-                <strong>
-                  {state.resources.find((r) => r.id === approve.body.driverId)
-                    ?.name || approve.body.driverId}
-                </strong>
-                .
-              </p>
-              <p>
-                The previous assignment will be superseded atomically. The new
-                driver must accept the offer.
-              </p>
-              <p className="notice">{approve.body.assumptions.join(" · ")}</p>
+              <ApprovalChange proposal={approve} state={state}/>
+              <div className="approval-acceptance"><strong>Driver acceptance is separate</strong><p>{approve.body.currentAssignmentId ? "Approval replaces the current assignment and sends a new offer." : "Approval sends a new assignment offer."} The proposed driver must accept it.</p></div>
+              <details className="approval-technical"><summary>Checks & assumptions</summary><p>The server rechecks the load version, reservations and supporting evidence before applying this revision.</p><ul>{approve.body.assumptions.map(assumption => <li key={assumption}>{assumption}</li>)}</ul></details>
               {commands.find(
                 (c) => c.status === "failed" && c.path === "approve",
               ) && (
@@ -1037,95 +1028,56 @@ function LoadBoard({
   );
 }
 function Recovery({
-  proposal: p,
-  state,
-  onApprove,
-  disabled,
+  proposal: p, state, onApprove, disabled,
 }: {
-  proposal: Proposal;
-  state: State;
-  onApprove: () => void;
-  disabled: boolean;
+  proposal: Proposal; state: State; onApprove: () => void; disabled: boolean;
 }) {
-  const load = state.loads.find((l) => l.id === p.load_id),
-    old = state.assignments.find((a) => a.id === p.body.currentAssignmentId),
-    name = (id?: string) =>
-      state.resources.find((r) => r.id === id)?.name || id || "Unassigned";
+  const load = state.loads.find(load => load.id === p.load_id);
+  const old = state.assignments.find(assignment => assignment.id === p.body.currentAssignmentId);
+  const name = (id?: string) => state.resources.find(resource => resource.id === id)?.name || id || "Unassigned";
   const stale = p.status === "pending" && load?.version !== p.expected_version;
+  const resulting = p.status === "approved" ? state.assignments.find(assignment => assignment.loadId === p.load_id && assignment.driverId === p.body.driverId && !["superseded", "rejected"].includes(assignment.status)) : undefined;
+  const assignmentStart = resulting?.startAt || old?.startAt;
+  const startCaption = assignmentStart ? `Assignment starts ${time(assignmentStart)} ET` : load ? `Planned load start ${time(load.startAt)} ET` : "Start time unavailable";
   return (
-    <article className="recovery-card">
-      <div className="panel-heading">
-        <div>
-          <strong>{p.load_id}</strong>
-
-        </div>
-        <Status value={stale ? "stale" : p.status} />
+    <article className="recovery-card decision-card">
+      <div className="decision-heading">
+        <div><h2>{p.load_id}</h2><p>{startCaption}</p></div>
+        <Status value={stale ? "stale" : p.status}/>
       </div>
-      <div className="timeline">
-        <div className="axis">
-          <span>Assignment</span>
-          <span>{load ? time(load.startAt) : "—"}</span>
-          <span>{load ? time(load.endAt) : "—"} ET</span>
-        </div>
-        <div className="timeline-row">
-          <span>{p.status === "approved" ? "Before" : "Current"}</span>
-          <div className="timeline-bar current">
-            {name(old?.driverId)}
-            <small>{old ? label(old.status) : "No reservation"}</small>
-          </div>
-        </div>
-        <div className="timeline-row">
-          <span>{p.status === "approved" ? "Approved" : "Proposed"}</span>
-          <div className="timeline-bar proposed">
-            {name(p.body.driverId)}
-            <small>
-              {p.status === "approved"
-                ? "Offer issued · see current trip status below"
-                : "Driver offer follows approval"}
-            </small>
-          </div>
-        </div>
+      <div className="driver-comparison" aria-label="Assignment comparison">
+        <div className="driver-choice current-choice"><span>{p.status === "approved" ? "Before" : "Current driver"}</span><strong>{name(old?.driverId)}</strong><small>{old ? `${old.truckId} · ${old.trailerId}` : "No current assignment"}</small></div>
+        <span className="decision-arrow" aria-hidden="true">→</span>
+        <div className="driver-choice proposed-choice"><span>{p.status === "approved" ? "Approved driver" : "Proposed driver"}</span><strong>{name(p.body.driverId)}</strong><small>{p.body.truckId} · {p.body.trailerId}</small></div>
       </div>
-      <div className="recovery-review-action">
-      {p.status === "pending" && (
-        <button
-          className="primary"
-          disabled={disabled || stale}
-          onClick={onApprove}
-        >
-          Review & approve →
-        </button>
-      )}
+      <div className="decision-proof-summary" aria-label="Proposal routing evidence">
+        <strong>{p.body.proof.routingEvidence === "valhalla-truck" ? "Truck-route timing" : "Planning constraints"} {p.body.proof.eligible ? "screen passed" : "need review"}</strong>
+        <span>{p.body.proof.deadheadKm} km estimated deadhead · {p.body.proof.routingEvidence === "valhalla-truck" ? "Valhalla modeled travel times" : "Straight-line planning estimate"}</span>
       </div>
-      <p className="recovery-reason">{p.body.reason}</p>
-      <RouteRail load={load}/>
-      <div className="recovery-detail">
-        <span>{p.body.proof.deadheadKm} km estimated deadhead</span>
-        <span>
-          Load v{p.expected_version} · proposal r{p.revision}
-        </span>
-      </div>
-      <details className="recovery-assumptions"><summary>Evidence & modeled assumptions</summary><p className="fine">
-        {p.body.assumptions.join(" · ")}. Comparison uses the same appointment
-        window. Recorded dock delays and affected commitments appear above;
-        travel times remain modeled.
-      </p></details>
-      {p.body.proof.reasons.length > 0 && (
-        <ul>
-          {p.body.proof.reasons.map((r) => (
-            <li key={r}>{r}</li>
-          ))}
-        </ul>
-      )}
-      {stale && (
-        <p className="notice">
-          The load changed after rehearsal. Prepare a new proposal using current
-          evidence.
-        </p>
-      )}
-
+      {p.status === "pending" ? <div className="decision-action">
+        <p>{old ? "Replaces the current assignment." : "Creates a new driver offer."} Driver acceptance is still required.</p>
+        <button className="primary" disabled={disabled || stale} onClick={onApprove}>Review & approve →</button>
+      </div> : <div className="decision-result"><span className={`tag status-${resulting?.status || p.status}`}>{resulting ? label(resulting.status) : label(p.status)}</span><p>{resulting?.status === "accepted" ? "The replacement driver accepted the trip." : resulting?.status === "offered" ? "Offer issued. Driver acceptance is still pending." : "Review retained with its original evidence."}</p></div>}
+      {stale && <p className="notice">The load changed after rehearsal. Prepare a new proposal using current evidence.</p>}
+      <details className="decision-evidence">
+        <summary>Route, timing & supporting evidence</summary>
+        <p className="recovery-reason">{p.body.reason}</p>
+        <RouteRail load={load}/>
+        <dl className="decision-facts"><div><dt>Load schedule</dt><dd>{load ? `${time(load.startAt)}–${time(load.endAt)} ET` : "Unavailable"}</dd></div><div><dt>Estimated deadhead</dt><dd>{p.body.proof.deadheadKm} km</dd></div><div><dt>Reviewed versions</dt><dd>Load v{p.expected_version} · proposal r{p.revision}</dd></div></dl>
+        <p className="fine">{p.body.assumptions.join(" · ")}. Comparison uses the same appointment window. Travel times remain modeled.</p>
+        {!!p.body.proof.reasons.length && <ul>{p.body.proof.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>}
+      </details>
     </article>
   );
+}
+function ApprovalChange({ proposal, state }: { proposal: Proposal; state: State }) {
+  const previous = state.assignments.find(assignment => assignment.id === proposal.body.currentAssignmentId);
+  const name = (id?: string) => state.resources.find(resource => resource.id === id)?.name || id || "Unassigned";
+  return <div className="approval-change"><div className="driver-comparison" aria-label="Assignment change to approve">
+    <div className="driver-choice current-choice"><span>Current assignment</span><strong>{name(previous?.driverId)}</strong><small>{previous ? <>Truck {previous.truckId}<br/>Trailer {previous.trailerId}</> : "No current assignment"}</small></div>
+    <span className="decision-arrow" aria-hidden="true">→</span>
+    <div className="driver-choice proposed-choice"><span>Proposed assignment</span><strong>{name(proposal.body.driverId)}</strong><small>Truck {proposal.body.truckId}<br/>Trailer {proposal.body.trailerId}</small></div>
+  </div></div>;
 }
 function PlanDialog({
   load,

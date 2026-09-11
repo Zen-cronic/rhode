@@ -139,9 +139,15 @@ Current build logs and visual evidence live in `/tmp/roadstar-redesign/`; the pa
 
 The following artifacts supersede earlier preview hashes in this README:
 
-- `roadstar-preview-arm64.apk`: 25,227,448 bytes; SHA-256 `053e8cab07039b50bf39d203b22b2036bfe0d7e08c1d53a7219f9ad45b9a93d2`.
-- `roadstar-preview-x86_64.apk`: 25,712,502 bytes; SHA-256 `55778efa7cad44eea29611367124b788b4de6a5a920ea34f2430f561d393c16e`.
+- `roadstar-preview-arm64.apk`: 25,229,108 bytes; SHA-256 `e3082e8671b2ecab829e54162f98fb70729a5a4af213cb694bde49614688119f`.
+- `roadstar-preview-x86_64.apk`: 25,714,162 bytes; SHA-256 `e6a7822aebb9e259e2a428c540205ed786ad8e50083e8e9a153df90bf8b3f01b`.
 
 Reference grounding: [Grab Driver action hierarchy](https://mobbin.com/screens/a8f2e305-d713-4008-95e0-922cfd91bb56), [Uber current-trip card](https://mobbin.com/screens/02e52b85-dd21-40b0-b75c-548b35ae2125), and the accepted `docs/design/precision-transport.md` brief.
 
 The final read-only native clip is `/tmp/roadstar-redesign/mobile/roadstar-native-precision-transport-final.mp4` (26.57 seconds, 1080×2400, H.264 at 30 fps). The visible existing AVD runs under the temporary user unit `roadstar-preview-emulator.service` so tool-session cleanup does not close it; this unit is not enabled at boot.
+
+The approved final planning refinement places each appointment beneath its full accessible facility name, displays Eastern time once above the route list, separates status from revision, and summarizes the recorded route source and input fingerprint. A 44-point Technical details control reveals the exact routing-evidence value and input hash; modeled assumptions remain visible. No approval, source-data or persistence semantics changed. Both Android ABIs, all 23 tests, TypeScript and iOS JavaScript export were reverified in this pass. Logs: `/tmp/roadstar-redesign/mobile-review-{x86,arm64}-gradle.log` and `mobile-review-ios-export.log`.
+
+The subsequent authorized density pass shortens the persistent header, moves the carrier/role label into More, and tightens queue rows with quieter timestamps. The immediate delivery action retains its size and confirmation. Manifest arrival details use smaller facility headings and one completion-status line. Current captures: `/tmp/roadstar-redesign/mobile/60-today-density-final.png` and `61-queue-density-final.png`. A new native film supersedes the earlier clip because header and queue presentation changed. Verification was repeated: 23 tests, TypeScript, both standalone Android ABIs and iOS JavaScript export. Logs use the `mobile-density-` prefix.
+
+Final density-pass film: `/tmp/roadstar-redesign/mobile/roadstar-native-density-final.mp4` — 26.30 seconds, 1080×2400, H.264 at 30 fps; SHA-256 `679ae66d9e37fb905d20ea93287c2ed156f89e6691c4aad98480ff28195e4548`. Actual map and queue frames at 11 and 19 seconds were inspected. Final same-build dispatcher screenshots are `64-planning-density-final.png` and `65-review-density-final.png`; evidence expansion remains shown in `54-review-evidence-refined.png` and `55-review-technical-expanded.png`. Current source SHA-256 values and immutable screenshot hashes are in `dist/precision-transport-verification.json`.

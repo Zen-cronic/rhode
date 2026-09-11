@@ -26,12 +26,15 @@ export function loadMaps(key: string) {
 export function MapPanel({
   state,
   session,
+  compact = false,
 }: {
   state: State;
   session: Session;
+  compact?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null),
     map = useRef<google.maps.Map | null>(null);
+  const [mapOpen, setMapOpen] = useState(!compact);
   const [mapReady, setMapReady] = useState(false),
     [mapStatus, setMapStatus] = useState("Loading map…");
   const [loadId, setLoadId] = useState(""),
@@ -101,7 +104,7 @@ export function MapPanel({
     refetchOnWindowFocus: false,
   });
   useEffect(() => {
-    if (!key) return;
+    if (!key || !mapOpen) return;
     let cancelled = false;
     let markers: google.maps.Marker[] = [];
     loadMaps(key)
@@ -142,7 +145,7 @@ export function MapPanel({
       cancelled = true;
       markers.forEach((marker) => marker.setMap(null));
     };
-  }, [key, state.resources]);
+  }, [key, state.resources, mapOpen]);
   useEffect(() => {
     if (
       !mapReady ||
@@ -177,16 +180,12 @@ export function MapPanel({
       line.setMap(null);
     };
   }, [mapReady, route.data, route.isError, route.isFetching]);
-  return (
-    <section className="panel map-panel">
-      <div className="panel-heading">
-        <h2>Fleet geography</h2>
-        <span className="tag">Ontario</span>
-      </div>
+  const routeForm = (
       <form
         className="route-form"
         onSubmit={(event) => {
           event.preventDefault();
+          setMapOpen(true);
           if (selection?.loadId === loadId && selection?.truckId === truckId)
             void route.refetch();
           else setSelection({ loadId, truckId });
@@ -239,6 +238,21 @@ export function MapPanel({
           {route.isFetching ? "Computing truck route…" : "Load truck route"}
         </button>
       </form>
+  );
+  return (
+    <section className={`panel map-panel ${compact ? "route-inspector" : ""} ${mapOpen ? "map-open" : "map-closed"}`}>
+      <div className="panel-heading">
+        <h2>{compact ? "Route evidence" : "Fleet geography"}</h2>
+        <span className="tag">Ontario</span>
+      </div>
+      {compact && <p className="route-inspector-intro">Routing evidence stays with each proposal. Explore the geography when needed.</p>}
+      {compact ? <details className="route-selector-disclosure">
+        <summary>Inspect a truck route</summary>
+        <p>Choose a load and vehicle to inspect its route and restrictions.</p>
+        {routeForm}
+      </details> : routeForm}
+      {compact && <button className="geography-toggle" type="button" aria-expanded={mapOpen} onClick={() => setMapOpen(open => !open)}>{mapOpen ? "Hide map" : "Show recorded driver locations"}<span aria-hidden="true">{mapOpen ? "−" : "+"}</span></button>}
+      <div hidden={!mapOpen} className="geography-surface">
       {key ? (
         <>
           <div
@@ -264,6 +278,7 @@ export function MapPanel({
           </p>
         </div>
       )}
+      </div>
       {selection && route.isFetching && (
         <p className="notice" role="status">
           Checking the selected vehicle against the routing dataset. The
