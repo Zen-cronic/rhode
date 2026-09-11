@@ -1,0 +1,46 @@
+[
+  {
+    "service": "roadstar-api",
+    "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/api@sha256:7a312ee9cdf8ba6f567bd8af1975b38937cde1c163550579a45a0b854782f44e",
+    "traffic": [
+      {
+        "percent": 100,
+        "revisionName": "roadstar-api-00019-qrw"
+      }
+    ],
+    "emulatorVerificationConfigured": false
+  },
+  {
+    "service": "roadstar-optimizer",
+    "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/optimizer@sha256:bb720d2246d69b208952ab039a7ccf94a1f30f3fa8c2d9dff20ab4c7862ba133",
+    "traffic": [
+      {
+        "percent": 100,
+        "revisionName": "roadstar-optimizer-00007-lhb"
+      }
+    ],
+    "emulatorVerificationConfigured": false
+  },
+  {
+    "service": "roadstar-web",
+    "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:a8117f251dfa4b664350767deea607e12b01261adc090142ec0ed363e75ed674",
+    "traffic": [
+      {
+        "percent": 100,
+        "revisionName": "roadstar-web-00032-fmd"
+      }
+    ],
+    "emulatorVerificationConfigured": false
+  },
+  {
+    "service": "roadstar-documents",
+    "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/api@sha256:7a312ee9cdf8ba6f567bd8af1975b38937cde1c163550579a45a0b854782f44e",
+    "traffic": [
+      {
+        "percent": 100,
+        "revisionName": "roadstar-documents-00009-mst"
+      }
+    ],
+    "emulatorVerificationConfigured": false
+  }
+]

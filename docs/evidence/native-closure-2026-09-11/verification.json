@@ -1,0 +1,26 @@
+{
+  "verifiedAt": "2026-09-11T19:55:48.752Z",
+  "carrier": "native-closure-cloud-20260911",
+  "assignmentId": "a41226b5-5be0-42bd-a794-290332bd00d1",
+  "routeRevisionId": "b8ebb210-2eed-43b5-81a6-c23f09daf0f3",
+  "approvedBy": "preview-dispatcher",
+  "receipt": {
+    "carrier_id": "native-closure-cloud-20260911",
+    "route_revision_id": "b8ebb210-2eed-43b5-81a6-c23f09daf0f3",
+    "approved_revision": 2,
+    "driver_id": "D-01",
+    "acknowledged_by": "preview-driver-1",
+    "acknowledged_at": "2026-09-11T19:54:40.115Z",
+    "route_fingerprint": "4743c43757e8dee6448f0c5c0e579ace477e19615a981a94de9be58e20ea0e2b"
+  },
+  "hasToll": true,
+  "routeFingerprint": "4743c43757e8dee6448f0c5c0e579ace477e19615a981a94de9be58e20ea0e2b",
+  "apkSha256": "e2051cb635c9c48c8ebfcd1fd4ff18f18c2a70f55194389c79af09e854e83523",
+  "nativeTests": 37,
+  "physicalDevices": false,
+  "scope": "Android API35 native dispatcher rehearsal/approval and driver receipt against authenticated HTTPS GCP preview; one receipt and approved revision retained.",
+  "offlineAcrossProcessRestart": true,
+  "networkingRestored": true,
+  "originalPreviewRestored": "native-current-20260911 / D-02 / RS-1043 Accepted",
+  "confirmationEvidence": "Native Alert buttons were found through UIAutomator and invoked; early screenshot frames preceding dialog rendering were excluded."
+}
