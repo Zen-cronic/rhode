@@ -1,0 +1,15 @@
+{
+  "carrier": "retrospective-cloud-20260911",
+  "driver": "preview-driver-1",
+  "apkSha256": "dd529615eb7c70ce43f7ef0ed585dad2cdd7659c7737da41a1d252fe9f3fa1c1",
+  "odometerKm": 1.5,
+  "lateSamples": 2,
+  "retainedAfterOfflineForceStop": true,
+  "offlineWarningVisible": true,
+  "reportTimestamp": "Report as of Sep 11, 4:39\u202fp.m. ET \u00b7 4 retained samples",
+  "airplaneMode": "1",
+  "limits": "Android API35 emulator; physical Android and native iOS remain deferred. No device GPS session enabled.",
+  "networkRestored": true,
+  "restoredPreview": "native-current-20260911 / D-02 / T-102 / RS-1043 ACCEPTED",
+  "restorationVisuallyVerified": true
+}

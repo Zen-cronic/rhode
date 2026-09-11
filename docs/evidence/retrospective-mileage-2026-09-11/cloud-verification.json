@@ -1,0 +1,58 @@
+{
+  "verifiedAt": "2026-09-11T20:36:29.575Z",
+  "carrier": "retrospective-cloud-20260911",
+  "assignmentId": "c9ffa18c-a17b-48e1-9e14-974ee66675f5",
+  "report": {
+    "evidencePolicy": "occurrence-ordered-v2",
+    "lateSamples": 2,
+    "timestampConflictSamples": 0,
+    "scope": "assignment",
+    "id": "c9ffa18c-a17b-48e1-9e14-974ee66675f5",
+    "driverId": "D-01",
+    "asOf": "2026-09-11T20:36:29.403Z",
+    "startedAt": null,
+    "endedAt": null,
+    "allRetainedSamples": true,
+    "samples": 4,
+    "odometerKm": 1.5,
+    "gpsChordKm": 1.5011315097015998,
+    "legs": [
+      {
+        "assignmentId": "c9ffa18c-a17b-48e1-9e14-974ee66675f5",
+        "truckId": "T-101",
+        "loadId": "RS-1042",
+        "samples": 4,
+        "firstAt": "2026-09-13T12:30:00.000Z",
+        "lastAt": "2026-09-13T12:33:00.000Z",
+        "odometerKm": 1.5,
+        "gpsChordKm": 1.5011315097015998,
+        "linkedIntervals": 3,
+        "odometerIntervals": 3,
+        "missingOdometerIntervals": 0,
+        "unlinkedIntervals": 0,
+        "observedSeconds": 180,
+        "provenance": [
+          "synthetic"
+        ]
+      }
+    ],
+    "assumptions": [
+      "Work sessions are explicit tracking sessions, not certified HOS shifts.",
+      "All retained in-scope samples at report time; missing and unrecorded travel is unknown.",
+      "Valid applied and late samples are considered in occurrence-time order without changing their source disposition or current GPS. Equal-time observations are excluded because they do not establish a unique temporal sequence.",
+      "Trip boundaries are never joined. Intervals over 120 seconds, source changes, excluded or uncertain GPS and implausible motion are excluded.",
+      "Odometer totals cover usable recorded increments only; GPS chords are separate estimates, not road mileage."
+    ]
+  },
+  "resourcesUnchanged": true,
+  "sourcePointsUnchanged": true,
+  "reviewedDeparture": "2026-09-13T12:31:00+00:00",
+  "errors": [],
+  "checks": [
+    "Firebase Cloud Run mileage returns 1.5km and two late samples",
+    "deployed web shows dated retrospective report",
+    "deployed dispatcher explicitly reconciles original three-minute departure to one-minute observation",
+    "same current position and original raw dispositions",
+    "responsive mileage without overflow"
+  ]
+}
