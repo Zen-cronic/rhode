@@ -1,3 +1,4 @@
+import {ClosureReview} from './ClosureReview';
 import {HosReview} from './HosReview';
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
@@ -565,6 +566,7 @@ export function App() {
               {view === "Recovery" && !isDriver && (
                 <>
                   <DelayPanel state={state} send={send} disabled={!online} />
+                  <ClosureReview state={state} session={session} send={send} online={online}/>
                   <div className="recovery-layout">
                     <section className="panel recovery-stage decision-workbench">
                       <div className="panel-heading">
