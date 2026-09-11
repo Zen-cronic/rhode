@@ -192,12 +192,13 @@ test('simulator clock advancement is explicit, versioned, monotonic and isolated
 });
 
 test('recovery compares late current pickup readiness with a feasible replacement on the same clock',async()=>{
- const {dispatcher,driver,simulator}=await setup();const first:any=await store.dispatch(dispatcher,command(),input);await store.respond(driver,command(),{assignmentId:first.id,action:'accept'});
+ const {dispatcher,driver,simulator}=await setup();await db.query("UPDATE resources SET body=jsonb_set(body,'{position}',$2::jsonb),version=version+1 WHERE carrier_id=$1 AND id='D-02'",[dispatcher.carrierId,JSON.stringify(london)]);const first:any=await store.dispatch(dispatcher,command(),input);await store.respond(driver,command(),{assignmentId:first.id,action:'accept'});
  await store.dispatch(dispatcher,command(),{...input,loadId:'RS-1043'});
  await store.delay(simulator,command(2),{assignmentId:first.id,expectedEnd:'2026-09-13T17:30:00Z',observedAt:'2026-09-13T15:00:00Z',reason:'Synthetic dock wait'});
+ await store.advanceSimulationClock(simulator,command(),{at:'2026-09-13T15:00:00Z'});
  const p:any=await store.propose(dispatcher,command(2),{loadId:'RS-1043',driverId:'D-02',truckId:'T-102',trailerId:'V-102'});
  assert.equal(p.body.comparison.current.eligible,false);assert.ok(p.body.comparison.current.reasons.length);assert.equal(p.body.comparison.current.timing.pickupReadyAt,'2026-09-13T17:30:00.000Z');assert.equal(p.body.comparison.current.timing.pickupLateMinutes,75);
- assert.equal(p.body.comparison.proposed.timing.pickupReadyAt,'2026-09-13T16:15:00.000Z');assert.equal(p.body.comparison.proposed.timing.pickupLateMinutes,0);assert.equal(p.body.comparison.proposed.eligible,true);assert.equal(p.body.comparison.current.timing.evaluatedAt,p.body.comparison.proposed.timing.evaluatedAt);
+ assert.equal(p.body.comparison.proposed.timing.pickupReadyAt,'2026-09-13T16:15:00.000Z');assert.equal(p.body.comparison.proposed.timing.pickupLateMinutes,0);assert.equal(p.body.comparison.proposed.eligible,true);assert.equal(p.body.comparison.current.timing.evaluatedAt,p.body.comparison.proposed.timing.evaluatedAt);assert.equal(p.body.comparison.evaluatedAt,'2026-09-13T15:00:00.000Z');
  assert.equal((await store.approve(dispatcher,command(),{proposalId:p.id}) as any).assignment.driverId,'D-02');
 });
 
