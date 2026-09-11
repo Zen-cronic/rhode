@@ -229,3 +229,23 @@ test('simulator context and delay preserve tenant, synthetic-data and approval b
  await assert.rejects(store.delay(simulator,command(3),body),{code:'FORBIDDEN'});
  }finally{await app.close();}
 });
+
+test('in-progress dispatch projects remaining route without consuming completed driving twice',{skip:!process.env.ROAD_ROUTING_TEST_URL},async()=>{
+ const {dispatcher,driver,simulator,carrierId}=await setup();
+ await db.query("UPDATE hos_bases SET budget=jsonb_set(budget,'{drivingMinutes}','275') WHERE carrier_id=$1 AND driver_id='D-01'",[carrierId]);
+ const trip:any=await store.dispatch(dispatcher,command(),input);await store.respond(driver,command(),{assignmentId:trip.id,action:'accept'});
+ await store.completeStop(driver,command(2),{assignmentId:trip.id,stopId:milton.id,occurredAt:'2026-09-13T12:45:00Z'});
+ await store.duty(driver,command(),{at:'2026-09-13T12:30:00Z',duty:'driving'});
+ await store.advanceSimulationClock(simulator,command(),{at:'2026-09-13T15:00:00Z'});
+ const c=await db.connect();
+ try{
+ const target=await store.load(c,dispatcher,'RS-1043');
+ const missing=await store.check(c,dispatcher,target,{...input,loadId:target.id});assert.ok(missing.reasons.includes('Insufficient driving budget.'));
+ await store.ingest(simulator,command(),{id:randomUUID(),assignmentId:trip.id,at:'2026-09-13T15:00:00Z',position:{lat:london.lat+0.001,lng:london.lng+0.001},accuracyM:5,speedKph:0,odometerKm:150,duty:'on_duty',provenance:'synthetic'});
+ const before=await store.resource<any>(c,dispatcher,'D-01','driver');assert.equal(before.budget.drivingMinutes,125);
+ const remaining=await store.check(c,dispatcher,target,{...input,loadId:target.id});assert.equal(remaining.eligible,true,remaining.reasons.join('; '));assert.match(remaining.note,/remaining truck route from current GPS and completed stops/);
+ assert.deepEqual((await store.resource<any>(c,dispatcher,'D-01','driver')).budget,before.budget);
+ await db.query("UPDATE stop_completions SET occurred_at='2026-09-13T16:00:00Z' WHERE carrier_id=$1 AND assignment_id=$2",[carrierId,trip.id]);
+ const futureCompletion=await store.check(c,dispatcher,target,{...input,loadId:target.id});assert.equal(futureCompletion.eligible,false);assert.ok(futureCompletion.reasons.includes('Insufficient driving budget.'));
+ }finally{c.release();}
+});

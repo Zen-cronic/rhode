@@ -1,3 +1,4 @@
+import {remainingWork} from './remaining-work.ts';
 import {withDutyHistory} from './hos.ts';
 import {prepareDetention} from './billing.ts';
 import {approvePlan,commitmentHash,groupFor,respondGroup,checkGroupStop,releaseCompletedGroup} from './trip-groups.ts';
@@ -86,12 +87,19 @@ export class Store {
     const rows=await c.query("SELECT a.*,greatest(a.end_at,coalesce((SELECT max(d.expected_end) FROM disruptions d WHERE d.carrier_id=a.carrier_id AND d.assignment_id=a.id),a.end_at)) AS end_at FROM assignments a WHERE carrier_id=$1 AND status IN ('offered','accepted')",[a.carrierId]);
     const now=await this.now(c,a,load.provenance);
     const previous=rows.rows.filter(r=>r.id!==ignoreId&&r.driver_id===driver.id&&new Date(r.start_at).getTime()<timestamp(load.startAt)&&new Date(r.end_at).getTime()>timestamp(now)).sort((x,y)=>new Date(x.end_at).getTime()-new Date(y.end_at).getTime());
-    let availableAt=now;const projectedGroups=new Set<string>();
+    let availableAt=now;const projectedGroups=new Set<string>();const projections=[];
     for(const prior of previous){
-      const group=await groupFor(c,a.carrierId,prior.id);if(group){if(projectedGroups.has(group.id))continue;projectedGroups.add(group.id);if(driver.budget)driver={...driver,position:group.body.stops.at(-1).point,budget:{...driver.budget,drivingMinutes:driver.budget.drivingMinutes-group.body.drivingMinutes,onDutyMinutes:driver.budget.onDutyMinutes-group.body.dutyMinutes,cycleMinutes:driver.budget.cycleMinutes-group.body.dutyMinutes}};availableAt=iso(prior.end_at);continue;}
+      const group=await groupFor(c,a.carrierId,prior.id);
+      if(group&&projectedGroups.has(group.id))continue;
+      if(group)projectedGroups.add(group.id);
       const priorLoad=await this.load(c,a,prior.load_id);
-      if(driver.budget)driver={...driver,position:priorLoad.delivery,budget:{...driver.budget,drivingMinutes:driver.budget.drivingMinutes-priorLoad.drivingMinutes,onDutyMinutes:driver.budget.onDutyMinutes-priorLoad.drivingMinutes-priorLoad.serviceMinutes,cycleMinutes:driver.budget.cycleMinutes-priorLoad.drivingMinutes-priorLoad.serviceMinutes}};
-      availableAt=iso(prior.end_at);
+      const stops=group?group.body.stops:[{assignmentId:prior.id,stopId:priorLoad.pickup.id,point:priorLoad.pickup},{assignmentId:prior.id,stopId:priorLoad.delivery.id,point:priorLoad.delivery}];
+      const members=group?rows.rows.filter(r=>stops.some((stop:any)=>stop.assignmentId===r.id)):[prior];
+      const releaseAt=iso(new Date(Math.max(...members.map(r=>new Date(r.end_at).getTime()))));
+      const work=await remainingWork(c,a.carrierId,{assignmentIds:[...new Set<string>(stops.map((stop:any)=>stop.assignmentId))],stops,truck:await this.resource<Truck>(c,a,prior.truck_id,'truck'),provenance:priorLoad.provenance,now,startAt:iso(prior.start_at),releaseAt,availableAt,drivingMinutes:group?group.body.drivingMinutes:priorLoad.drivingMinutes,serviceMinutes:group?Math.max(0,group.body.dutyMinutes-group.body.drivingMinutes):priorLoad.serviceMinutes});
+      projections.push({loadId:priorLoad.id,...work});
+      driver={...driver,position:stops.at(-1).point,budget:driver.budget?{...driver.budget,drivingMinutes:driver.budget.drivingMinutes-work.drivingMinutes,onDutyMinutes:driver.budget.onDutyMinutes-work.dutyMinutes,cycleMinutes:driver.budget.cycleMinutes-work.dutyMinutes}:null};
+      availableAt=work.availableAt;
     }
     demand(load.provenance==='synthetic'||process.env.OPTIMIZER_URL,'ROUTING_UNAVAILABLE','Live dispatch requires verified truck routing.',503);
     const road=process.env.OPTIMIZER_URL?await roadRoute(c,a.carrierId,load,truck,driver.position):undefined;
@@ -102,7 +110,7 @@ export class Store {
     const ready=Math.max(timestamp(load.startAt),arrival),travelMinutes=road?.drivingMinutes??load.drivingMinutes;
     result.timing={evaluatedAt:now,availableAt,pickupArrivalAt:iso(new Date(arrival)),pickupReadyAt:iso(new Date(ready)),pickupLateMinutes:Math.max(0,Math.ceil((arrival-timestamp(load.startAt))/60000)),completionAt:iso(new Date(ready+(travelMinutes+load.serviceMinutes)*60000)),travelMinutes,serviceMinutes:load.serviceMinutes};
     if(road){result.routeFingerprint=road.fingerprint;result.routingEvidence=road.routing_evidence;}
-    if(previous.length)result.note+=' Position and remaining work budgets projected from preceding committed deliveries.';
+    if(previous.length)result.note+=' Prior work: '+projections.map(p=>`${p.loadId}: ${p.drivingMinutes} min driving, ${p.dutyMinutes} min on duty (${p.telemetryId?'remaining truck route from current GPS and completed stops':'full plan; current progress unavailable'}).`).join(' ')+' Full service allowance retained; future waiting assumed on duty.';
     const holds=await c.query('SELECT reason FROM maintenance_holds WHERE carrier_id=$1 AND resource_id=ANY($2::text[]) AND resolved_at IS NULL AND period && tstzrange($3,$4,\'[)\')',[a.carrierId,[input.driverId,input.truckId,input.trailerId],load.startAt,load.endAt]);
     result.reasons.push(...holds.rows.map(r=>`Maintenance hold: ${r.reason}`)); result.eligible=result.reasons.length===0;return result;
   }
