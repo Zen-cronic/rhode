@@ -190,3 +190,18 @@ test('simulator clock advancement is explicit, versioned, monotonic and isolated
  test('an idle database disconnect is observed and the pool reconnects for the next request',async()=>{
  const probe=pool(process.env.TEST_DATABASE_URL);try{const pid=(await probe.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const closed=new Promise<unknown>(resolve=>probe.once('error',resolve));await db.query('SELECT pg_terminate_backend($1)',[pid]);await closed;assert.equal((await probe.query('SELECT 42 AS answer')).rows[0].answer,42);}finally{await probe.end();}
 });
+
+test('recovery compares late current pickup readiness with a feasible replacement on the same clock',async()=>{
+ const {dispatcher,driver,simulator}=await setup();const first:any=await store.dispatch(dispatcher,command(),input);await store.respond(driver,command(),{assignmentId:first.id,action:'accept'});
+ await store.dispatch(dispatcher,command(),{...input,loadId:'RS-1043'});
+ await store.delay(simulator,command(2),{assignmentId:first.id,expectedEnd:'2026-09-13T17:30:00Z',observedAt:'2026-09-13T15:00:00Z',reason:'Synthetic dock wait'});
+ const p:any=await store.propose(dispatcher,command(2),{loadId:'RS-1043',driverId:'D-02',truckId:'T-102',trailerId:'V-102'});
+ assert.equal(p.body.comparison.current.eligible,false);assert.ok(p.body.comparison.current.reasons.length);assert.equal(p.body.comparison.current.timing.pickupReadyAt,'2026-09-13T17:30:00.000Z');assert.equal(p.body.comparison.current.timing.pickupLateMinutes,75);
+ assert.equal(p.body.comparison.proposed.timing.pickupReadyAt,'2026-09-13T16:15:00.000Z');assert.equal(p.body.comparison.proposed.timing.pickupLateMinutes,0);assert.equal(p.body.comparison.proposed.eligible,true);assert.equal(p.body.comparison.current.timing.evaluatedAt,p.body.comparison.proposed.timing.evaluatedAt);
+ assert.equal((await store.approve(dispatcher,command(),{proposalId:p.id}) as any).assignment.driverId,'D-02');
+});
+
+test('recovery comparison approval invalidates when the current driver evidence changes',async()=>{
+ const {dispatcher,carrierId}=await setup();await store.dispatch(dispatcher,command(),input);const p:any=await store.propose(dispatcher,command(2),{...input,driverId:'D-02',truckId:'T-102',trailerId:'V-102'});
+ await db.query("UPDATE resources SET version=version+1 WHERE carrier_id=$1 AND id='D-01'",[carrierId]);await assert.rejects(store.approve(dispatcher,command(),{proposalId:p.id}),{code:'STALE_PROPOSAL'});assert.equal((await store.snapshot(dispatcher)).assignments.length,1);
+});

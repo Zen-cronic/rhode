@@ -1052,6 +1052,13 @@ function Recovery({
         <strong>{p.body.proof.routingEvidence === "valhalla-truck" ? "Truck-route timing" : "Planning constraints"} {p.body.proof.eligible ? "screen passed" : "need review"}</strong>
         <span>{p.body.proof.deadheadKm} km estimated deadhead · {p.body.proof.routingEvidence === "valhalla-truck" ? "Valhalla modeled travel times" : "Straight-line planning estimate"}</span>
       </div>
+      {p.body.comparison&&<div className="decision-proof-summary" aria-label="Modeled recovery outcome">
+        <strong>Same pickup window · modeled outcome</strong>
+        <span>Current plan: {p.body.comparison.current?.timing?`${time(p.body.comparison.current.timing.pickupReadyAt)} ET · ${p.body.comparison.current.timing.pickupLateMinutes?`${p.body.comparison.current.timing.pickupLateMinutes} min late`:'on time'}${p.body.comparison.current.eligible?'':' · constraints block dispatch'}`:p.body.comparison.currentUnavailable||'No assigned baseline'}</span>
+        <span>Replacement: {p.body.comparison.proposed.timing?`${time(p.body.comparison.proposed.timing.pickupReadyAt)} ET · ${p.body.comparison.proposed.timing.pickupLateMinutes?`${p.body.comparison.proposed.timing.pickupLateMinutes} min late`:'on time'} · complete ${time(p.body.comparison.proposed.timing.completionAt)} ET`:'Timing unavailable'}</span>
+        {!!p.body.comparison.current?.reasons.length&&<span>Current constraints: {p.body.comparison.current.reasons.join(' ')}</span>}
+        <span>Snapshot at {p.body.comparison.evaluatedAt?`${time(p.body.comparison.evaluatedAt)} ET`:'proposal creation'}. Assumes stated travel/service times and preceding delivery positions. Approval rechecks feasibility; this is not a live ETA or measured savings.</span>
+      </div>}
       {p.status === "pending" ? <div className="decision-action">
         <p>{old ? "Replaces the current assignment." : "Creates a new driver offer."} Driver acceptance is still required.</p>
         <button className="primary" disabled={disabled || stale} onClick={onApprove}>Review & approve →</button>

@@ -77,7 +77,7 @@ export class Store {
     let driver=await this.resource<Driver>(c,a,input.driverId,'driver'),truck=await this.resource<Truck>(c,a,input.truckId,'truck'),trailer=await this.resource<Trailer>(c,a,input.trailerId,'trailer');
     const rows=await c.query("SELECT a.*,greatest(a.end_at,coalesce((SELECT max(d.expected_end) FROM disruptions d WHERE d.carrier_id=a.carrier_id AND d.assignment_id=a.id),a.end_at)) AS end_at FROM assignments a WHERE carrier_id=$1 AND status IN ('offered','accepted')",[a.carrierId]);
     const now=await this.now(c,a,load.provenance);
-    const previous=rows.rows.filter(r=>r.id!==ignoreId&&r.driver_id===driver.id&&new Date(r.end_at).getTime()<=timestamp(load.startAt)&&new Date(r.end_at).getTime()>timestamp(now)).sort((x,y)=>new Date(x.end_at).getTime()-new Date(y.end_at).getTime());
+    const previous=rows.rows.filter(r=>r.id!==ignoreId&&r.driver_id===driver.id&&new Date(r.start_at).getTime()<timestamp(load.startAt)&&new Date(r.end_at).getTime()>timestamp(now)).sort((x,y)=>new Date(x.end_at).getTime()-new Date(y.end_at).getTime());
     let availableAt=now;const projectedGroups=new Set<string>();
     for(const prior of previous){
       const group=await groupFor(c,a.carrierId,prior.id);if(group){if(projectedGroups.has(group.id))continue;projectedGroups.add(group.id);if(driver.budget)driver={...driver,position:group.body.stops.at(-1).point,budget:{...driver.budget,drivingMinutes:driver.budget.drivingMinutes-group.body.drivingMinutes,onDutyMinutes:driver.budget.onDutyMinutes-group.body.dutyMinutes,cycleMinutes:driver.budget.cycleMinutes-group.body.dutyMinutes}};availableAt=iso(prior.end_at);continue;}
@@ -90,6 +90,9 @@ export class Store {
     const result=screen({...load,status:'open'},driver,truck,trailer,rows.rows.map(assignment).filter(x=>x.id!==ignoreId),now,road);
     if(road&&road.drivingMinutes+load.serviceMinutes>(timestamp(load.endAt)-timestamp(load.startAt))/60000)result.reasons.push('Truck travel and service exceed the reserved appointment window.');
     if(timestamp(availableAt)+(road?.deadheadMinutes??Math.ceil(distanceKm(driver.position,load.pickup)/50*60))*60000>timestamp(load.startAt))result.reasons.push('Driver cannot reach pickup after prior committed work under the current planning estimate.');
+    const arrival=timestamp(availableAt)+(road?.deadheadMinutes??Math.ceil(distanceKm(driver.position,load.pickup)/50*60))*60000;
+    const ready=Math.max(timestamp(load.startAt),arrival),travelMinutes=road?.drivingMinutes??load.drivingMinutes;
+    result.timing={evaluatedAt:now,availableAt,pickupArrivalAt:iso(new Date(arrival)),pickupReadyAt:iso(new Date(ready)),pickupLateMinutes:Math.max(0,Math.ceil((arrival-timestamp(load.startAt))/60000)),completionAt:iso(new Date(ready+(travelMinutes+load.serviceMinutes)*60000)),travelMinutes,serviceMinutes:load.serviceMinutes};
     if(road){result.routeFingerprint=road.fingerprint;result.routingEvidence=road.routing_evidence;}
     if(previous.length)result.note+=' Position and remaining work budgets projected from preceding committed deliveries.';
     const holds=await c.query('SELECT reason FROM maintenance_holds WHERE carrier_id=$1 AND resource_id=ANY($2::text[]) AND resolved_at IS NULL AND period && tstzrange($3,$4,\'[)\')',[a.carrierId,[input.driverId,input.truckId,input.trailerId],load.startAt,load.endAt]);
@@ -116,8 +119,10 @@ export class Store {
     demand(!old||old.status!=='accepted'||load.status!=='in_transit','IN_PROGRESS','An in-transit load needs a reviewed physical handoff; automatic reassignment is unavailable.');
     demand(!old||!await groupFor(c,a.carrierId,old.id),'GROUP_RECOVERY_REQUIRED','Consolidated trips require review of the complete manifest.');
     const proof=await this.check(c,a,load,input,old?.id);demand(proof.eligible,'INELIGIBLE',proof.reasons.join(' '));
-    const resources=await c.query('SELECT id,version FROM resources WHERE carrier_id=$1 AND id=ANY($2::text[])',[a.carrierId,[input.driverId,input.truckId,input.trailerId]]);
-    const id=randomUUID(),body={...input,currentAssignmentId:old?.id,currentAssignmentVersion:old?.version,resources:resources.rows,proof,assumptions:['Declared HOS budgets',proof.routingEvidence?'Valhalla truck route with supplied dimensions; OSM restriction coverage applies':'Synthetic straight-line deadhead estimate'],reason:String(input.reason??'Dispatcher recovery rehearsal')};
+    let currentProof:import('../../../packages/domain/src/index.ts').Screening|undefined,currentUnavailable:string|undefined;
+    if(old){try{currentProof=await this.check(c,a,load,old,old.id);}catch(error){if(error instanceof DomainError)currentUnavailable=error.message;else throw error;}}
+    const resources=await c.query('SELECT id,version FROM resources WHERE carrier_id=$1 AND id=ANY($2::text[])',[a.carrierId,[...new Set([input.driverId,input.truckId,input.trailerId,...(old?[old.driverId,old.truckId,old.trailerId]:[])])]]);
+    const id=randomUUID(),body={...input,comparison:{current:currentProof,currentUnavailable,proposed:proof,evaluatedAt:proof.timing?.evaluatedAt},currentAssignmentId:old?.id,currentAssignmentVersion:old?.version,resources:resources.rows,proof,assumptions:['Declared HOS budgets',proof.routingEvidence?'Valhalla truck route with supplied dimensions; OSM restriction coverage applies':'Synthetic straight-line deadhead estimate'],reason:String(input.reason??'Dispatcher recovery rehearsal')};
     await c.query("INSERT INTO proposals(carrier_id,id,load_id,expected_version,status,body) VALUES($1,$2,$3,$4,'pending',$5)",[a.carrierId,id,load.id,load.version,JSON.stringify(body)]);
     return {id,revision:1,status:'pending',loadId:load.id,body};
   });}

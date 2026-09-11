@@ -46,7 +46,8 @@ export function distanceKm(a: Point, b: Point): number {
 export function overlaps(a: {startAt: string; endAt: string}, b: {startAt: string; endAt: string}) {
   return timestamp(a.startAt) < timestamp(b.endAt) && timestamp(b.startAt) < timestamp(a.endAt);
 }
-export type Screening = {eligible: boolean; reasons: string[]; deadheadKm: number; note: string;routeFingerprint?:string;routingEvidence?:string};
+export type ScreeningTiming={evaluatedAt:string;availableAt:string;pickupArrivalAt:string;pickupReadyAt:string;pickupLateMinutes:number;completionAt:string;travelMinutes:number;serviceMinutes:number};
+export type Screening = {timing?:ScreeningTiming;eligible: boolean; reasons: string[]; deadheadKm: number; note: string;routeFingerprint?:string;routingEvidence?:string};
 export function screen(load: Load, driver: Driver, truck: Truck, trailer: Trailer, assignments: Assignment[], now: string, road?:{drivingMinutes:number;deadheadMinutes:number;deadheadKm:number}): Screening {
   const reasons: string[] = [];
   if (load.status !== 'open') reasons.push('Load is already dispatched.');

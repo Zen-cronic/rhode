@@ -32,6 +32,7 @@ export type Proposal = {
     currentAssignmentId?: string;
     reason: string;
     proof: Screening;
+    comparison?:{current?:Screening;currentUnavailable?:string;proposed:Screening;evaluatedAt?:string};
     assumptions: string[];
   };
 };
