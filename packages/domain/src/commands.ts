@@ -2,6 +2,7 @@ import {z} from 'zod';
 const id=z.string().min(1).max(128),uuid=z.string().uuid();
 const assignmentInput=z.object({loadId:id,driverId:id,truckId:id,trailerId:id});
 export const schemas={
+  'bind-contract':z.object({loadId:id,contractId:id}),
   'approve-plan':z.object({planId:uuid}),
   optimize:z.object({loadIds:z.array(id).min(1).max(20),vehicles:z.array(z.object({driverId:id,truckId:id,trailerId:id})).min(1).max(8)}),
   'review-document':z.object({documentId:uuid,fields:z.object({billNumber:z.string().nullable(),signedBy:z.string().nullable(),observedDate:z.string().nullable(),notes:z.string().nullable()}).strict(),reason:z.string().min(10).max(2000)}),

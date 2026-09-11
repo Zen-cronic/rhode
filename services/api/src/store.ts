@@ -1,3 +1,4 @@
+import {prepareDetention} from './billing.ts';
 import {approvePlan,commitmentHash,groupFor,respondGroup,checkGroupStop,releaseCompletedGroup} from './trip-groups.ts';
 import {roadRoute,computation} from './planning.ts';
 import {Files,sha256} from './files.ts';
@@ -168,17 +169,24 @@ export class Store {
       const inside=Number(stop.distance)+event.accuracyM<stop.radius_m,outside=Number(stop.distance)-event.accuracyM>stop.radius_m;
       const r=await c.query('SELECT * FROM stop_visits WHERE carrier_id=$1 AND assignment_id=$2 AND stop_id=$3 AND departure IS NULL',[a.carrierId,v.id,stop.id]);const visit=r.rows[0];
       if(v.status==='accepted'&&inside&&!visit)await c.query('INSERT INTO stop_visits(carrier_id,id,assignment_id,load_id,stop_id,arrival,arrival_event) VALUES($1,$2,$3,$4,$5,$6,$7)',[a.carrierId,randomUUID(),v.id,load.id,stop.id,event.at,event.id]);
-      if(outside&&visit)await c.query('UPDATE stop_visits SET departure=$3,departure_event=$4 WHERE carrier_id=$1 AND id=$2',[a.carrierId,visit.id,event.at,event.id]);
+      if(outside&&visit){
+        const closed=(await c.query('UPDATE stop_visits SET departure=$3,departure_event=$4 WHERE carrier_id=$1 AND id=$2 RETURNING *',[a.carrierId,visit.id,event.at,event.id])).rows[0];
+        await prepareDetention(c,a.carrierId,closed,{automatic:true});
+      }
     }
     return {duplicate:false,disposition};
   });}
   detentionDraft(a:Actor,cmd:Command,input:Row){this.dispatcher(a);return this.command(a,cmd,'invoice.drafted',input,async c=>{
     const r=await c.query('SELECT * FROM stop_visits WHERE carrier_id=$1 AND id=$2',[a.carrierId,input.visitId]);const visit=r.rows[0];demand(visit?.departure,'VISIT_OPEN','A closed same-stop visit is required.');
-    const contract=(await c.query('SELECT * FROM contracts WHERE carrier_id=$1 AND id=$2',[a.carrierId,input.contractId])).rows[0];demand(contract,'CONTRACT_REQUIRED','Configured contract terms required.');
-    const last=await c.query('SELECT max(revision) AS revision FROM invoice_revisions WHERE carrier_id=$1 AND visit_id=$2',[a.carrierId,visit.id]);const version=last.rows[0].revision??0;demand(version===cmd.expectedVersion,'STALE_VERSION','Invoice revision changed.');
-    const dwellMinutes=Math.floor((new Date(visit.departure).getTime()-new Date(visit.arrival).getTime())/60000),billableMinutes=Math.max(0,dwellMinutes-contract.free_minutes);
-    const body={dwellMinutes,billableMinutes,amountCents:Math.round(billableMinutes*contract.rate_cents_per_hour/60),currency:contract.currency,evidence:[visit.arrival_event,visit.departure_event],contract,precision:'observed_samples',requiresEvidenceReview:true};
-    const id=randomUUID();await c.query("INSERT INTO invoice_revisions(carrier_id,id,visit_id,revision,contract_id,contract_version,status,body) VALUES($1,$2,$3,$4,$5,$6,'draft',$7)",[a.carrierId,id,visit.id,version+1,contract.id,contract.version,JSON.stringify(body)]);return {id,revision:version+1,status:'draft',...body};
+    return prepareDetention(c,a.carrierId,visit,{automatic:false,expectedVersion:cmd.expectedVersion,contractId:input.contractId});
+  });}
+  bindContract(a:Actor,cmd:Command,input:Row){this.dispatcher(a);return this.command(a,cmd,'shipment.terms_bound',input,async c=>{
+    const load=await this.load(c,a,input.loadId);demand(load.version===cmd.expectedVersion,'STALE_VERSION','Shipment changed.');
+    demand(load.mode==='FTL','MODE_UNSUPPORTED','Configured detention policy supports FTL shipments.');
+    demand(!(await c.query('SELECT 1 FROM stop_visits WHERE carrier_id=$1 AND load_id=$2 LIMIT 1',[a.carrierId,load.id])).rows.length,'TERMS_LOCKED','Terms must be bound before the first observed visit.');
+    demand((await c.query('SELECT 1 FROM contracts WHERE carrier_id=$1 AND id=$2',[a.carrierId,input.contractId])).rows.length,'CONTRACT_REQUIRED','Carrier contract required.');
+    await c.query('INSERT INTO load_contracts(carrier_id,load_id,contract_id,bound_by) VALUES($1,$2,$3,$4) ON CONFLICT(carrier_id,load_id) DO UPDATE SET contract_id=excluded.contract_id,bound_by=excluded.bound_by,bound_at=now()',[a.carrierId,load.id,input.contractId,a.uid]);
+    await c.query('UPDATE loads SET version=version+1 WHERE carrier_id=$1 AND id=$2',[a.carrierId,load.id]);return {loadId:load.id,contractId:input.contractId,version:load.version+1};
   });}
   delay(a:Actor,cmd:Command,input:Row){demand(a.role==='dispatcher'||a.role==='simulator','FORBIDDEN','Dispatcher or simulator identity required.',403);return this.command(a,cmd,'disruption.recorded',input,async c=>{
     const v=await this.getAssignment(c,a,input.assignmentId);demand(v.version===cmd.expectedVersion,'STALE_VERSION','Assignment changed.');demand(v.status==='accepted','INVALID_TRANSITION','Only accepted trips can report a delay.');const load=await this.load(c,a,v.loadId);
@@ -356,7 +364,7 @@ export class Store {
       for(const load of data.loads){await c.query('INSERT INTO loads VALUES($1,$2,$3,$4,$5)',[carrierId,load.id,load.version,load.status,JSON.stringify(load)]);for(const [i,s] of [load.pickup,load.delivery].entries())await c.query('INSERT INTO stops VALUES($1,$2,$3,$4,ST_SetSRID(ST_MakePoint($5,$6),4326)::geography,$7,$8)',[carrierId,load.id,s.id,i,s.lng,s.lat,s.radiusM,JSON.stringify(s)]);}
       await c.query("INSERT INTO scenarios(carrier_id,id,clock,initial_state,seed) VALUES($1,'recovery',$2,$3,42)",[carrierId,DEMO_NOW,JSON.stringify(data)]);
       for(const [uid,role,driver] of [['demo-dispatcher','dispatcher',null],['demo-driver-1','driver','D-01'],['demo-driver-2','driver','D-02'],['demo-simulator','simulator',null]])await c.query('INSERT INTO memberships VALUES($1,$2,$3,$4)',[carrierId,uid,role,driver]);
-      await c.query("INSERT INTO contracts VALUES($1,'demo-ftl',1,120,10000,'CAD','synthetic scenario terms')",[carrierId]);await c.query('COMMIT');
+      await c.query("INSERT INTO contracts VALUES($1,'demo-ftl',1,120,10000,'CAD','synthetic scenario terms')",[carrierId]);for(const load of data.loads)await c.query("INSERT INTO load_contracts(carrier_id,load_id,contract_id,bound_by) VALUES($1,$2,'demo-ftl','synthetic-fixture')",[carrierId,load.id]);await c.query('COMMIT');
     }catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
   }
 }
