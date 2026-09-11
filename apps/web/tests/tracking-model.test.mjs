@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {appliedTrails,mergeSamples,sampleNumber,trackingDistance} from '../src/tracking-model.ts';
+import {appliedTrails,mergeSamples,sampleNumber,trackingDistance,feedFreshness} from '../src/tracking-model.ts';
 const point=(id,disposition='applied',position={lat:43.5,lng:-79.8})=>({id,at:`2026-09-13T12:00:0${id}Z`,position,disposition,accuracyM:5,odometerKm:null,provenance:"synthetic"});
 test('breadcrumb segments contain only recorded applied coordinates and break at excluded samples',()=>{
   const points=[point('1'),point('2'),point('3','uncertain'),point('4'),point('5','retained_out_of_order'),point('6'),point('7','applied',{lat:91,lng:-79.8}),point('8')];
@@ -36,3 +36,7 @@ test('distance excludes gaps, resets and missing odometers and does not sum stat
 });
 
 test('isolated samples cannot imply zero GPS distance',()=>{assert.equal(trackingDistance([point('1')]).gpsChordKm,null);assert.equal(trackingDistance([]).gpsChordKm,null);assert.equal(trackingDistance([point('1'),{...point('2'),at:'2026-09-13T13:00:00Z'}]).gpsChordKm,null);});
+
+test('receipt freshness ages independently of scenario time and client wall-clock skew',()=>{
+ const at='2026-09-11T15:00:00Z';assert.equal(feedFreshness(at,at,29999).status,'receiving');assert.equal(feedFreshness(at,at,30000).status,'quiet');assert.equal(feedFreshness(at,'2026-09-11T15:00:10Z',20000).status,'quiet');assert.equal(feedFreshness(null,at,0).status,'missing');assert.equal(feedFreshness(at,undefined,0).status,'unknown');assert.equal(feedFreshness('invalid',at,0).status,'unknown');assert.equal(feedFreshness(at,at,-1).status,'unknown');
+});

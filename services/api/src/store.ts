@@ -341,7 +341,8 @@ export class Store {
     const c=await this.db.connect();try{
       const trip=await this.getAssignment(c,a,assignmentId);demand(a.role==='dispatcher'||trip.driverId===a.driverId,'FORBIDDEN','Tracking belongs to another driver.',403);
       const rows=(await c.query('SELECT id,at,recorded_at,body,disposition FROM telemetry WHERE carrier_id=$1 AND assignment_id=$2 AND ($3::timestamptz IS NULL OR (at,id)<($3::timestamptz,$4::text)) ORDER BY at DESC,id DESC LIMIT 501',[a.carrierId,assignmentId,cursor?.[0]??null,cursor?.[1]??null])).rows;
-      const selected=rows.slice(0,500),last=selected.at(-1);return {assignmentId,points:selected.reverse().map(r=>({...r.body,recordedAt:iso(r.recorded_at),disposition:r.disposition})),nextBefore:rows.length>500?Buffer.from(JSON.stringify([iso(last.at),last.id])).toString('base64url'):null};
+      const latest=(await c.query('SELECT max(recorded_at) AS received FROM telemetry WHERE carrier_id=$1 AND assignment_id=$2',[a.carrierId,assignmentId])).rows[0].received;
+      const selected=rows.slice(0,500),last=selected.at(-1);return {assignmentId,serverTime:new Date().toISOString(),latestReceivedAt:latest?iso(latest):null,points:selected.reverse().map(r=>({...r.body,recordedAt:iso(r.recorded_at),disposition:r.disposition})),nextBefore:rows.length>500?Buffer.from(JSON.stringify([iso(last.at),last.id])).toString('base64url'):null};
     }finally{c.release();}
   }
   async snapshot(a:Actor){

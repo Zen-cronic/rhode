@@ -89,6 +89,9 @@ test('tracking history preserves uncertainty and unknown values, paginates and e
  await assert.rejects(store.tracking(await store.membership('demo-driver-2',carrierId),v.id),{code:'FORBIDDEN'});await assert.rejects(store.tracking(simulator,v.id),{code:'FORBIDDEN'});await assert.rejects(store.tracking(driver,v.id,'not-a-cursor'),{code:'INVALID_CURSOR'});
  await db.query("INSERT INTO telemetry(carrier_id,id,assignment_id,at,location,accuracy_m,body,disposition) SELECT $1,'history-'||n,$2,'2026-09-13T14:00Z'::timestamptz+n*interval '1 second',ST_SetSRID(ST_MakePoint(0,0),4326)::geography,10,jsonb_build_object('id','history-'||n,'at','2026-09-13T14:00Z'::timestamptz+n*interval '1 second'),'uncertain' FROM generate_series(1,501) n",[carrierId,v.id]);
  const page1=await store.tracking(dispatcher,v.id),page2=await store.tracking(dispatcher,v.id,page1.nextBefore!);assert.equal(page1.points.length,500);assert.equal(page2.points.length,4);assert.equal(new Set([...page1.points,...page2.points].map(p=>p.id)).size,504);assert.equal(page2.nextBefore,null);
+ await db.query("UPDATE telemetry SET recorded_at='2026-09-11T15:01:00Z' WHERE carrier_id=$1 AND assignment_id=$2",[carrierId,v.id]);await db.query("UPDATE telemetry SET recorded_at='2026-09-11T15:02:00Z' WHERE carrier_id=$1 AND id='b'",[carrierId]);
+ const freshPage=await store.tracking(dispatcher,v.id);assert.equal(freshPage.latestReceivedAt,'2026-09-11T15:02:00.000Z');assert.ok(!freshPage.points.some(p=>p.id==='b'));assert.equal((await store.tracking(driver,v.id,freshPage.nextBefore!)).latestReceivedAt,freshPage.latestReceivedAt);assert.ok(Number.isFinite(Date.parse(freshPage.serverTime)));
+
 });
 
 test('completion inside the delivery fence preserves one authorized departure and separate occurrence evidence',async()=>{

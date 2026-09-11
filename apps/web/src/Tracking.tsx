@@ -3,7 +3,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { request } from "./api";
 import type { Session, State } from "./api";
 import { loadMaps } from "./MapPanel";
-import { appliedTrails, dispositionLabel, mergeSamples, sampleNumber, trackingDistance, validPosition } from "./tracking-model";
+import { appliedTrails, feedFreshness, dispositionLabel, mergeSamples, sampleNumber, trackingDistance, validPosition } from "./tracking-model";
 import type { TrackingPage, TrackingPoint } from "./tracking-model";
 const when=(at:string)=>new Date(at).toLocaleString('en-CA',{timeZone:'America/Toronto',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit'});
 export function Tracking({state,session,online}:{state:State;session:Session;online:boolean}){
@@ -15,7 +15,7 @@ export function Tracking({state,session,online}:{state:State;session:Session;onl
     queryFn:async({pageParam})=>{
       const data=await request<TrackingPage>(session,`tracking?assignmentId=${encodeURIComponent(assignmentId)}${pageParam?`&before=${encodeURIComponent(pageParam)}`:''}`);
       if(data.assignmentId!==assignmentId||!Array.isArray(data.points))throw new Error('Tracking response did not match the selected assignment.');
-      return data;
+      return {...data,clientReceivedAt:performance.now()};
     },
     getNextPageParam:page=>page.nextBefore||undefined,
     enabled:!!assignmentId&&permitted&&online,retry:false,
@@ -35,8 +35,9 @@ export function Tracking({state,session,online}:{state:State;session:Session;onl
       {!online&&<p className="notice" role="status">Offline. Showing downloaded samples only; reconnect to refresh history.</p>}
       {history.isLoading&&<p className="notice" role="status">Loading recorded samples…</p>}
       {history.isError&&<div role="alert" className="error"><p>{history.error.message}</p><button disabled={!online} onClick={()=>void history.refetch()}>Retry tracking history</button></div>}
-      {!!history.data&&!samples.length&&<p className="empty">No telemetry samples have been recorded for this assignment.</p>}
+      {!!history.data&&!samples.length&&<p className="empty">No telemetry samples have been recorded for this assignment. Waiting for the source to send its first observation.</p>}
       {!!samples.length&&<>
+        <FeedStatus page={history.data?.pages[0]} historical={assignments.find(a=>a.id===assignmentId)?.status==='completed'}/>
         <div className="panel-heading"><p className="fine">{samples.length} loaded samples · {applied.length} applied coordinates · {samples.length-applied.length} excluded from the trail</p><button disabled={!online||history.isFetching} onClick={()=>void history.refetch()}>{history.isFetching?'Refreshing history…':'Refresh history'}</button></div>
         <p className="notice">Lines join consecutive applied samples only. Gaps break at excluded or poor GPS samples, intervals over two minutes, conflicting timestamps, source changes, or implied movement over 160 km/h after GPS uncertainty. These are display assumptions. The traveled path between samples is unknown; recorded timestamps are not authoritative boundary-crossing or billing times.</p>
         <p className="fine">Loaded history only · {distance.segments} separate segments · Reported odometer distance {sampleNumber(distance.odometerKm,'km')} across {distance.odometerIntervals} valid intervals. {distance.missingOdometerIntervals} linked intervals lack usable odometer readings.</p>
@@ -60,4 +61,12 @@ function BreadcrumbMap({samples,selected}:{samples:TrackingPoint[];selected?:Tra
   useEffect(()=>{if(!ready||!map.current)return;const items:(google.maps.Polyline|google.maps.Circle)[]=[];const bounds=new google.maps.LatLngBounds();for(const trail of trails){for(const sample of trail){bounds.extend(sample.position);items.push(new google.maps.Circle({map:map.current,center:sample.position,radius:12,fillColor:'#ac3716',fillOpacity:1,strokeOpacity:0}));}if(trail.length>1)items.push(new google.maps.Polyline({map:map.current,path:trail.map(point=>point.position),strokeColor:'#ac3716',strokeWeight:3,strokeOpacity:.85}));}if(!bounds.isEmpty()&&!fitted.current){map.current.fitBounds(bounds,32);fitted.current=true;}return()=>items.forEach(item=>item.setMap(null));},[ready,trails]);
   useEffect(()=>{if(!ready||!map.current||!selected||!validPosition(selected))return;const marker=new google.maps.Marker({map:map.current,position:selected.position,title:`${dispositionLabel(selected.disposition)} · ${selected.at}`});const radius=typeof selected.accuracyM==='number'&&Number.isFinite(selected.accuracyM)&&selected.accuracyM>=0?new google.maps.Circle({map:map.current,center:selected.position,radius:selected.accuracyM,strokeColor:selected.disposition==='applied'?'#ac3716':'#a06b10',strokeOpacity:.8,fillColor:'#d89b28',fillOpacity:.18}):null;map.current.panTo(selected.position);return()=>{marker.setMap(null);radius?.setMap(null);};},[ready,selected]);
   return <div className="tracking-map">{!key?<p className="map-unavailable">Map is not connected. Recorded coordinates and measurements remain available in the sample history.</p>:<><div ref={ref} className="map-canvas" aria-label="Google map of recorded applied telemetry samples"/>{!ready&&!error&&<p role="status" className="fine">Loading breadcrumb map…</p>}{error&&<p role="alert" className="error">{error}</p>}{!trails.length&&<p className="notice">No applied coordinates in the loaded history. No breadcrumb line is drawn.</p>}</>}</div>;
+}
+
+function FeedStatus({page,historical}:{page:TrackingPage|undefined;historical:boolean}){
+ const [elapsed,setElapsed]=useState(0);
+ useEffect(()=>{const start=page?.clientReceivedAt??performance.now();setElapsed(Math.max(0,performance.now()-start));const timer=setInterval(()=>setElapsed(performance.now()-start),1000);return()=>clearInterval(timer);},[page?.clientReceivedAt,page?.serverTime]);
+ const freshness=feedFreshness(page?.latestReceivedAt,page?.serverTime,elapsed);
+ const label=historical?'Historical telemetry':freshness.status==='receiving'?'Receiving telemetry':freshness.status==='quiet'?'Feed quiet':freshness.status==='missing'?'No telemetry':'Freshness unavailable';
+ return <p className={freshness.status==='quiet'&&!historical?'notice':'fine'}><strong>{label}</strong>{freshness.ageSeconds!==null?` · Last observation received ${freshness.ageSeconds} seconds ago.`:'.'} {!historical&&freshness.status==='quiet'?'The source may be paused or disconnected. ':''}Receipt activity is separate from GPS accuracy and sample time. Quiet means no new receipt for 30 seconds of real time; pausing the scenario clock does not pause this indicator.</p>;
 }

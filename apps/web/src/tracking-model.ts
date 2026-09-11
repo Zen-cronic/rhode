@@ -10,7 +10,7 @@ export type TrackingPoint = {
   provenance: string;
   disposition: string;
 };
-export type TrackingPage = {assignmentId:string;points:TrackingPoint[];nextBefore?:string|null};
+export type TrackingPage = {assignmentId:string;serverTime?:string;clientReceivedAt?:number;latestReceivedAt?:string|null;points:TrackingPoint[];nextBefore?:string|null};
 export function validPosition(point: TrackingPoint): boolean {
   return !!point.position && Number.isFinite(point.position.lat) && Number.isFinite(point.position.lng) && Math.abs(point.position.lat)<=90 && Math.abs(point.position.lng)<=180;
 }
@@ -68,4 +68,12 @@ export function dispositionLabel(value:string):string{
   if(value==='uncertain')return 'Uncertain GPS';
   if(value==='retained_out_of_order')return 'Retained out of order';
   return value.replaceAll('_',' ');
+}
+
+export function feedFreshness(receivedAt:string|null|undefined,serverTime:string|undefined,elapsedMs:number){
+ if(!receivedAt)return {status:'missing',ageSeconds:null} as const;
+ const received=Date.parse(receivedAt),server=Date.parse(serverTime??'');
+ if(!Number.isFinite(received)||!Number.isFinite(server)||!Number.isFinite(elapsedMs)||elapsedMs<0)return {status:'unknown',ageSeconds:null} as const;
+ const ageSeconds=Math.floor(Math.max(0,server-received+elapsedMs)/1000);
+ return {status:ageSeconds>=30?'quiet':'receiving',ageSeconds} as const;
 }
