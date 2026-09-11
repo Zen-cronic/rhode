@@ -1,0 +1,50 @@
+{
+  "date": "2026-09-11",
+  "device": "Android API35 x86_64 emulator-5556",
+  "apkSha256": "586dfb29c5c930606849f3e31e386f37dfe6c70fb5015c880beecbca586c012b",
+  "apiRevision": "roadstar-api-00011-6bb",
+  "carrier": "native-current-20260911",
+  "assignment": {
+    "id": "729a067e-ac64-497b-ae23-cf7f8ba76342",
+    "loadId": "RS-1043",
+    "driverId": "D-02",
+    "truckId": "T-102",
+    "trailerId": "V-102",
+    "startAt": "2026-09-13T16:15:00.000Z",
+    "endAt": "2026-09-13T19:00:00.000Z",
+    "status": "accepted",
+    "version": 2
+  },
+  "checks": [
+    "Firebase driver login",
+    "Dispatcher recovery through current API offered RS-1043 to D-02",
+    "Airplane mode enabled and Wi-Fi disabled",
+    "Acceptance pending confirmed before force-stop",
+    "Pending acceptance persisted after force-stop and relaunch while server remained offered version1",
+    "Reconnected: server accepted version2 and UI Synced",
+    "Activity queue contains one synchronized acceptance; no pending or failed action"
+  ],
+  "screenshots": [
+    {
+      "file": "restarted.png",
+      "sha256": "187477c2d6b0ef7973eb2ecccbb0d4c476f2be38d1f9b90f1f9916aef6701234",
+      "visuallyInspected": true
+    },
+    {
+      "file": "synced.png",
+      "sha256": "a72bfedb6c63a5a695d78d297565c1a571848702c92620da0449b44b62d3004f",
+      "visuallyInspected": true
+    },
+    {
+      "file": "queue.png",
+      "sha256": "ab701b3f08217c61f8e1cd200c4de073986f77c0dad5ae1b5303f2e71216b6fe",
+      "visuallyInspected": true
+    }
+  ],
+  "limitations": [
+    "Physical device and native iOS testing deferred by operator",
+    "This verifies driver acceptance persistence, not background GPS or push",
+    "Recovery approval exercised through authenticated API, not native dispatcher UI in this packet"
+  ],
+  "navigationNote": "First automation tap raced the offline banner layout and did not enqueue. Retried after layout settled; pending state verified before the recorded restart."
+}
