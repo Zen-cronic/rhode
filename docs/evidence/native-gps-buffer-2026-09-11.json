@@ -1,0 +1,33 @@
+{
+  "date": "2026-09-11",
+  "apkSha256": "8adf56e11cc48936e1312b12289079e0bea7ed4c583cdc1c6c9925c17f88a9a8",
+  "architectures": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "build": "assembleRelease: BUILD SUCCESSFUL,19s",
+  "nativeTests": 28,
+  "backendTests": 45,
+  "typescript": [
+    "root passed",
+    "mobile passed"
+  ],
+  "emulator": "API35 emulator-5556, install -r succeeded, process5943, synchronized prior D02 accepted RS1043 displayed",
+  "screenshotInspected": true,
+  "proof": [
+    "SQLite retained GPS and cached grant after close/reopen",
+    "ambiguous acknowledgment retries identical content",
+    "same-ID concurrent callbacks and repeated synced callbacks produce one row",
+    "expired/disabled/switched/synthetic/ended-session grants block capture",
+    "pending local duty selected by occurrence time; cached duty excluded from server HOS",
+    "429 pending and403 failed status preserve command visibility"
+  ],
+  "limits": [
+    "No sensor callback or native offline/reconnect proof yet",
+    "No physical Android/iOS validation",
+    "Cloud API capability not deployed yet; new background mode refuses old capability",
+    "Existing synthetic emulator trip stays synthetic; no device GPS emitted",
+    "Server revocation while disconnected is discovered on reconnect; last session verification limited to one hour",
+    "No odometer source or full-shift mileage"
+  ]
+}
