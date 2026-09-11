@@ -1,0 +1,259 @@
+{
+  "verifiedAt": "2026-09-11T16:58:28.096Z",
+  "carrier": "native-gps-verify-20260911",
+  "assignmentId": "fb41efc5-0c41-4e00-80f6-0ced73d1b568",
+  "apkSha256": "d2cb8ed40adf2e48e7084cb01b34acfeeea39197d8338f48ece694eef0b12be7",
+  "nativeTests": 29,
+  "backendTests": 46,
+  "seedExecution": "roadstar-film-seed-qmbf9",
+  "source": "Android API35 sdk_gphone64_x86_64 GPS injected via adb emu geo fix; never physical GPS",
+  "baseline": [
+    {
+      "at": "2026-09-11T16:49:00.664Z",
+      "id": "4fc59d824029294d3e713ac3aa7cba6fff40f43831dc4593ac4bd92edfb7f306",
+      "duty": "on_duty",
+      "position": {
+        "lat": 43.5183,
+        "lng": -79.8773983
+      },
+      "speedKph": 0,
+      "accuracyM": 5,
+      "sessionId": "4efa2426-7fc4-4789-a48f-6c5ac629392f",
+      "odometerKm": null,
+      "provenance": "synthetic",
+      "assignmentId": "fb41efc5-0c41-4e00-80f6-0ced73d1b568",
+      "dutyEvidence": "cached-declaration",
+      "deviceSimulation": true,
+      "recordedAt": "2026-09-11T16:49:01.583Z",
+      "disposition": "applied"
+    }
+  ],
+  "finalPoints": [
+    {
+      "at": "2026-09-11T16:49:00.664Z",
+      "id": "4fc59d824029294d3e713ac3aa7cba6fff40f43831dc4593ac4bd92edfb7f306",
+      "duty": "on_duty",
+      "position": {
+        "lat": 43.5183,
+        "lng": -79.8773983
+      },
+      "speedKph": 0,
+      "accuracyM": 5,
+      "sessionId": "4efa2426-7fc4-4789-a48f-6c5ac629392f",
+      "odometerKm": null,
+      "provenance": "synthetic",
+      "assignmentId": "fb41efc5-0c41-4e00-80f6-0ced73d1b568",
+      "dutyEvidence": "cached-declaration",
+      "deviceSimulation": true,
+      "recordedAt": "2026-09-11T16:49:01.583Z",
+      "disposition": "applied"
+    },
+    {
+      "at": "2026-09-11T16:50:00.671Z",
+      "id": "bd35fc3417a562c9bc381557df41fdf428c7e174891e86c662efb028df481632",
+      "duty": "on_duty",
+      "position": {
+        "lat": 43.5193,
+        "lng": -79.8764
+      },
+      "speedKph": 0,
+      "accuracyM": 5,
+      "sessionId": "4efa2426-7fc4-4789-a48f-6c5ac629392f",
+      "odometerKm": null,
+      "provenance": "synthetic",
+      "assignmentId": "fb41efc5-0c41-4e00-80f6-0ced73d1b568",
+      "dutyEvidence": "cached-declaration",
+      "deviceSimulation": true,
+      "recordedAt": "2026-09-11T16:52:36.448Z",
+      "disposition": "applied"
+    },
+    {
+      "at": "2026-09-11T16:51:00.677Z",
+      "id": "3dee8d997809d96329ab54d9bd2ef7d82102294101851cc15324649ee86c92a7",
+      "duty": "on_duty",
+      "position": {
+        "lat": 43.5202983,
+        "lng": -79.8753983
+      },
+      "speedKph": 0,
+      "accuracyM": 5,
+      "sessionId": "4efa2426-7fc4-4789-a48f-6c5ac629392f",
+      "odometerKm": null,
+      "provenance": "synthetic",
+      "assignmentId": "fb41efc5-0c41-4e00-80f6-0ced73d1b568",
+      "dutyEvidence": "cached-declaration",
+      "deviceSimulation": true,
+      "recordedAt": "2026-09-11T16:52:36.596Z",
+      "disposition": "applied"
+    },
+    {
+      "at": "2026-09-11T16:52:08.685Z",
+      "id": "8ddf72d1b438f674b0ac84f81a87fb9f1e14e38e425c15fad73695807c855ecd",
+      "duty": "on_duty",
+      "position": {
+        "lat": 43.5202983,
+        "lng": -79.8753983
+      },
+      "speedKph": 0,
+      "accuracyM": 5,
+      "sessionId": "4efa2426-7fc4-4789-a48f-6c5ac629392f",
+      "odometerKm": null,
+      "provenance": "synthetic",
+      "assignmentId": "fb41efc5-0c41-4e00-80f6-0ced73d1b568",
+      "dutyEvidence": "cached-declaration",
+      "deviceSimulation": true,
+      "recordedAt": "2026-09-11T16:52:36.710Z",
+      "disposition": "applied"
+    }
+  ],
+  "nativeQueue": [
+    {
+      "id": "4fc59d824029294d3e713ac3aa7cba6fff40f43831dc4593ac4bd92edfb7f306",
+      "body": {
+        "id": "4fc59d824029294d3e713ac3aa7cba6fff40f43831dc4593ac4bd92edfb7f306",
+        "assignmentId": "fb41efc5-0c41-4e00-80f6-0ced73d1b568",
+        "sessionId": "4efa2426-7fc4-4789-a48f-6c5ac629392f",
+        "at": "2026-09-11T16:49:00.664Z",
+        "position": {
+          "lat": 43.5183,
+          "lng": -79.8773983
+        },
+        "accuracyM": 5,
+        "speedKph": 0,
+        "odometerKm": null,
+        "duty": "on_duty",
+        "dutyEvidence": "cached-declaration",
+        "provenance": "synthetic",
+        "deviceSimulation": true
+      },
+      "status": "synchronized",
+      "error": null
+    },
+    {
+      "id": "bd35fc3417a562c9bc381557df41fdf428c7e174891e86c662efb028df481632",
+      "body": {
+        "id": "bd35fc3417a562c9bc381557df41fdf428c7e174891e86c662efb028df481632",
+        "assignmentId": "fb41efc5-0c41-4e00-80f6-0ced73d1b568",
+        "sessionId": "4efa2426-7fc4-4789-a48f-6c5ac629392f",
+        "at": "2026-09-11T16:50:00.671Z",
+        "position": {
+          "lat": 43.5193,
+          "lng": -79.8764
+        },
+        "accuracyM": 5,
+        "speedKph": 0,
+        "odometerKm": null,
+        "duty": "on_duty",
+        "dutyEvidence": "cached-declaration",
+        "provenance": "synthetic",
+        "deviceSimulation": true
+      },
+      "status": "synchronized",
+      "error": null
+    },
+    {
+      "id": "3dee8d997809d96329ab54d9bd2ef7d82102294101851cc15324649ee86c92a7",
+      "body": {
+        "id": "3dee8d997809d96329ab54d9bd2ef7d82102294101851cc15324649ee86c92a7",
+        "assignmentId": "fb41efc5-0c41-4e00-80f6-0ced73d1b568",
+        "sessionId": "4efa2426-7fc4-4789-a48f-6c5ac629392f",
+        "at": "2026-09-11T16:51:00.677Z",
+        "position": {
+          "lat": 43.5202983,
+          "lng": -79.8753983
+        },
+        "accuracyM": 5,
+        "speedKph": 0,
+        "odometerKm": null,
+        "duty": "on_duty",
+        "dutyEvidence": "cached-declaration",
+        "provenance": "synthetic",
+        "deviceSimulation": true
+      },
+      "status": "synchronized",
+      "error": null
+    },
+    {
+      "id": "8ddf72d1b438f674b0ac84f81a87fb9f1e14e38e425c15fad73695807c855ecd",
+      "body": {
+        "id": "8ddf72d1b438f674b0ac84f81a87fb9f1e14e38e425c15fad73695807c855ecd",
+        "assignmentId": "fb41efc5-0c41-4e00-80f6-0ced73d1b568",
+        "sessionId": "4efa2426-7fc4-4789-a48f-6c5ac629392f",
+        "at": "2026-09-11T16:52:08.685Z",
+        "position": {
+          "lat": 43.5202983,
+          "lng": -79.8753983
+        },
+        "accuracyM": 5,
+        "speedKph": 0,
+        "odometerKm": null,
+        "duty": "on_duty",
+        "dutyEvidence": "cached-declaration",
+        "provenance": "synthetic",
+        "deviceSimulation": true
+      },
+      "status": "synchronized",
+      "error": null
+    },
+    {
+      "id": "f3f6f868d90c5f914eb5d63dad69a11fd4dd3f2de1ab89da205d8274fb0e2483",
+      "body": {
+        "id": "f3f6f868d90c5f914eb5d63dad69a11fd4dd3f2de1ab89da205d8274fb0e2483",
+        "assignmentId": "fb41efc5-0c41-4e00-80f6-0ced73d1b568",
+        "sessionId": "4efa2426-7fc4-4789-a48f-6c5ac629392f",
+        "at": "2026-09-11T16:52:33.688Z",
+        "position": {
+          "lat": 43.5212825,
+          "lng": -79.8744141
+        },
+        "accuracyM": 5,
+        "speedKph": 200.50583038330078,
+        "odometerKm": null,
+        "duty": "on_duty",
+        "dutyEvidence": "cached-declaration",
+        "provenance": "synthetic",
+        "deviceSimulation": true
+      },
+      "status": "failed",
+      "error": "400: Valid accuracy, speed and odometer required."
+    }
+  ],
+  "workSessions": [
+    {
+      "id": "4efa2426-7fc4-4789-a48f-6c5ac629392f",
+      "version": 2,
+      "ended_at": "2026-09-11T16:58:25.946695+00:00",
+      "driver_id": "D-02",
+      "carrier_id": "native-gps-verify-20260911",
+      "started_at": "2026-09-11T16:47:20.618803+00:00"
+    }
+  ],
+  "assertions": [
+    "explicit emulator-only consent and server capability",
+    "Android registered native high-accuracy location requests",
+    "two GPS rows visibly pending while offline and cloud remained at one sample",
+    "force-stop/reopen while offline preserved pending rows",
+    "four synced native command payloads exactly match four unique cloud telemetry bodies",
+    "additional post-restart native callback retained",
+    "one200.50583038330078kmh sample rejected and preserved asfailed, not erased/rebased",
+    "stop sharing followed by another injected GPS leftall5queue rowsunchanged",
+    "work sessionended and networkingrestored"
+  ],
+  "limits": [
+    "Emulator/native callback and SQLite persistence evidence, notphysicalaccuracy or OEMbackgroundreliability",
+    "Force-stop coverage provesretention/reopen, not collectionwhileforce-stopped",
+    "Historicalinvalidspeedrow intentionally remainsfailed; no silentcorrection",
+    "No fullshiftmileage or measuredfinancialsavings"
+  ],
+  "reference": "https://docs.expo.dev/versions/latest/sdk/location/",
+  "cleanup": {
+    "apiRevision": "roadstar-api-00016-7dm",
+    "documentsRevision": "roadstar-documents-00006-lpt",
+    "webRevision": "roadstar-web-00028-w6n",
+    "optimizerRevision": "roadstar-optimizer-00006-2rw",
+    "emulatorTracking": false,
+    "activeWorkSessions": 0,
+    "adb": "restored uid2000(shell)",
+    "network": "airplane mode off; Wi-Fi/data restored"
+  }
+}
