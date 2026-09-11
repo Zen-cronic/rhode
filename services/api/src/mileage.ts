@@ -18,22 +18,24 @@ export async function mileageReport(store:Store,actor:Actor,scope:{assignmentId?
     // Fetch every retained observation in a stable database snapshot. A cursor
     // bounds memory; page boundaries never become artificial distance gaps.
     await c.query(`DECLARE mileage_samples NO SCROLL CURSOR FOR
-      SELECT t.id,t.at,t.recorded_at,t.body,t.disposition,t.session_id,t.assignment_id,a.truck_id,a.load_id
+      SELECT t.id,t.at,t.recorded_at,t.body,t.disposition,t.session_id,t.assignment_id,a.truck_id,a.load_id, count(*) OVER (PARTITION BY t.assignment_id,t.at) AS timestamp_count
       FROM telemetry t JOIN assignments a ON a.carrier_id=t.carrier_id AND a.id=t.assignment_id
       WHERE t.carrier_id=$1 AND ${isSession?'t.session_id=$2 AND a.driver_id=$3 AND t.at >= $4 AND t.at <= $5':'t.assignment_id=$2'}
       ORDER BY t.at,t.id`,isSession?[actor.carrierId,id,source.driver_id,source.started_at,source.ended_at??asOf]:[actor.carrierId,id]);
     type Leg={assignmentId:string;truckId:string;loadId:string;samples:number;firstAt:string|null;lastAt:string|null;odometerKm:number|null;gpsChordKm:number|null;linkedIntervals:number;odometerIntervals:number;missingOdometerIntervals:number;unlinkedIntervals:number;observedSeconds:number;provenance:string[]};
-    const legs=new Map<string,Leg>();let previous:TrackingPoint|undefined,previousTrip:string|undefined;
+    const legs=new Map<string,Leg>();let lateSamples=0,timestampConflictSamples=0;let previous:TrackingPoint|undefined,previousTrip:string|undefined;
     while(true){
       const rows=(await c.query('FETCH FORWARD 1000 FROM mileage_samples')).rows;if(!rows.length)break;
       for(const row of rows){
-        const point:TrackingPoint={...row.body,id:row.id,sessionId:row.session_id,at:row.at.toISOString(),recordedAt:row.recorded_at.toISOString(),disposition:row.disposition};
+        const point:TrackingPoint={...row.body,id:row.id,sessionId:row.session_id,at:row.at.toISOString(),recordedAt:row.recorded_at.toISOString(),disposition:row.disposition,timestampConflict:Number(row.timestamp_count)>1};
+        if(point.disposition==='retained_out_of_order')lateSamples++;
+        if(point.timestampConflict)timestampConflictSamples++;
         let leg=legs.get(row.assignment_id);
         if(!leg){leg={assignmentId:row.assignment_id,truckId:row.truck_id,loadId:row.load_id,samples:0,firstAt:null,lastAt:null,odometerKm:null,gpsChordKm:null,linkedIntervals:0,odometerIntervals:0,missingOdometerIntervals:0,unlinkedIntervals:0,observedSeconds:0,provenance:[]};legs.set(row.assignment_id,leg);}
         leg.samples++;leg.firstAt??=point.at;leg.lastAt=point.at;
         if(!leg.provenance.includes(point.provenance))leg.provenance.push(point.provenance);
         if(previous&&previousTrip===row.assignment_id){
-          const pair=trackingDistance([previous,point]);
+          const pair=trackingDistance([previous,point],'retrospective');
           leg.linkedIntervals+=pair.linkedIntervals;leg.unlinkedIntervals+=1-pair.linkedIntervals;
           leg.odometerIntervals+=pair.odometerIntervals;leg.missingOdometerIntervals+=pair.missingOdometerIntervals;
           if(pair.odometerKm!==null)leg.odometerKm=(leg.odometerKm??0)+pair.odometerKm;
@@ -45,7 +47,7 @@ export async function mileageReport(store:Store,actor:Actor,scope:{assignmentId?
     }
     const results=[...legs.values()];
     const total=(key:'odometerKm'|'gpsChordKm')=>{const values=results.map(l=>l[key]).filter((v):v is number=>v!==null);return values.length?values.reduce((a,b)=>a+b,0):null;};
-    const report={scope:isSession?'work-session':'assignment',id,driverId:source.driver_id,asOf,startedAt:isSession?source.started_at.toISOString():null,endedAt:isSession?source.ended_at?.toISOString()??null:null,allRetainedSamples:true,samples:results.reduce((n,l)=>n+l.samples,0),odometerKm:total('odometerKm'),gpsChordKm:total('gpsChordKm'),legs:results,assumptions:['Work sessions are explicit tracking sessions, not certified HOS shifts.','All retained in-scope samples at report time; missing and unrecorded travel is unknown.','Trip boundaries are never joined. Intervals over 120 seconds, source changes, excluded or uncertain GPS and implausible motion are excluded.','Odometer totals cover usable recorded increments only; GPS chords are separate estimates, not road mileage.']};
+    const report={evidencePolicy:'occurrence-ordered-v2' as const,lateSamples,timestampConflictSamples,scope:isSession?'work-session':'assignment',id,driverId:source.driver_id,asOf,startedAt:isSession?source.started_at.toISOString():null,endedAt:isSession?source.ended_at?.toISOString()??null:null,allRetainedSamples:true,samples:results.reduce((n,l)=>n+l.samples,0),odometerKm:total('odometerKm'),gpsChordKm:total('gpsChordKm'),legs:results,assumptions:['Work sessions are explicit tracking sessions, not certified HOS shifts.','All retained in-scope samples at report time; missing and unrecorded travel is unknown.','Valid applied and late samples are considered in occurrence-time order without changing their source disposition or current GPS. Equal-time observations are excluded because they do not establish a unique temporal sequence.','Trip boundaries are never joined. Intervals over 120 seconds, source changes, excluded or uncertain GPS and implausible motion are excluded.','Odometer totals cover usable recorded increments only; GPS chords are separate estimates, not road mileage.']};
     await c.query('COMMIT');return report;
   } catch(error){await c.query('ROLLBACK');throw error;} finally{c.release();}
 }

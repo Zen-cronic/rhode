@@ -1,0 +1,31 @@
+import {test,before,after} from 'node:test';
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {pool,migrate} from '../services/api/src/db.ts';
+import {Store} from '../services/api/src/store.ts';
+import {milton} from '../services/api/src/fixtures.ts';
+import {trackingDistance} from '../packages/domain/src/tracking.ts';
+const db=pool(process.env.TEST_DATABASE_URL),store=new Store(db),cmd=(expectedVersion=1)=>({key:randomUUID(),expectedVersion});
+before(()=>migrate(db));after(()=>db.end());
+async function setup(){const carrierId=`mileage-late-${randomUUID()}`;await store.seed(carrierId);const dispatcher=await store.membership('demo-dispatcher',carrierId),driver=await store.membership('demo-driver-1',carrierId),simulator=await store.membership('demo-simulator',carrierId);const trip:any=await store.dispatch(dispatcher,cmd(),{loadId:'RS-1042',driverId:'D-01',truckId:'T-101',trailerId:'V-101'});await store.respond(driver,cmd(),{assignmentId:trip.id,action:'accept'});return {carrierId,dispatcher,driver,simulator,trip};}
+const point=(f:any,i:number)=>({id:`sample-${i}`,assignmentId:f.trip.id,at:new Date(Date.parse('2026-09-13T12:30:00Z')+i*60000).toISOString(),position:{lat:milton.lat+i*.0045,lng:milton.lng},accuracyM:5,odometerKm:100+i*.5,speedKph:30,duty:'driving' as const,provenance:'synthetic' as const});
+test('retrospective mode includes valid late evidence without changing the operational breadcrumb mode',()=>{
+ const f={trip:{id:'trip'}},points=[0,1,2].map(i=>({...point(f,i),recordedAt:'2026-09-11T20:00:00Z',disposition:i===1?'retained_out_of_order':'applied'}));assert.equal(trackingDistance(points).odometerKm,null);assert.equal(trackingDistance(points,'retrospective').odometerKm,1);assert.equal(points[1].disposition,'retained_out_of_order');
+ for(const patch of [{accuracyM:101},{timestampConflict:true},{disposition:'uncertain'},{provenance:'live'}])assert.equal(trackingDistance([points[0],{...points[1],...patch},points[2]],'retrospective').odometerKm,null);
+ const corrupt=points.map(p=>({...p}));corrupt[1].odometerKm=10000;assert.equal(trackingDistance(corrupt,'retrospective').odometerKm,null);assert.equal(trackingDistance(corrupt,'retrospective').missingOdometerIntervals,2);assert.ok(trackingDistance(corrupt,'retrospective').gpsChordKm!>0);
+});
+test('ordered and delayed delivery produce equal retrospective distances; raw history and current GPS stay unchanged',async()=>{
+ const ordered=await setup(),late=await setup();for(const i of [0,1,2,3])await store.ingest(ordered.simulator,cmd(),point(ordered,i));for(const i of [0,3])await store.ingest(late.simulator,cmd(),point(late,i));assert.equal((await store.mileage(late.driver,{assignmentId:late.trip.id})).odometerKm,null);for(const i of [2,1])await store.ingest(late.simulator,cmd(),point(late,i));
+ const raw=(await db.query('SELECT * FROM telemetry WHERE carrier_id=$1 ORDER BY id',[late.carrierId])).rows,before=await store.snapshot(late.dispatcher);const a=await store.mileage(ordered.driver,{assignmentId:ordered.trip.id}),b=await store.mileage(late.driver,{assignmentId:late.trip.id});assert.equal(b.evidencePolicy,'occurrence-ordered-v2');assert.equal(b.lateSamples,2);assert.equal(a.odometerKm,1.5);assert.equal(b.odometerKm,a.odometerKm);assert.equal(b.gpsChordKm,a.gpsChordKm);assert.equal(b.legs[0].linkedIntervals,a.legs[0].linkedIntervals);assert.equal(b.legs[0].observedSeconds,180);assert.equal(b.timestampConflictSamples,0);
+ assert.deepEqual((await db.query('SELECT * FROM telemetry WHERE carrier_id=$1 ORDER BY id',[late.carrierId])).rows,raw);assert.deepEqual((await store.snapshot(late.dispatcher)).resources,before.resources);assert.deepEqual(before.resources.find(r=>r.id==='D-01')!.position,point(late,3).position);
+ // Late source history remains visible, and a replay retry cannot increase totals.
+ await store.ingest(late.simulator,cmd(),point(late,1));const retry=await store.mileage(late.driver,{assignmentId:late.trip.id});assert.equal(retry.odometerKm,b.odometerKm);assert.equal(retry.samples,4);assert.equal((await store.tracking(late.driver,late.trip.id)).points.filter(p=>p.disposition==='retained_out_of_order').length,2);
+ // The companion reviewed visit path converges without altering retrospective distance.
+ const review=await store.visitReview(late.dispatcher,late.trip.id);await store.reconcileVisits(late.dispatcher,cmd(review.expectedVersion),{assignmentId:late.trip.id,fingerprint:review.fingerprint,reason:'Reviewed late source samples in the occurrence-time reconstruction.',acknowledgeRevisedEvidence:true});const after=await store.snapshot(late.dispatcher),base=await store.snapshot(ordered.dispatcher);const visits=(s:any)=>s.visits.map((v:any)=>[v.stop_id,new Date(v.arrival).toISOString(),new Date(v.departure).toISOString()]);assert.deepEqual(visits(after),visits(base));assert.equal((await store.mileage(late.driver,{assignmentId:late.trip.id})).odometerKm,1.5);
+});
+test('equal-time ambiguity across a database cursor page breaks both neighboring intervals',async()=>{
+ const f=await setup();await db.query(`INSERT INTO telemetry(carrier_id,id,assignment_id,at,location,accuracy_m,body,disposition)
+ SELECT $1,'m-'||lpad(n::text,5,'0'),$2,'2026-09-13T12:30:00Z'::timestamptz+n*interval '1 second',ST_SetSRID(ST_MakePoint(-79.8,43.5),4326)::geography,5,
+ jsonb_build_object('position',jsonb_build_object('lat',43.5,'lng',-79.8),'accuracyM',5,'odometerKm',100+n*0.01,'provenance','synthetic','duty','driving'),'applied' FROM generate_series(0,1002) n`,[f.carrierId,f.trip.id]);await db.query("INSERT INTO telemetry(carrier_id,id,assignment_id,at,location,accuracy_m,body,disposition) SELECT carrier_id,'tie-late',assignment_id,at,location,accuracy_m,jsonb_set(body,'{odometerKm}','150'),'retained_out_of_order' FROM telemetry WHERE carrier_id=$1 AND id='m-00999'",[f.carrierId]);
+ const report=await store.mileage(f.driver,{assignmentId:f.trip.id});assert.equal(report.samples,1004);assert.equal(report.timestampConflictSamples,2);assert.equal(report.lateSamples,1);assert.equal(report.legs[0].linkedIntervals,1000);assert.equal(report.legs[0].unlinkedIntervals,3);assert.ok(Math.abs(report.odometerKm!-10)<1e-8);
+});

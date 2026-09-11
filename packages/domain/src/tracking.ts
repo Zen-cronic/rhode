@@ -10,6 +10,7 @@ export type TrackingPoint = {
   duty: string;
   provenance: string;
   disposition: string;
+  timestampConflict?: boolean;
   geofenceEvidence?: {status: "ambiguous"; policy: string; stopIds: string[]; reason: string} | null;
 };
 export type TrackingPage = {assignmentId:string;serverTime?:string;clientReceivedAt?:number;latestReceivedAt?:string|null;points:TrackingPoint[];nextBefore?:string|null};
@@ -29,26 +30,27 @@ function chordKm(a:TrackingPoint,b:TrackingPoint):number {
   const h=Math.sin(dLat/2)**2+Math.cos(a.position.lat*rad)*Math.cos(b.position.lat*rad)*Math.sin(dLng/2)**2;
   return 6371*2*Math.asin(Math.sqrt(Math.min(1,h)));
 }
-function usable(point:TrackingPoint):boolean {
-  return point.disposition==='applied'&&validPosition(point)&&Number.isFinite(Date.parse(point.at))&&typeof point.accuracyM==='number'&&Number.isFinite(point.accuracyM)&&point.accuracyM>=0&&point.accuracyM<=100;
+export type TrackingEvidenceMode='applied'|'retrospective';
+function usable(point:TrackingPoint,mode:TrackingEvidenceMode):boolean {
+  return !point.timestampConflict&&(point.disposition==='applied'||(mode==='retrospective'&&point.disposition==='retained_out_of_order'))&&validPosition(point)&&Number.isFinite(Date.parse(point.at))&&typeof point.accuracyM==='number'&&Number.isFinite(point.accuracyM)&&point.accuracyM>=0&&point.accuracyM<=100;
 }
 function continuous(a:TrackingPoint,b:TrackingPoint):boolean {
   const ms=Date.parse(b.at)-Date.parse(a.at);
   const minimumKm=Math.max(0,chordKm(a,b)-((a.accuracyM??0)+(b.accuracyM??0))/1000);
   return ms>0&&ms<=MAX_TRACKING_GAP_MS&&a.provenance===b.provenance&&(a.sessionId??null)===(b.sessionId??null)&&minimumKm/(ms/3600000)<=MAX_IMPLIED_KPH;
 }
-export function appliedTrails(points: TrackingPoint[]): TrackingPoint[][] {
+export function appliedTrails(points: TrackingPoint[],mode:TrackingEvidenceMode='applied'): TrackingPoint[][] {
   const trails:TrackingPoint[][]=[];let current:TrackingPoint[]=[];
   const close=()=>{if(current.length)trails.push(current);current=[];};
   for(const point of points){
-    if(!usable(point)){close();continue;}
+    if(!usable(point,mode)){close();continue;}
     if(current.length&&!continuous(current[current.length-1],point))close();
     current.push(point);
   }
   close();return trails;
 }
-export function trackingDistance(points:TrackingPoint[]) {
-  const trails=appliedTrails(points);let odometerKm=0,gpsChordKm=0,odometerIntervals=0,gpsIntervals=0,missingOdometerIntervals=0;
+export function trackingDistance(points:TrackingPoint[],mode:TrackingEvidenceMode='applied') {
+  const trails=appliedTrails(points,mode);let odometerKm=0,gpsChordKm=0,odometerIntervals=0,gpsIntervals=0,missingOdometerIntervals=0;
   for(const trail of trails)for(let i=1;i<trail.length;i++){
     const a=trail[i-1],b=trail[i],hours=(Date.parse(b.at)-Date.parse(a.at))/3600000;
     const start=a.odometerKm,end=b.odometerKm;
@@ -64,7 +66,7 @@ export function trackingDistance(points:TrackingPoint[]) {
 }
 
 export type MileageLeg={assignmentId:string;truckId:string;loadId:string;samples:number;firstAt:string|null;lastAt:string|null;odometerKm:number|null;gpsChordKm:number|null;linkedIntervals:number;odometerIntervals:number;missingOdometerIntervals:number;unlinkedIntervals:number;observedSeconds:number;provenance:string[]};
-export type MileageReport={scope:'assignment'|'work-session';id:string;driverId:string;asOf:string;startedAt:string|null;endedAt:string|null;allRetainedSamples:boolean;samples:number;odometerKm:number|null;gpsChordKm:number|null;legs:MileageLeg[];assumptions:string[]};
+export type MileageReport={evidencePolicy?:'occurrence-ordered-v2';lateSamples?:number;timestampConflictSamples?:number;scope:'assignment'|'work-session';id:string;driverId:string;asOf:string;startedAt:string|null;endedAt:string|null;allRetainedSamples:boolean;samples:number;odometerKm:number|null;gpsChordKm:number|null;legs:MileageLeg[];assumptions:string[]};
 export type MileageSession={id:string;driver_id?:string;started_at?:string;ended_at:string|null};
 export function mileagePath(selection:string){const [kind,id]=selection.split(':');if(!['assignment','session'].includes(kind)||!id)throw new Error('Choose a trip or work session.');return `mileage?${kind==='session'?'sessionId':'assignmentId'}=${encodeURIComponent(id)}`;}
 export function mileageMatches(report:MileageReport,selection:string){return report?.id===selection.split(':')[1]&&report.scope===(selection.startsWith('session:')?'work-session':'assignment')&&Array.isArray(report.legs);}
