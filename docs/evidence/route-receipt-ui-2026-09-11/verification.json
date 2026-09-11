@@ -1,0 +1,25 @@
+{
+  "verifiedAt": "2026-09-11T19:10:49.608Z",
+  "carrier": "route-review-f4ce9318-90ff-4647-88ab-921d804a3a17",
+  "assignmentId": "ecd55bd7-3ca8-49e1-9370-a3724a436beb",
+  "receipt": {
+    "carrier_id": "route-review-f4ce9318-90ff-4647-88ab-921d804a3a17",
+    "route_revision_id": "82c06e7c-1a1b-4c8b-8483-b1b08afb61d0",
+    "approved_revision": 2,
+    "driver_id": "D-01",
+    "acknowledged_by": "demo-driver-1",
+    "acknowledged_at": "2026-09-11T19:10:49.169Z",
+    "route_fingerprint": "ae6d96e528a214613c0904a21645aa3857565e3a66357f82f441907eaf5706c8"
+  },
+  "errors": [],
+  "overflow": false,
+  "assertions": [
+    "dispatcher reports/rehearses/approves through built web",
+    "independent driver sees unresolved then approved response",
+    "offline receipt disabled",
+    "driver explicitly confirms receipt",
+    "already-open dispatcher synchronizes receipt",
+    "one durable exact-revision receipt"
+  ],
+  "limits": "Local built browser and PostgreSQL; native receipt and simulator adoption remain unverified."
+}
