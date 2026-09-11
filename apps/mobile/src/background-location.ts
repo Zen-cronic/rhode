@@ -1,3 +1,4 @@
+import {Platform} from 'react-native';
 import {retainTrackingSamples,MAX_OFFLINE_SESSION_MS,type VerifiedTracking} from './tracking-buffer';
 import * as TaskManager from 'expo-task-manager';
 import * as Location from 'expo-location';
@@ -36,7 +37,9 @@ export async function startBackgroundTracking(api:Api,scope:string,assignmentId:
  const state=await api.state();const credential=await api.identity.backgroundCredential();const driverId=state.actor?.driverId;
  if(!driverId)throw new Error('Verified driver identity required.');
  if(!state.capabilities?.cachedDutyTelemetry)throw new Error('This API needs the offline GPS update before background tracking can start.');
- const current:TrackingGrant={id:Crypto.randomUUID(),scope,origin:api.origin,userId:api.identity.id,carrierId:api.identity.carrier,driverId,sessionId,assignmentId,startedAt:new Date().toISOString(),expiresAt:credential.expiresAt,enabled:true};
+ const emulator=state.capabilities?.emulatorTracking===true;
+ if(emulator&&(Platform.OS!=='android'||!/sdk_gphone|Android SDK built for|Emulator/i.test(Platform.constants.Model)))throw new Error('This verification workspace only accepts an Android emulator.');
+ const current:TrackingGrant={emulator,id:Crypto.randomUUID(),scope,origin:api.origin,userId:api.identity.id,carrierId:api.identity.carrier,driverId,sessionId,assignmentId,startedAt:new Date().toISOString(),expiresAt:credential.expiresAt,enabled:true};
  const blocked=trackingBlock(current,state,Date.now(),true);if(blocked)throw new Error(blocked);
  await stopBackgroundTracking('Preparing authorized work-session tracking.');await SecureStore.setItemAsync(TOKEN_KEY,credential.token,{keychainAccessible:SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY});await (await control()).saveDraft('verified-session',JSON.stringify({grantId:current.id,state,verifiedAt:new Date().toISOString()}));await (await control()).saveDraft('grant',JSON.stringify(current));
  try{await Location.startLocationUpdatesAsync(TRACKING_TASK,{accuracy:Location.Accuracy.High,timeInterval:15000,distanceInterval:50,pausesUpdatesAutomatically:false,showsBackgroundLocationIndicator:true,foregroundService:{notificationTitle:'RoadStar work session',notificationBody:'Location is shared for your active trip. End sharing in RoadStar.',killServiceOnDestroy:true}});await note('Background tracking enabled for this active work session.');}catch(error){await stopBackgroundTracking(`Could not start background tracking: ${String(error)}`);throw error;}

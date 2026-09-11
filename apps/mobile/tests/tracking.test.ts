@@ -35,3 +35,11 @@ test('completed trip can close only an existing visit while consent and work ses
  assert.match(trackingBlock(grant,{...completed,workSessions:[]},now,true)!,/ended/);
  assert.match(trackingBlock({...grant,enabled:false},completed,now,true)!,/revoked/);
 });
+
+test('emulator grant needs an explicit server capability and remains a synthetic trip',()=>{
+ const synthetic={...state,capabilities:{emulatorTracking:true},loads:[{id:'load',provenance:'synthetic'}]};
+ assert.equal(trackingBlock({...grant,emulator:true},synthetic,now,true),null);
+ assert.ok(trackingBlock(grant,synthetic,now,true));
+ assert.ok(trackingBlock({...grant,emulator:true},{...synthetic,capabilities:{emulatorTracking:false}},now,true));
+ assert.ok(trackingBlock({...grant,emulator:true},state,now,true));
+});

@@ -1,3 +1,4 @@
+import {emulatorVerification} from './verification.ts';
 import {remainingWork} from './remaining-work.ts';
 import {withDutyHistory} from './hos.ts';
 import {prepareDetention} from './billing.ts';
@@ -181,7 +182,7 @@ export class Store {
     demand(Number.isFinite(event.accuracyM)&&event.accuracyM>=0&&(event.speedKph===null||(Number.isFinite(event.speedKph)&&event.speedKph>=0&&event.speedKph<=160))&&(event.odometerKm===null||(Number.isFinite(event.odometerKm)&&event.odometerKm>=0)),'INVALID_TELEMETRY','Valid accuracy, speed and odometer required.',400);
     demand(['off_duty','on_duty','driving','sleeper'].includes(event.duty),'INVALID_DUTY','Unknown duty state.',400);
     const v=await this.getAssignment(c,a,event.assignmentId);demand(a.role==='simulator'||v.driverId===a.driverId,'FORBIDDEN','Wrong driver.',403);
-    const load=await this.load(c,a,v.loadId);demand((a.role==='simulator'&&event.provenance==='synthetic'&&load.provenance==='synthetic')||(a.role==='driver'&&event.provenance==='live'&&load.provenance==='live'),'PROVENANCE_MISMATCH','Tracking provenance does not match trip and identity.',403);
+    const load=await this.load(c,a,v.loadId);demand((a.role==='simulator'&&event.provenance==='synthetic'&&load.provenance==='synthetic')||(a.role==='driver'&&event.provenance==='live'&&load.provenance==='live'&&!event.deviceSimulation)||(emulatorVerification(a)&&event.deviceSimulation===true&&event.dutyEvidence==='cached-declaration'&&event.provenance==='synthetic'&&load.provenance==='synthetic'),'PROVENANCE_MISMATCH','Tracking provenance does not match trip and identity.',403);
     if(a.role==='driver'){
       const r=await c.query('SELECT * FROM work_sessions WHERE carrier_id=$1 AND id=$2 AND driver_id=$3 AND ended_at IS NULL',[a.carrierId,event.sessionId,a.driverId]);demand(r.rows[0]&&timestamp(event.at)>=new Date(r.rows[0].started_at).getTime(),'NO_WORK_SESSION','Start an explicit work session before tracking.');
       demand(timestamp(event.at)<=Date.now()+60000,'FUTURE_TELEMETRY','Telemetry timestamp is in the future.',400);
@@ -395,7 +396,7 @@ export class Store {
       (SELECT coalesce(jsonb_agg(t),'[]') FROM manifests t WHERE carrier_id=$1 AND ($2::text IS NULL OR assignment_id IN (SELECT id FROM own_assignments))) AS manifests`,[a.carrierId,own?a.driverId:null])).rows[0] as {cursor:string;assignments:Row[];loads:Row[];resources:Row[];scenarios:Row[];proposals:Row[];visits:Row[];invoices:Row[];maintenanceHolds:Row[];planningRuns:Row[];disruptions:Row[];documents:Row[];facilityNotes:Row[];workSessions:Row[];dutyEvents:Row[];stopCompletions:Row[];tripGroups:Row[];manifests:Row[]};
     const resources=r.resources.map((v:Row)=>({...v.body,kind:v.kind,version:v.version}));
     const drivers=await withDutyHistory(c,a.carrierId,resources.filter(v=>v.kind==='driver'));
-    const result={...r,capabilities:{cachedDutyTelemetry:true},actor:{role:a.role,driverId:a.driverId,carrierId:a.carrierId},serverTime:new Date().toISOString(),loads:r.loads.map((l:Row)=>({...l.body,version:l.version,status:l.status})),assignments:r.assignments.map(assignment),resources:resources.map(v=>v.kind==='driver'?drivers.find(d=>d.id===v.id)!:v)};
+    const result={...r,capabilities:{cachedDutyTelemetry:true,emulatorTracking:emulatorVerification(a)},actor:{role:a.role,driverId:a.driverId,carrierId:a.carrierId},serverTime:new Date().toISOString(),loads:r.loads.map((l:Row)=>({...l.body,version:l.version,status:l.status})),assignments:r.assignments.map(assignment),resources:resources.map(v=>v.kind==='driver'?drivers.find(d=>d.id===v.id)!:v)};
     await c.query('COMMIT');return result;
     }catch(error){await c.query('ROLLBACK');throw error;}finally{c.release();}
   }

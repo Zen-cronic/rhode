@@ -259,3 +259,19 @@ test('cached GPS duty context does not overwrite declared duty or grant back con
  await store.advanceSimulationClock(simulator,command(),{at:'2026-09-13T14:00:00Z'});const state=await store.snapshot(dispatcher);const d=state.resources.find(x=>x.id==='D-01')!;assert.equal(d.duty,'driving');assert.equal(d.budget.drivingMinutes,300);assert.equal(state.capabilities.cachedDutyTelemetry,true);
  }finally{await app.close();}
 });
+
+test('emulator verification is default-off, carrier/driver scoped, expiring and always synthetic',async()=>{
+ const {dispatcher,driver,carrierId}=await setup();const trip:any=await store.dispatch(dispatcher,command(),input);await store.respond(driver,command(),{assignmentId:trip.id,action:'accept'});const session:any=await store.workSession(driver,command(0),{action:'start'});
+ const payload={id:randomUUID(),assignmentId:trip.id,sessionId:session.id,at:new Date().toISOString(),position:milton,accuracyM:5,speedKph:0,odometerKm:null,duty:'on_duty' as const,dutyEvidence:'cached-declaration' as const,deviceSimulation:true,provenance:'synthetic' as const};
+ const keys=['EMULATOR_TRACKING_CARRIER','EMULATOR_TRACKING_DRIVER','EMULATOR_TRACKING_UNTIL'],old=keys.map(k=>process.env[k]);try{
+ keys.forEach(k=>delete process.env[k]);await assert.rejects(store.ingest(driver,command(),payload),{code:'PROVENANCE_MISMATCH'});
+ process.env.EMULATOR_TRACKING_CARRIER=carrierId;process.env.EMULATOR_TRACKING_DRIVER='D-01';process.env.EMULATOR_TRACKING_UNTIL=new Date(Date.now()+60000).toISOString();
+ assert.equal((await store.snapshot(driver)).capabilities.emulatorTracking,true);assert.equal((await store.snapshot(dispatcher)).capabilities.emulatorTracking,false);
+ await assert.rejects(store.ingest(driver,command(),{...payload,deviceSimulation:false}),{code:'PROVENANCE_MISMATCH'});
+ await assert.rejects(store.ingest(driver,command(),{...payload,dutyEvidence:undefined}),{code:'PROVENANCE_MISMATCH'});
+ assert.equal((await store.ingest(driver,command(),payload)).disposition,'applied');
+ process.env.EMULATOR_TRACKING_DRIVER='D-02';await assert.rejects(store.ingest(driver,command(),{...payload,id:randomUUID()}),{code:'PROVENANCE_MISMATCH'});
+ process.env.EMULATOR_TRACKING_DRIVER='D-01';process.env.EMULATOR_TRACKING_CARRIER='other';await assert.rejects(store.ingest(driver,command(),{...payload,id:randomUUID()}),{code:'PROVENANCE_MISMATCH'});
+ process.env.EMULATOR_TRACKING_CARRIER=carrierId;process.env.EMULATOR_TRACKING_UNTIL=new Date(Date.now()-1).toISOString();assert.equal((await store.snapshot(driver)).capabilities.emulatorTracking,false);await assert.rejects(store.ingest(driver,command(),{...payload,id:randomUUID()}),{code:'PROVENANCE_MISMATCH'});
+ }finally{keys.forEach((k,i)=>{if(old[i]===undefined)delete process.env[k];else process.env[k]=old[i];});}
+});

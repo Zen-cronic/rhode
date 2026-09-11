@@ -20,7 +20,7 @@ export const schemas={
   approve:z.object({proposalId:uuid}),
   respond:z.object({assignmentId:uuid,action:z.enum(['accept','reject'])}),
   'work-session':z.discriminatedUnion('action',[z.object({action:z.literal('start')}),z.object({action:z.literal('end'),sessionId:uuid})]),
-  telemetry:z.object({id,assignmentId:uuid,sessionId:uuid.optional(),at:z.string(),position:z.object({lat:z.number(),lng:z.number()}),accuracyM:z.number().nonnegative(),speedKph:z.number().nullable(),odometerKm:z.number().nullable(),duty:z.enum(['off_duty','on_duty','driving','sleeper']),dutyEvidence:z.literal('cached-declaration').optional(),provenance:z.enum(['synthetic','live','imported-historical'])}),
+  telemetry:z.object({id,assignmentId:uuid,sessionId:uuid.optional(),at:z.string(),position:z.object({lat:z.number(),lng:z.number()}),accuracyM:z.number().nonnegative(),speedKph:z.number().nullable(),odometerKm:z.number().nullable(),duty:z.enum(['off_duty','on_duty','driving','sleeper']),dutyEvidence:z.literal('cached-declaration').optional(),deviceSimulation:z.boolean().optional(),provenance:z.enum(['synthetic','live','imported-historical'])}),
   detention:z.object({visitId:uuid,contractId:id})
 };
 
