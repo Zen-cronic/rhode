@@ -80,3 +80,14 @@ def test_transition_refuses_motion_gaps_missing_stops_and_changed_stop_order():
     while old.phase()!='route_complete':old.advance_samples(1)
     old.paused=True
     with pytest.raises(ValueError,match='completed'):replace_remaining_route(old,points,stops)
+
+
+def test_transition_keeps_completed_stop_index_at_duplicate_leg_vertex():
+    old=Replay([[-79.9,43.5],[-79.899,43.5],[-79.899,43.5],[-79.89,43.5]],1000,
+               stop_indices=[0,2,3],stop_wait_seconds=[0,0,5],route_evidence='synthetic-test-route')
+    old.paused=False
+    while old._next_stop<2:old.advance_samples(1)
+    old.paused=True
+    new=replace_remaining_route(old,*alternate(old)).replay
+    assert new.sample()==old.sample()
+    assert new.stop_indices[1]==2 and new.coordinates[1]==new.coordinates[2]

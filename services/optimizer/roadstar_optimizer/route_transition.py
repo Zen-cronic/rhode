@@ -53,10 +53,11 @@ def replace_remaining_route(previous: Replay, coordinates: list[list[float]], st
         if distance_km(incoming.coordinates[new_index], previous.coordinates[old_index]) > .02:
             raise ValueError('Alternate route changes outstanding stop order or location')
     # Keep every traversed vertex, ending with the exact interpolated observation.
-    index = bisect.bisect_left(previous._lengths, previous._distance)
+    index = max(bisect.bisect_left(previous._lengths, previous._distance), previous.stop_indices[previous._next_stop-1])
     prefix = [list(p) for p in previous.coordinates[:index]]
-    if not prefix or prefix[-1] != origin:
-        prefix.append(origin)
+    # Keep repeated zero-length road vertices when a completed stop refers to
+    # their exact index; collapsing them would erase that stop's provenance.
+    prefix.append(origin)
     offset = len(prefix)-1
     combined = prefix + [list(p) for p in incoming.coordinates[1:]]
     retained = previous.stop_indices[:previous._next_stop]
