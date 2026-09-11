@@ -275,3 +275,28 @@ test('emulator verification is default-off, carrier/driver scoped, expiring and 
  process.env.EMULATOR_TRACKING_CARRIER=carrierId;process.env.EMULATOR_TRACKING_UNTIL=new Date(Date.now()-1).toISOString();assert.equal((await store.snapshot(driver)).capabilities.emulatorTracking,false);await assert.rejects(store.ingest(driver,command(),{...payload,id:randomUUID()}),{code:'PROVENANCE_MISMATCH'});
  }finally{keys.forEach((k,i)=>{if(old[i]===undefined)delete process.env[k];else process.env[k]=old[i];});}
 });
+
+test('mileage reads beyond cursor pages, separates sessions and trips, and enforces ownership',async()=>{
+ const {dispatcher,driver,simulator,carrierId}=await setup();const trip:any=await store.dispatch(dispatcher,command(),input);
+ const session=randomUUID();await db.query("INSERT INTO work_sessions(carrier_id,id,driver_id,started_at,ended_at) VALUES($1,$2,'D-01','2026-09-11T08:00:00Z','2026-09-11T10:00:00Z')",[carrierId,session]);
+ await db.query(`INSERT INTO telemetry(carrier_id,id,assignment_id,session_id,at,location,accuracy_m,body,disposition)
+ SELECT $1,'m-'||lpad(n::text,5,'0'),$2,$3,'2026-09-11T08:00:00Z'::timestamptz+n*interval '1 second',ST_SetSRID(ST_MakePoint(-79.8,43.5),4326)::geography,5,
+ jsonb_build_object('position',jsonb_build_object('lat',43.5,'lng',-79.8),'accuracyM',5,'odometerKm',100+n*0.01,'provenance','synthetic','duty','driving'),'applied'
+ FROM generate_series(0,1004) n`,[carrierId,trip.id,session]);
+ const all=await store.mileage(driver,{assignmentId:trip.id});assert.equal(all.samples,1005);assert.ok(Math.abs(all.odometerKm!-10.04)<1e-8);assert.equal(all.legs[0].linkedIntervals,1004);assert.equal(all.legs[0].observedSeconds,1004);assert.equal(all.gpsChordKm,0);
+ const shift=await store.mileage(dispatcher,{sessionId:session});assert.equal(shift.samples,1005);assert.equal(shift.scope,'work-session');assert.equal(shift.endedAt,'2026-09-11T10:00:00.000Z');
+ // An uncertain observation breaks both adjacent intervals; no reconnect bridge.
+ await db.query("UPDATE telemetry SET disposition='uncertain' WHERE carrier_id=$1 AND id='m-01000'",[carrierId]);
+ const gap=await store.mileage(driver,{sessionId:session});assert.equal(gap.legs[0].unlinkedIntervals,2);assert.equal(gap.legs[0].linkedIntervals,1002);assert.ok(Math.abs(gap.odometerKm!-10.02)<1e-8);
+ // A sample outside the explicit session remains trip history, not shift mileage.
+ await db.query("UPDATE telemetry SET at='2026-09-11T10:01:00Z' WHERE carrier_id=$1 AND id='m-01004'",[carrierId]);assert.equal((await store.mileage(driver,{sessionId:session})).samples,1004);assert.equal((await store.mileage(driver,{assignmentId:trip.id})).samples,1005);
+ const otherDriver=await store.membership('demo-driver-2',carrierId);await assert.rejects(store.mileage(otherDriver,{sessionId:session}),{code:'FORBIDDEN'});await assert.rejects(store.mileage(simulator,{assignmentId:trip.id}),{code:'FORBIDDEN'});await assert.rejects(store.mileage((await setup()).dispatcher,{sessionId:session}),{code:'NOT_FOUND'});await assert.rejects(store.mileage(driver,{assignmentId:trip.id,sessionId:session}),{code:'INVALID_SCOPE'});
+ // Switching assignment/truck never connects odometers, even one second apart.
+ const second=randomUUID();await db.query("INSERT INTO assignments(carrier_id,id,load_id,driver_id,truck_id,trailer_id,start_at,end_at,version,status) SELECT carrier_id,$2,'RS-1043',driver_id,'T-102','V-102',start_at,end_at,1,'completed' FROM assignments WHERE carrier_id=$1 AND id=$3",[carrierId,second,trip.id]);
+ await db.query("UPDATE telemetry SET assignment_id=$2,body=jsonb_set(body,'{odometerKm}','90000') WHERE carrier_id=$1 AND id='m-00500'",[carrierId,second]);
+ const split=await store.mileage(driver,{sessionId:session});assert.equal(split.legs.length,2);assert.equal(split.legs.find(l=>l.assignmentId===second)!.odometerKm,null);assert.equal(split.legs.find(l=>l.assignmentId===trip.id)!.linkedIntervals,999);
+ // No sensor odometer is represented as Unknown, never synthesized from GPS.
+ await db.query("UPDATE telemetry SET body=body-'odometerKm' WHERE carrier_id=$1",[carrierId]);const unknown=await store.mileage(driver,{sessionId:session});assert.equal(unknown.odometerKm,null);assert.equal(unknown.gpsChordKm,0);assert.equal(unknown.legs[0].missingOdometerIntervals,999);
+ const empty=randomUUID();await db.query("INSERT INTO work_sessions(carrier_id,id,driver_id,started_at,ended_at) VALUES($1,$2,'D-01',now(),now())",[carrierId,empty]);const noSamples=await store.mileage(driver,{sessionId:empty});assert.equal(noSamples.samples,0);assert.equal(noSamples.odometerKm,null);assert.equal(noSamples.gpsChordKm,null);
+ const app=createApi(store,{localDemo:true});const response=await app.inject({url:`/api/mileage?sessionId=${session}`,headers:{authorization:'Bearer demo-driver-1','x-carrier-id':carrierId}});assert.equal(response.statusCode,200);assert.equal(response.headers['cache-control'],'private, no-store');await app.close();
+});

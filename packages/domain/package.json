@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./commands": "./src/commands.ts"
+    "./commands": "./src/commands.ts",
+    "./tracking": "./src/tracking.ts"
   },
   "dependencies": {
     "zod": "^4.0.0"

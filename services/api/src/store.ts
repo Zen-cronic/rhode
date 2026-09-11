@@ -1,3 +1,4 @@
+import {mileageReport} from './mileage.ts';
 import {emulatorVerification} from './verification.ts';
 import {remainingWork} from './remaining-work.ts';
 import {withDutyHistory} from './hos.ts';
@@ -355,6 +356,7 @@ export class Store {
     const result=vehicles.length&&shipments.length?await computation('/optimize-roads',request):{status:'no_eligible_inputs',routes:[],infeasible_loads:[]};result.infeasible_loads.push(...rejected);result.assumptions=[...(result.assumptions??[]),'Pickup appointment fixed at supplied start; delivery must finish by supplied end','26-pallet synthetic trailer allowance; verify before live use','Optimization is a proposal; route execution still requires dispatcher approval'];
     await c.query('INSERT INTO planning_runs(carrier_id,id,input,result,created_by) VALUES($1,$2,$3,$4,$5)',[a.carrierId,id,JSON.stringify({...request,versions,commitmentHash:await commitmentHash(c,a.carrierId)}),JSON.stringify(result),a.uid]);return {id,version:1,status:'proposal',result};
   });}
+  async mileage(a:Actor,scope:{assignmentId?:string;sessionId?:string}) {return mileageReport(this,a,scope);}
   async tracking(a:Actor,assignmentId:string,before?:string){
     demand(a.role==='driver'||a.role==='dispatcher','FORBIDDEN','Tracking history requires an operational identity.',403);
     demand(typeof assignmentId==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(assignmentId),'INVALID_ASSIGNMENT','Assignment ID required.',400);

@@ -53,6 +53,7 @@ export function createApi(store:Store,options:{localDemo?:boolean;verifyToken?:(
   app.get<{Querystring:{assignmentId:string}}>('/api/simulation-assignment',async(req,reply)=>{reply.header('Cache-Control','private, no-store');return store.simulationAssignment(await auth(req),z.string().uuid().parse(req.query.assignmentId));});
   app.get('/api/simulation-clock',async req=>store.simulationClock(await auth(req)));
   app.get('/api/health',async()=>{await store.db.query('SELECT 1');return {ok:true,database:'postgresql',auth:options.localDemo?'local-demo':'firebase'};});
+  app.get<{Querystring:{assignmentId?:string;sessionId?:string}}>('/api/mileage',async(req,reply)=>{reply.header('Cache-Control','private, no-store');return store.mileage(await auth(req),req.query);});
   app.get<{Querystring:{assignmentId:string;before?:string}}>('/api/tracking',async(req,reply)=>{reply.header('Cache-Control','private, no-store');return store.tracking(await auth(req),req.query.assignmentId,req.query.before);});
   app.get('/api/state',async req=>store.snapshot(await auth(req)));
   app.get<{Querystring:{cursor?:string}}>('/api/updates',async req=>store.updates(await auth(req),req.query.cursor??'0'));
