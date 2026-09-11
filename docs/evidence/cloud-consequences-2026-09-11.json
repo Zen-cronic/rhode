@@ -1,0 +1,314 @@
+{
+  "verifiedAt": "2026-09-11T16:20:06Z",
+  "apiUrl": "https://roadstar-api-739889188415.us-central1.run.app",
+  "consequence": {
+    "carrier": "consequences-20260911-v1",
+    "runId": "f3bd381b-b226-4ca8-8de4-bc4c2f990de9",
+    "conditionsHash": "27e7cac63d39793fc8672be1196c994defd4744c6794b5b9a041e3ac98aebbb6",
+    "routePoints": 864,
+    "configuredDockWaitSeconds": 18000,
+    "delay": {
+      "key": "f9e8e2c35a4b9cf1c5205f07254cff3d6e75ff9eb761e7aed29bc6bf99f4efed",
+      "version": 2,
+      "end_ms": 1789328766000,
+      "body": {
+        "assignmentId": "1b7b8668-15c9-436a-961e-4ca5d593ebc8",
+        "expectedEnd": "2026-09-13T19:46:06+00:00",
+        "observedAt": "2026-09-13T12:30:00+00:00",
+        "reason": "Simulator observed dock_wait; modeled completion uses seeded road speeds and configured stop dwell. Road disruption included: False. Conditions 27e7cac63d39793fc8672be1196c994defd4744c6794b5b9a041e3ac98aebbb6. Dispatcher review required."
+      },
+      "result": {
+        "id": "8fa4a78f-6b26-4a18-b604-ded75019b9b0",
+        "assignmentId": "1b7b8668-15c9-436a-961e-4ca5d593ebc8",
+        "expectedEnd": "2026-09-13T19:46:06+00:00",
+        "impactedLoads": [
+          {
+            "id": "5f11dc9a-dfb7-40e2-be63-4da2285acb24",
+            "load_id": "RS-1043",
+            "start_at": "2026-09-13T16:15:00.000Z",
+            "end_at": "2026-09-13T19:00:00.000Z"
+          }
+        ],
+        "provenance": "synthetic",
+        "status": "awaiting_recovery",
+        "note": "Observed delay retained; planned reservations remain visible until a feasible recovery is approved."
+      }
+    },
+    "comparison": {
+      "current": {
+        "eligible": false,
+        "reasons": [
+          "Insufficient on-duty budget.",
+          "Resource reserved by RS-1042.",
+          "Driver cannot reach pickup after prior committed work under the current planning estimate."
+        ],
+        "deadheadKm": 0,
+        "note": "Truck-route travel times with declared work budgets. OSM restrictions and supplied dimensions require review; not certified ELD or legal clearance. Prior work: RS-1042: 99 min driving, 437 min on duty (remaining truck route from current GPS and completed stops). Full service allowance retained; future waiting assumed on duty.",
+        "timing": {
+          "evaluatedAt": "2026-09-13T12:30:02.000Z",
+          "availableAt": "2026-09-13T19:46:06.000Z",
+          "pickupArrivalAt": "2026-09-13T19:46:06.000Z",
+          "pickupReadyAt": "2026-09-13T19:46:06.000Z",
+          "pickupLateMinutes": 212,
+          "completionAt": "2026-09-13T22:10:06.000Z",
+          "travelMinutes": 99,
+          "serviceMinutes": 45
+        },
+        "routeFingerprint": "4e19f36505c9b5f6c65f1664b8d9c43032f40615c104e561cb4d571528f16a21",
+        "routingEvidence": "valhalla-truck"
+      },
+      "proposed": {
+        "eligible": true,
+        "reasons": [],
+        "deadheadKm": 0,
+        "note": "Truck-route travel times with declared work budgets. OSM restrictions and supplied dimensions require review; not certified ELD or legal clearance.",
+        "timing": {
+          "evaluatedAt": "2026-09-13T12:30:02.000Z",
+          "availableAt": "2026-09-13T12:30:02.000Z",
+          "pickupArrivalAt": "2026-09-13T12:30:02.000Z",
+          "pickupReadyAt": "2026-09-13T16:15:00.000Z",
+          "pickupLateMinutes": 0,
+          "completionAt": "2026-09-13T18:39:00.000Z",
+          "travelMinutes": 99,
+          "serviceMinutes": 45
+        },
+        "routeFingerprint": "2d92584ec7f8ae23b438729cc0415f0a015166f4e973bdd0ef7d09ade903d207",
+        "routingEvidence": "valhalla-truck"
+      },
+      "evaluatedAt": "2026-09-13T12:30:02.000Z"
+    },
+    "acceptedAssignment": "2009cbe6-f09c-491f-8d65-870a500115c0",
+    "disruptionsAfterReset": 1,
+    "automaticAssignmentMutation": false
+  },
+  "remainingWork": {
+    "carrier": "remaining-20260911-v1",
+    "initialDrivingBudgetMinutes": 275,
+    "recordedDrivingMinutes": 150,
+    "missingProgressResponse": {
+      "error": {
+        "code": "INELIGIBLE",
+        "message": "Insufficient driving budget. Insufficient on-duty budget.",
+        "requestId": "req-4e"
+      }
+    },
+    "proof": {
+      "eligible": true,
+      "reasons": [],
+      "deadheadKm": 0,
+      "note": "Truck-route travel times with declared work budgets. OSM restrictions and supplied dimensions require review; not certified ELD or legal clearance. Prior work: RS-1042: 2 min driving, 62 min on duty (remaining truck route from current GPS and completed stops). Full service allowance retained; future waiting assumed on duty.",
+      "timing": {
+        "evaluatedAt": "2026-09-13T15:00:00.000Z",
+        "availableAt": "2026-09-13T16:02:00.000Z",
+        "pickupArrivalAt": "2026-09-13T16:02:00.000Z",
+        "pickupReadyAt": "2026-09-13T16:15:00.000Z",
+        "pickupLateMinutes": 0,
+        "completionAt": "2026-09-13T18:39:00.000Z",
+        "travelMinutes": 99,
+        "serviceMinutes": 45
+      },
+      "routeFingerprint": "4e19f36505c9b5f6c65f1664b8d9c43032f40615c104e561cb4d571528f16a21",
+      "routingEvidence": "valhalla-truck"
+    },
+    "acceptedAssignment": "8d0da661-fd7e-4d9c-9aa2-608e5474c2c4",
+    "retainedDrivingBudgetMinutes": 125,
+    "hosEvidence": {
+      "status": "modeled",
+      "profile": "declared-budget-history",
+      "basisAt": "2026-09-13T12:00:00.000Z",
+      "shiftDeadline": "2026-09-13T21:00:00.000Z",
+      "observations": 2,
+      "drivingMinutes": 150,
+      "onDutyMinutes": 180,
+      "elapsedMinutes": 180,
+      "certifiedELD": false,
+      "note": "Dated duty intervals consume declared initial budgets. No automatic rest/day/cycle reset or certified ELD claim."
+    }
+  },
+  "checks": [
+    {
+      "path": "state",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "dispatch",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "respond",
+      "status": 200,
+      "role": "driver-1"
+    },
+    {
+      "path": "dispatch",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "simulation-assignment?assignmentId=1b7b8668-15c9-436a-961e-4ca5d593ebc8",
+      "status": 403,
+      "role": "driver-1"
+    },
+    {
+      "path": "simulation-assignment?assignmentId=1b7b8668-15c9-436a-961e-4ca5d593ebc8",
+      "status": 200,
+      "role": "simulator"
+    },
+    {
+      "path": "state",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "state",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "propose",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "approve",
+      "status": 403,
+      "role": "simulator"
+    },
+    {
+      "path": "approve",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "approve",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "respond",
+      "status": 200,
+      "role": "driver-2"
+    },
+    {
+      "path": "state",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "dispatch",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "respond",
+      "status": 200,
+      "role": "driver-1"
+    },
+    {
+      "path": "complete-stop",
+      "status": 200,
+      "role": "driver-1"
+    },
+    {
+      "path": "duty",
+      "status": 200,
+      "role": "driver-1"
+    },
+    {
+      "path": "simulation-clock",
+      "status": 200,
+      "role": "simulator"
+    },
+    {
+      "path": "simulation-clock",
+      "status": 200,
+      "role": "simulator"
+    },
+    {
+      "path": "propose",
+      "status": 409,
+      "role": "dispatcher"
+    },
+    {
+      "path": "telemetry",
+      "status": 200,
+      "role": "simulator"
+    },
+    {
+      "path": "propose",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "approve",
+      "status": 200,
+      "role": "dispatcher"
+    },
+    {
+      "path": "respond",
+      "status": 200,
+      "role": "driver-1"
+    }
+  ],
+  "scope": "Firebase-authenticated approved cloud preview. Separate local simulator process uses actual Valhalla route and sends observations/clock/delay via HTTP. Synthetic known dwell/seeded speed forecast, not measured traffic or savings. Full service retained conservatively. Physical devices deferred.",
+  "revisions": {
+    "api": {
+      "latestCreated": "roadstar-api-00014-t2l",
+      "latestReady": "roadstar-api-00014-t2l",
+      "traffic": [
+        {
+          "percent": 100,
+          "revisionName": "roadstar-api-00014-t2l"
+        }
+      ],
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/api@sha256:dbf41d8c0fe5fc290a8f94a95fb21ff2b8af2155719bbbfea4f97978ab9b62bd"
+    },
+    "optimizer": {
+      "latestCreated": "roadstar-optimizer-00006-2rw",
+      "latestReady": "roadstar-optimizer-00006-2rw",
+      "traffic": [
+        {
+          "percent": 100,
+          "revisionName": "roadstar-optimizer-00006-2rw"
+        }
+      ],
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/optimizer@sha256:e251ca1a593cb53616566165b0da1b55e4afeb5b602d31bced9f2266edd56c8f"
+    },
+    "web": {
+      "latestCreated": "roadstar-web-00028-w6n",
+      "latestReady": "roadstar-web-00028-w6n",
+      "traffic": [
+        {
+          "percent": 100,
+          "revisionName": "roadstar-web-00028-w6n"
+        }
+      ],
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:dc798898498eb53c6462103bdd5c5a5854fb4941ea14c3f53b82a5011a7bb020"
+    },
+    "documents": {
+      "latestCreated": "roadstar-documents-00005-xrq",
+      "latestReady": "roadstar-documents-00005-xrq",
+      "traffic": [
+        {
+          "latestRevision": true,
+          "percent": 100,
+          "revisionName": "roadstar-documents-00005-xrq"
+        }
+      ],
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/api@sha256:dbf41d8c0fe5fc290a8f94a95fb21ff2b8af2155719bbbfea4f97978ab9b62bd"
+    }
+  },
+  "render": {
+    "carrier": "consequences-20260911-v1",
+    "overflow": false,
+    "errors": [],
+    "checks": [
+      "retained212minute modeled lateness",
+      "replacement driver accepted"
+    ],
+    "note": "Recovery panel screenshot inspected directly; route map is collapsed, so no new basemap assertion. Initial map-attribution locator timed out on this panel and was removed from this recovery-only check."
+  },
+  "seedExecution": "roadstar-film-seed-hlgjt"
+}
