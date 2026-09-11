@@ -24,3 +24,14 @@ test('samples before consent, after expiry, unknown accuracy and future samples 
  assert.equal(validSample(grant,now,-1,now),false);
  assert.equal(validSample(grant,now+60001,20,now),false);
 });
+
+test('completed trip can close only an existing visit while consent and work session remain active',()=>{
+ const completed:TrackingState={...state,assignments:[{...state.assignments[0],status:'completed'}],visits:[{assignment_id:'trip',departure:null}]};
+ assert.equal(trackingBlock(grant,completed,now,true),null);
+ assert.match(trackingBlock(grant,{...completed,visits:[]},now,true)!,/awaiting/);
+ assert.match(trackingBlock(grant,{...completed,visits:[{assignment_id:'trip',departure:'2026-09-10T16:00:00Z'}]},now,true)!,/awaiting/);
+ assert.match(trackingBlock(grant,{...completed,visits:[{assignment_id:'other',departure:null}]},now,true)!,/awaiting/);
+ assert.match(trackingBlock(grant,{...completed,assignments:[{...state.assignments[0],status:'superseded'}]},now,true)!,/awaiting/);
+ assert.match(trackingBlock(grant,{...completed,workSessions:[]},now,true)!,/ended/);
+ assert.match(trackingBlock({...grant,enabled:false},completed,now,true)!,/revoked/);
+});

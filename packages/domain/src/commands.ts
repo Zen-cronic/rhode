@@ -12,7 +12,7 @@ export const schemas={
   document:z.object({loadId:id,mediaType:z.enum(['image/jpeg','image/png','application/pdf']),kind:z.enum(['pod','manifest','other']),filename:z.string().min(1).max(255)}),
   delay:z.object({assignmentId:uuid,expectedEnd:z.string(),observedAt:z.string(),reason:z.string().min(1).max(2000)}),
   duty:z.object({duty:z.enum(['off_duty','on_duty','driving','sleeper']),at:z.string(),note:z.string().max(2000).optional()}),
-  'complete-stop':z.object({assignmentId:uuid,stopId:id,note:z.string().max(2000).optional()}),
+  'complete-stop':z.object({assignmentId:uuid,stopId:id,occurredAt:z.string().datetime({offset:true}).optional(),note:z.string().max(2000).optional()}),
   dispatch:assignmentInput,
   propose:assignmentInput.extend({reason:z.string().max(2000).optional()}),
   approve:z.object({proposalId:uuid}),

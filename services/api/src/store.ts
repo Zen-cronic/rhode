@@ -153,7 +153,8 @@ export class Store {
     }
     const duplicate=await c.query('SELECT body,disposition FROM telemetry WHERE carrier_id=$1 AND id=$2',[a.carrierId,event.id]);
     if(duplicate.rows[0]){demand(canonical(duplicate.rows[0].body)===canonical(event),'EVENT_ID_COLLISION','Event ID already has different content.');return {duplicate:true,disposition:duplicate.rows[0].disposition};}
-    demand(v.status==='accepted','NOT_ACCEPTED','Driver acceptance required.');
+    const pendingExit=v.status==='completed'&&(await c.query('SELECT 1 FROM stop_visits WHERE carrier_id=$1 AND assignment_id=$2 AND departure IS NULL LIMIT 1',[a.carrierId,v.id])).rows.length>0;
+    demand(v.status==='accepted'||pendingExit,'NOT_ACCEPTED','Accepted trip or existing completed-trip visit awaiting departure required.');
     const last=await c.query("SELECT body FROM telemetry WHERE carrier_id=$1 AND assignment_id=$2 AND disposition='applied' ORDER BY at DESC LIMIT 1",[a.carrierId,v.id]);
     const previous=last.rows[0]?.body,stale=previous&&timestamp(event.at)<=timestamp(previous.at);
     if(previous&&!stale&&event.odometerKm!==null&&previous.odometerKm!==null)demand(event.odometerKm>=previous.odometerKm,'ODOMETER_REWIND','Odometer cannot decrease.');
@@ -166,7 +167,7 @@ export class Store {
     for(const stop of stops.rows){
       const inside=Number(stop.distance)+event.accuracyM<stop.radius_m,outside=Number(stop.distance)-event.accuracyM>stop.radius_m;
       const r=await c.query('SELECT * FROM stop_visits WHERE carrier_id=$1 AND assignment_id=$2 AND stop_id=$3 AND departure IS NULL',[a.carrierId,v.id,stop.id]);const visit=r.rows[0];
-      if(inside&&!visit)await c.query('INSERT INTO stop_visits(carrier_id,id,assignment_id,load_id,stop_id,arrival,arrival_event) VALUES($1,$2,$3,$4,$5,$6,$7)',[a.carrierId,randomUUID(),v.id,load.id,stop.id,event.at,event.id]);
+      if(v.status==='accepted'&&inside&&!visit)await c.query('INSERT INTO stop_visits(carrier_id,id,assignment_id,load_id,stop_id,arrival,arrival_event) VALUES($1,$2,$3,$4,$5,$6,$7)',[a.carrierId,randomUUID(),v.id,load.id,stop.id,event.at,event.id]);
       if(outside&&visit)await c.query('UPDATE stop_visits SET departure=$3,departure_event=$4 WHERE carrier_id=$1 AND id=$2',[a.carrierId,visit.id,event.at,event.id]);
     }
     return {duplicate:false,disposition};
@@ -202,12 +203,14 @@ export class Store {
     const load=await this.load(c,a,v.loadId);demand([load.pickup.id,load.delivery.id].includes(input.stopId),'NOT_FOUND','Stop not part of this trip.',404);
     await checkGroupStop(c,a,v,input.stopId);
     if(input.stopId===load.delivery.id){const pickup=await c.query('SELECT 1 FROM stop_completions WHERE carrier_id=$1 AND assignment_id=$2 AND stop_id=$3',[a.carrierId,v.id,load.pickup.id]);demand(pickup.rows.length,'STOP_ORDER','Complete pickup before delivery.');}
-    const id=randomUUID();await c.query('INSERT INTO stop_completions(carrier_id,id,assignment_id,load_id,stop_id,uid,note) VALUES($1,$2,$3,$4,$5,$6,$7)',[a.carrierId,id,v.id,load.id,input.stopId,a.uid,input.note??'']);
+    const occurredAt=input.occurredAt??null;
+    if(occurredAt){timestamp(occurredAt);if(load.provenance!=='synthetic')demand(timestamp(occurredAt)<=Date.now()+60000,'FUTURE_COMPLETION','Completion timestamp is in the future.',400);}
+    const id=randomUUID();await c.query('INSERT INTO stop_completions(carrier_id,id,assignment_id,load_id,stop_id,uid,note,occurred_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',[a.carrierId,id,v.id,load.id,input.stopId,a.uid,input.note??'',occurredAt]);
     const completed=input.stopId===load.delivery.id;
     await c.query('UPDATE assignments SET version=version+1,status=$3 WHERE carrier_id=$1 AND id=$2',[a.carrierId,v.id,completed?'completed':'accepted']);
     await c.query('UPDATE loads SET version=version+1,status=$3 WHERE carrier_id=$1 AND id=$2',[a.carrierId,load.id,completed?'completed':'in_transit']);
     if(completed)await releaseCompletedGroup(c,a,v);
-    return {id,stopId:input.stopId,assignment:await this.getAssignment(c,a,v.id),billingTimestamp:false};
+    return {id,stopId:input.stopId,occurredAt,assignment:await this.getAssignment(c,a,v.id),billingTimestamp:false};
   });}
   async imports(a:Actor){this.dispatcher(a);return (await this.db.query('SELECT i.id,i.filename,i.sha256,i.created_at,r.sheet,count(*)::integer AS rows,count(*) FILTER(WHERE duplicate_of IS NOT NULL)::integer AS duplicates FROM source_imports i JOIN source_rows r ON r.carrier_id=i.carrier_id AND r.import_id=i.id WHERE i.carrier_id=$1 GROUP BY i.id,i.filename,i.sha256,i.created_at,r.sheet ORDER BY i.created_at DESC,r.sheet',[a.carrierId])).rows;}
   async sourceRows(a:Actor,importId:string,sheet:string,offset=0){this.dispatcher(a);demand(Number.isSafeInteger(offset)&&offset>=0,'INVALID_OFFSET','Invalid source row offset.',400);return (await this.db.query('SELECT * FROM source_rows WHERE carrier_id=$1 AND import_id=$2 AND sheet=$3 ORDER BY row_number LIMIT 100 OFFSET $4',[a.carrierId,importId,sheet,offset])).rows;}
@@ -326,7 +329,7 @@ export class Store {
       (SELECT coalesce(jsonb_agg(t),'[]') FROM resources t WHERE carrier_id=$1 AND ($2::text IS NULL OR id IN (SELECT id FROM resource_ids))) AS resources,
       (SELECT coalesce(jsonb_agg(t),'[]') FROM scenarios t WHERE carrier_id=$1 AND $2::text IS NULL) AS scenarios,
       (SELECT coalesce(jsonb_agg(t),'[]') FROM proposals t WHERE carrier_id=$1 AND $2::text IS NULL) AS proposals,
-      (SELECT coalesce(jsonb_agg(t),'[]') FROM stop_visits t WHERE carrier_id=$1 AND $2::text IS NULL) AS visits,
+      (SELECT coalesce(jsonb_agg(t),'[]') FROM stop_visits t WHERE carrier_id=$1 AND ($2::text IS NULL OR assignment_id IN (SELECT id FROM own_assignments))) AS visits,
       (SELECT coalesce(jsonb_agg(t),'[]') FROM invoice_revisions t WHERE carrier_id=$1 AND $2::text IS NULL) AS invoices,
       (SELECT coalesce(jsonb_agg(t),'[]') FROM maintenance_holds t WHERE carrier_id=$1 AND $2::text IS NULL) AS "maintenanceHolds",
       (SELECT coalesce(jsonb_agg(t),'[]') FROM planning_runs t WHERE carrier_id=$1 AND $2::text IS NULL) AS "planningRuns",

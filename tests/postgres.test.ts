@@ -90,3 +90,36 @@ test('tracking history preserves uncertainty and unknown values, paginates and e
  await db.query("INSERT INTO telemetry(carrier_id,id,assignment_id,at,location,accuracy_m,body,disposition) SELECT $1,'history-'||n,$2,'2026-09-13T14:00Z'::timestamptz+n*interval '1 second',ST_SetSRID(ST_MakePoint(0,0),4326)::geography,10,jsonb_build_object('id','history-'||n,'at','2026-09-13T14:00Z'::timestamptz+n*interval '1 second'),'uncertain' FROM generate_series(1,501) n",[carrierId,v.id]);
  const page1=await store.tracking(dispatcher,v.id),page2=await store.tracking(dispatcher,v.id,page1.nextBefore!);assert.equal(page1.points.length,500);assert.equal(page2.points.length,4);assert.equal(new Set([...page1.points,...page2.points].map(p=>p.id)).size,504);assert.equal(page2.nextBefore,null);
 });
+
+test('completion inside the delivery fence preserves one authorized departure and separate occurrence evidence',async()=>{
+ const {dispatcher,driver,simulator,carrierId}=await setup();const a:any=await store.dispatch(dispatcher,command(),input);await store.respond(driver,command(),{assignmentId:a.id,action:'accept'});
+ await store.completeStop(driver,command(2),{assignmentId:a.id,stopId:milton.id});
+ const event=(id:string,at:string,position:any,accuracyM=5)=>({id,at,assignmentId:a.id,position,speedKph:0,odometerKm:100,accuracyM,duty:'on_duty' as const,provenance:'synthetic' as const});
+ await store.ingest(simulator,command(),event('completed-arrive','2026-09-13T14:00:00Z',london));
+ const cmd=command(3),payload={assignmentId:a.id,stopId:london.id,occurredAt:'2026-09-13T16:30:00Z'};
+ const done:any=await store.completeStop(driver,cmd,payload);assert.equal(done.billingTimestamp,false);assert.equal(done.assignment.status,'completed');assert.deepEqual(await store.completeStop(driver,cmd,payload),done);
+ const record=(await db.query('SELECT * FROM stop_completions WHERE carrier_id=$1 AND stop_id=$2',[carrierId,london.id])).rows[0];assert.equal(record.occurred_at.toISOString(),'2026-09-13T16:30:00.000Z');assert.ok(record.recorded_at);assert.equal((await db.query('SELECT * FROM stop_completions WHERE carrier_id=$1 AND stop_id=$2',[carrierId,milton.id])).rows[0].occurred_at,null);
+ const outside={...london,lat:london.lat+.02};
+ assert.equal((await store.ingest(simulator,command(),event('completed-old','2026-09-13T13:59:00Z',outside)) as any).disposition,'retained_out_of_order');
+ assert.equal((await store.ingest(simulator,command(),event('completed-uncertain','2026-09-13T16:40:00Z',outside,500)) as any).disposition,'uncertain');
+ assert.equal((await store.snapshot(dispatcher)).visits[0].departure,null);
+ const exit=event('completed-exit','2026-09-13T16:45:00Z',outside);await store.ingest(simulator,command(),exit);
+ assert.equal((await store.ingest(simulator,command(),exit) as any).duplicate,true);
+ await assert.rejects(store.ingest(simulator,command(),event('completed-reentry','2026-09-13T17:00:00Z',london)),{code:'NOT_ACCEPTED'});
+ const visits=(await store.snapshot(dispatcher)).visits;assert.equal(visits.length,1);assert.equal(new Date(visits[0].departure).toISOString(),'2026-09-13T16:45:00.000Z');
+ const draft:any=await store.detentionDraft(dispatcher,command(0),{visitId:visits[0].id,contractId:'demo-ftl'});assert.equal(draft.billableMinutes,45);assert.equal(draft.amountCents,7500);assert.deepEqual(draft.evidence,['completed-arrive','completed-exit']);
+});
+
+test('completed live trip exit still requires its driver and an active explicit work session',async()=>{
+ const {dispatcher,driver,simulator,carrierId}=await setup();const a:any=await store.dispatch(dispatcher,command(),input);await store.respond(driver,command(),{assignmentId:a.id,action:'accept'});
+ await store.completeStop(driver,command(2),{assignmentId:a.id,stopId:milton.id});
+ await db.query("UPDATE loads SET body=jsonb_set(body,'{provenance}','\"live\"') WHERE carrier_id=$1 AND id=$2",[carrierId,input.loadId]);
+ const session:any=await store.workSession(driver,command(0),{action:'start'}),at=new Date(Date.now()+100).toISOString();
+ const event={id:'live-completed-arrive',assignmentId:a.id,sessionId:session.id,at,position:london,accuracyM:5,speedKph:0,odometerKm:null,duty:'on_duty' as const,provenance:'live' as const};
+ await store.ingest(driver,command(),event);await store.completeStop(driver,command(3),{assignmentId:a.id,stopId:london.id,occurredAt:new Date().toISOString()});
+ const exit={...event,id:'live-completed-exit',at:new Date(Date.now()+200).toISOString(),position:milton};
+ assert.equal((await store.snapshot(driver)).visits.length,1);const other=await store.membership('demo-driver-2',carrierId);assert.equal((await store.snapshot(other)).visits.length,0);await assert.rejects(store.ingest(other,command(),exit),{code:'FORBIDDEN'});
+ await assert.rejects(store.ingest(simulator,command(),exit),{code:'PROVENANCE_MISMATCH'});
+ await store.workSession(driver,command(1),{action:'end',sessionId:session.id});await assert.rejects(store.ingest(driver,command(),exit),{code:'NO_WORK_SESSION'});
+ assert.equal((await store.snapshot(dispatcher)).visits[0].departure,null);
+});
