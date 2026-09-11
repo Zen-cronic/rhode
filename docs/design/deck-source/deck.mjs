@@ -36,7 +36,7 @@ const dock=txt(s,'Dock delay',808,158,350,70,37,true,C.rust);const next=txt(s,'N
 s=slide();title(s,'Recovery rehearsal');body(s,'A delayed departure makes the next assignment visible',67,131,1110,45,25);await img(s,captures.recovery,65,210,1150,176);txt(s,'12:00',61,428,361,100,68,true);body(s,'Planned departure',67,529,346,52,26);txt(s,'13:30',477,428,361,100,68,true,C.rust);body(s,'Expected departure',483,529,354,52,26);txt(s,'12:15',892,428,331,100,68,true);body(s,'Next pickup',898,529,310,52,26);body(s,'Synthetic scenario. Times in ET. Actual Ontario truck routing supports the recovery.',67,651,1090,35,18);
 
 // 04. Decision mechanics and current-evidence UI.
-s=slide(true);txt(s,'Approval\nagainst current\nevidence',60,70,560,235,55,true,C.ivory);body(s,'The server rechecks the proposal at the moment of approval.',66,365,440,112,28,C.light);txt(s,'Versions',67,522,370,40,25,true,C.ivory);txt(s,'Availability',67,568,370,40,25,true,C.ivory);txt(s,'Atomic reservations',67,614,470,40,25,true,C.ivory);await img(s,captures.approval,563,133,670,445);
+s=slide(true);txt(s,'Approval\nagainst current\nevidence',60,70,560,235,55,true,C.ivory);body(s,'The server rechecks the proposal at the moment of approval.',66,365,440,112,28,C.light);txt(s,'Versions',67,522,370,40,25,true,C.ivory);txt(s,'Availability',67,568,370,40,25,true,C.ivory);txt(s,'Atomic reservations',67,614,470,40,25,true,C.ivory);await img(s,captures.approval,563,108,670,536);
 
 // 05. Real native screenshot, evidence-led text and phone ratio intact.
 s=slide();txt(s,'The driver\nkeeps the work',61,72,700,165,63,true);body(s,'Acceptance stays visible through an offline interruption.',67,266,560,110,30);txt(s,'01',67,406,60,42,25,true,C.rust);txt(s,'Pending while offline',141,406,485,50,29,true);txt(s,'02',67,482,60,42,25,true,C.rust);txt(s,'Trip and draft survive termination',141,482,545,55,25);txt(s,'03',67,558,60,42,25,true,C.rust);txt(s,'Server confirms the command',141,558,530,58,25);await img(s,captures.mobile,829,28,304,652);body(s,'Android emulator verified. Physical phone and native iOS remain unverified.',67,659,1070,30,17);
@@ -52,8 +52,22 @@ s=slide();title(s,'All five sheets retain lineage');txt(s,'15,197',55,200,570,15
 const values=[['Sheet','Rows'],['Tlorder','4,031'],['Dispatch','10,479'],['Driver','131'],['Trucks','131'],['Trailers','425']];
 const table=s.tables.add({rows:6,columns:2,left:679,top:180,width:528,height:408,columnWidths:[330,198],values});table.borders.outside={fill:'none',width:0};table.borders.insideVertical={fill:'none',width:0};table.borders.insideHorizontal={fill:C.rule,width:1,style:'solid'};for(let r=0;r<6;r++)for(let c=0;c<2;c++){const cell=table.getCell(r,c);cell.fill=C.ivory;cell.text.style={typeface:FONT,fontSize:r===0?22:28,bold:r===0,color:r===0?C.muted:C.ink};cell.text.alignment=c===1?'right':'left';for(const side of ['left','right','top','bottom']){cell.lines[side].fill=(side==='top'&&r>0)||(side==='bottom'&&r<5)?C.rule:C.ivory;cell.lines[side].width=1;}}body(s,'Public preview uses labeled synthetic operational scenarios.',67,651,1090,33,18);
 
-// 09. Editable architecture relationship diagram.
-s=slide();title(s,'One operational database');const web=txt(s,'React web',65,220,195,62,31,true);body(s,'Dispatcher decisions',69,294,286,48,22);const mobile=txt(s,'Expo mobile',65,392,218,62,31,true);body(s,'Driver execution',69,466,286,48,22);const junction=s.shapes.add({geometry:'ellipse',position:{left:382,top:335,width:8,height:8},fill:C.muted,line:{fill:'none',width:0}});const api=txt(s,'Fastify API',474,307,241,64,35,true);const db=txt(s,'PostgreSQL',921,307,294,64,35,true,C.rust);for(const [node,side] of [[web,'top'],[mobile,'bottom']])s.shapes.connect(node,junction,{kind:'elbow',fromSide:'right',toSide:side,line:{fill:C.muted,width:2,style:'solid'}});s.shapes.connect(junction,api,{kind:'straight',fromSide:'right',toSide:'left',line:{fill:C.muted,width:2,style:'solid'},tail:{type:'triangle',width:'sm',length:'sm'}});s.shapes.connect(api,db,{kind:'straight',fromSide:'right',toSide:'left',line:{fill:C.orange,width:3,style:'solid'},tail:{type:'triangle',width:'sm',length:'sm'}});body(s,'Firebase identity\nCarrier membership\nValidated commands',481,414,363,132,24);body(s,'Versions\nReservations\nEvidence',928,414,277,130,24);body(s,'OR-Tools and Valhalla compute proposals. Gemini extracts fields.',67,585,1100,49,24);body(s,'Independent replay keeps its own scenario clock. Approval remains an explicit command.',67,645,1100,43,19);
+// 09. Editable aligned owners with anchored command path and a secondary computation band.
+s=slide();title(s,'One operational database');
+const ownerX=[65,482,919];
+for(const [i,label] of ['CLIENTS','COMMANDS','STORAGE'].entries())txt(s,label,ownerX[i],201,300,34,18,true,C.muted);
+const clients=txt(s,'Web + mobile',65,258,290,68,33,true);
+const api=txt(s,'Fastify API',482,258,281,68,33,true);
+const db=txt(s,'PostgreSQL',919,258,295,68,33,true,C.rust);
+s.shapes.connect(clients,api,{kind:'straight',fromSide:'right',toSide:'left',line:{fill:C.muted,width:2,style:'solid'},tail:{type:'triangle',width:'sm',length:'sm'}});
+s.shapes.connect(api,db,{kind:'straight',fromSide:'right',toSide:'left',line:{fill:C.orange,width:3,style:'solid'},tail:{type:'triangle',width:'sm',length:'sm'}});
+body(s,'React dispatcher UI\nExpo driver execution',69,356,320,124,25);
+body(s,'Firebase identity\nCarrier membership\nValidated commands',486,356,340,124,25);
+body(s,'Versions\nReservations\nEvidence',923,356,285,124,25);
+s.shapes.add({geometry:'rect',position:{left:73,top:531,width:1134,height:1},fill:C.rule,line:{fill:'none',width:0}});
+txt(s,'PROPOSALS',65,552,560,32,18,true,C.muted);txt(s,'DOCUMENT FIELDS',696,552,510,32,18,true,C.muted);
+body(s,'OR-Tools + Valhalla',65,591,570,47,28,C.ink);body(s,'Gemini extraction',696,591,510,47,28,C.ink);
+body(s,'Independent replay clock · Approval remains an explicit command.',65,651,1100,38,19);
 
 // 10. Measurement and practical limits get equal visual authority.
 s=slide(true);title(s,'Measured proof',1120,true);txt(s,'5.4 s',53,167,657,178,127,true,C.ivory);body(s,'p95 acknowledgement-to-snapshot lag\nin the 131-driver cloud burst',67,358,645,103,29,C.light);txt(s,'524',808,196,360,100,66,true,C.orange);body(s,'telemetry + synchronization pairs\nZero failed commands',814,298,370,117,25,C.light);body(s,'22 backend checks\n23 mobile checks\nReal-road integration verified separately',67,522,662,131,25,C.light);body(s,'Physical background location and native iOS still need testing.\nDeclared duty budgets are not a certified ELD.',815,493,369,154,23,C.light);

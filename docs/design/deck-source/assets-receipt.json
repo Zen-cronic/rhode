@@ -1,26 +1,26 @@
 {
   "date": "2026-09-10",
-  "revision": "v8",
+  "revision": "v9",
   "sources": {
     "recovery": {
-      "file": "/tmp/roadstar-redesign/capture-final/delay-impact.png",
+      "file": "/tmp/roadstar-polish/final-capture/delay-impact.png",
       "crop": {
         "left": 260,
         "top": 407,
         "width": 1138,
         "height": 176
       },
-      "state": "design-final synthetic scenario, actual recorded delay, next pickup at risk"
+      "state": "Final deployed 00017-bj6, design-polish-final synthetic scenario. Actual delay recorded; next pickup at risk."
     },
     "approval": {
-      "file": "/tmp/roadstar-redesign/capture-final/approval-review.png",
+      "file": "/tmp/roadstar-polish/final-capture/approval-review.png",
       "crop": {
         "left": 410,
-        "top": 243,
+        "top": 182,
         "width": 620,
-        "height": 415
+        "height": 536
       },
-      "state": "actual explicit approval dialog before user confirmation"
+      "state": "Final deployed actual current-to-proposed assignment dialog before explicit confirmation. Separate driver acceptance visible; checks collapsed."
     },
     "billing": {
       "file": "/tmp/roadstar-redesign/cloud-current/web-billing-panel.png",
@@ -37,8 +37,8 @@
       "state": "actual retained completed two-load/four-stop manifest"
     },
     "mobile": {
-      "file": "/tmp/roadstar-redesign/mobile/41-today-final.png",
-      "state": "actual Android API35 emulator, RS1043 accepted, delivery next"
+      "file": "/tmp/roadstar-redesign/mobile/60-today-density-final.png",
+      "state": "Actual Android API35 emulator, compact single-row header; RS1043 accepted, pickup completed and delivery next."
     }
   },
   "boundaries": [

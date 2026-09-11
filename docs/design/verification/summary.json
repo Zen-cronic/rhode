@@ -1,61 +1,42 @@
 {
   "status": "NEEDS_REVISION",
   "direction": "Precision transport",
-  "date": "2026-09-10",
+  "date": "2026-09-11",
+  "pass": "Operator-authorized second bounded refinement",
+  "baseline": "b3d44950f03b548206620df726f801a95689e313",
   "criticCalls": 3,
   "criticCap": 3,
   "target": 9,
-  "finalScore": 7.8,
-  "criticContext": "Fresh context, fixed prompt, 13 enumerated images; no brief/history/target",
-  "remainingVisualGaps": [
-    "Recovery comparison hierarchy, metadata density and map emphasis",
-    "Native route appointment/timezone wrapping and evidence detail hierarchy",
-    "Film native product evidence scale relative to headline"
+  "finalScore": 8.2,
+  "scores": [
+    8.2,
+    8.0,
+    8.2
   ],
+  "criticContext": "Fresh isolated contexts, unchanged fixed prompt,13 product images +4 neutral references",
+  "remainingVisualGaps": [
+    "Recovery evidence column space allocation",
+    "Film diagram distinction between dock wait and replacement path"
+  ],
+  "disputedFinding": "Native queue heading clipping claimed by critics is not present in coordinator inspection of the exact immutable image.",
   "checks": {
-    "web": "22 desktop/mobile states, no overflow/page errors; 4 tests, build and typecheck pass",
-    "native": "23 tests, both Android ABIs, iOS JavaScript export, actual emulator roles/offline restart/reconnect",
-    "integrated": "22 PostgreSQL/import tests pass; separately gated actual-road test skipped in this rerun",
-    "recovery": "Fresh synthetic design-final: delay, propose, approve, receiving driver accept all HTTP200",
-    "film": "240.096 seconds;1920\u00d71080;24fps;H264/AAC. Full browser playback ended with no errors or dropped frames.54 ordered captions within duration;12 final frames inspected. Audio measured -16.06 LUFS/-1.43 dBTP."
+    "web": "Build/typecheck;10 focused tests pass,2 Firebase-configuration skips; keyboard/focus/disclosure/offline/responsive checks pass. Production truck route200, Google attribution visible, no browser errors.",
+    "native": "23 tests/typecheck; ARM64 and x86_64 standalone Android builds; iOS JavaScript export; final actual emulator driver/dispatcher views verified.",
+    "recovery": "Fresh design-polish-final synthetic delay/propose/approve/driver response eachHTTP200.",
+    "deck": "v9:13editable slides,13notes,13 rendered PDF pages inspected;zero package/layout findings.",
+    "film": "240.096s,1920x1080,24fps,H264/AAC;12final frames inspected;54ordered captions end239.92s;audio-16.06LUFS/-1.43dBTP. Full continuous browser playback ended with zero errors and dropped frames.",
+    "publication": "Movie,PDF,PPTX,SRT HTTP200 and exact localSHA256 matches"
   },
   "limits": [
-    "Visual target not reached within bounded iteration cap",
-    "Physical device, native iOS, camera, push delivery and background GPS deferred",
-    "Human listening and live deck rehearsal pending",
-    "131-driver burst p95 acknowledgement-to-snapshot lag remains about5.4s"
+    "Physical Android/iPhone and native iOS deferred by operator",
+    "Human narration listening/live rehearsal pending",
+    "Final submission separate",
+    "No additional model usage or infrastructure provisioned"
   ],
-  "sourceSha256": {
-    "apps/web/src/App.tsx": "cb18783674a1deb13b3a593d2e2153771cbd4834fd243fca43f41bcef0a4d5e2",
-    "apps/web/src/style.css": "493de5b52c62d3dc89e6b1380b117c395bd9d88008db8405abbabc46bd90e644",
-    "apps/mobile/App.tsx": "b150d7d51b5bcb4c1967992e3307ffe714c085f4c8cc46651c991678439995b5",
-    "apps/mobile/src/Design.tsx": "7fb96f43d50f3455987b77231d0cc89123c17d9886b7aa82804aa5d7672ddb22",
-    "docs/design/deck-source/deck.mjs": "fe2284df6c9c1157b58a4fdf72eca091710f35fc2861c9b9a048353c2b48bc07",
-    "docs/design/demo-source/motion.html": "b677afb51b64f88cdbcfea265d282141dca54b85a7ad795ed30e11ee0e1be112"
-  },
-  "artifacts": {
-    "roadstar-pitch.pptx": {
-      "bytes": 4163176,
-      "sha256": "986b55c4e3f8b08d9d02643f5e4286e678460411afeba9fd12ed08e76868c362"
-    },
-    "roadstar-pitch.pdf": {
-      "bytes": 634170,
-      "sha256": "1668b3584cacf38c8eeed6820ca8e3ad9058015416eff619bc63bdba32e0cb50"
-    },
-    "roadstar-demo.mp4": {
-      "bytes": 21203990,
-      "sha256": "a19d4491e01357bee1c2db96c5ed4f9c13dbf8cb3fc9b88a95e91d8db6c65275"
-    },
-    "roadstar-demo.srt": {
-      "bytes": 6242,
-      "sha256": "f39241c893c0818500e4c498338bbf53002fe75b708a47c856ccfca605e7fedb"
-    }
-  },
-  "deployment": {
-    "webRevision": "roadstar-web-00014-rs2",
-    "imageDigest": "sha256:ecd0f44e2bff9ca42eea26d311ce74f51b4797b1163ba48c40945001697f436d",
-    "url": "https://roadstar-web-739889188415.us-central1.run.app",
-    "artifactHashesVerified": true,
-    "repositoryVisibility": "PRIVATE"
+  "preview": {
+    "local": "http://localhost:5174",
+    "web": "https://roadstar-web-739889188415.us-central1.run.app",
+    "sourceVisibility": "PRIVATE",
+    "cloudRevision": "roadstar-web-00018-pxs"
   }
 }

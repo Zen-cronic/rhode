@@ -1,0 +1,16 @@
+{
+  "status": "SCORED",
+  "score_out_of_10": 8.0,
+  "all_images_inspected": true,
+  "largest_gaps": [
+    "Claimed left-clipped native queue heading",
+    "Hidden recovery justification and prominent empty route form",
+    "Partial component boundaries in film crop"
+  ],
+  "coordinator_response": [
+    "Exact saved native queue image re-opened: full heading and subtitle visible; no supported defect, no source change.",
+    "Visible actual route screening/deadhead summary, collapsed optional route selectors.",
+    "Measured complete-component crops from actual footage; scrolling transition omitted."
+  ],
+  "provenance": "Fresh isolated polish_critic_b; this is a coordinator summary; original assessment retained in agent transcript."
+}

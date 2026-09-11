@@ -1,0 +1,31 @@
+{
+  "desktop": {
+    "confirmEnabled": true,
+    "top": 665.03125,
+    "bottom": 713.03125,
+    "fullyVisible": true,
+    "pageWidth": 1440,
+    "viewportWidth": 1440,
+    "initialFocusInside": true,
+    "tabFocusContained": true,
+    "assumptionsAvailable": true,
+    "offlineDisabled": true,
+    "focusReturns": true
+  },
+  "mobile": {
+    "confirmEnabled": true,
+    "top": 638.078125,
+    "bottom": 686.078125,
+    "fullyVisible": true,
+    "pageWidth": 390,
+    "viewportWidth": 390,
+    "initialFocusInside": true,
+    "tabFocusContained": true,
+    "assumptionsAvailable": true,
+    "offlineDisabled": true,
+    "focusReturns": true
+  },
+  "errors": [],
+  "carrier": "design-polish",
+  "noApprovalSubmitted": true
+}

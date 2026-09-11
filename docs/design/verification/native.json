@@ -5,8 +5,8 @@
   "artifacts": [
     {
       "file": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/dist/roadstar-preview-arm64.apk",
-      "bytes": 25227448,
-      "sha256": "053e8cab07039b50bf39d203b22b2036bfe0d7e08c1d53a7219f9ad45b9a93d2",
+      "bytes": 25229108,
+      "sha256": "e3082e8671b2ecab829e54162f98fb70729a5a4af213cb694bde49614688119f",
       "native_abis": [
         "arm64-v8a"
       ],
@@ -17,8 +17,8 @@
     },
     {
       "file": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/dist/roadstar-preview-x86_64.apk",
-      "bytes": 25712502,
-      "sha256": "55778efa7cad44eea29611367124b788b4de6a5a920ea34f2430f561d393c16e",
+      "bytes": 25714162,
+      "sha256": "e6a7822aebb9e259e2a428c540205ed786ad8e50083e8e9a153df90bf8b3f01b",
       "native_abis": [
         "x86_64"
       ],
@@ -39,5 +39,35 @@
   "limits": [
     "No physical device or iOS native runtime proof",
     "No notification provider send, camera capture or background GPS verification in this redesign pass"
-  ]
+  ],
+  "refinement": {
+    "baseline": "b3d44950f03b548206620df726f801a95689e313",
+    "scope": "Planning review presentation, compact persistent header, queue density and manifest details",
+    "source_sha256": {
+      "App.tsx": "33bcf447261fa67b8ac4d9cf8a55c524db83ed244ade2dc8dca00a87e0386a54",
+      "src/Design.tsx": "c6d70e01548d998393fefb3fa2adc30698cbfe418e0f686b581af425521ea60e",
+      "src/PlanningViews.tsx": "3ad686fbbb0388518292d2f59bd7585cf5e5518f35d4ed6e38034102055432de"
+    },
+    "film_source_unchanged": false,
+    "read_only_runtime": "Approved native-planning-demo record plus D-02 emulator-demo accepted RS1043; no operational commands",
+    "evidence": {
+      "60-today-density-final.png": "3ecb8e42b478682ccef11586a4caf460cf18466ae162216b4a7eb2adaee8e82d",
+      "61-queue-density-final.png": "67f3cea3a2b0202ff3123052c52eb41cac8ff92566902dabc8c7462309568b31",
+      "62-film-map-density.png": "4e44b683f8e9aabb4f3b34be972d3a2eb4b649712cef25fb59e01973dec37574",
+      "63-film-queue-density.png": "7aaebcf6ed0369907c3f13576e0e2ad363dd90160fb6ca40a2cd791355589835",
+      "64-planning-density-final.png": "f5c03f7aeb59315067acafb2cb08bf0808ee715a3dfe802556ebf33b2a0fd401",
+      "65-review-density-final.png": "723f1153f398d56a1c3ceebfa9299a7aaaedfe95882411e0add2c62e3293b065",
+      "54-review-evidence-refined.png": "8eabdcbba5e494a9e8a8bfb85663ec576b6992472e9203fa2c8073a2ba75d8db",
+      "55-review-technical-expanded.png": "7ad7c0d5f6760feb4f23b8c183efbdd04a5d1ac7b08014fa29bb1f234eaba811"
+    },
+    "film": {
+      "path": "/tmp/roadstar-redesign/mobile/roadstar-native-density-final.mp4",
+      "duration_seconds": 26.3,
+      "resolution": "1080x2400",
+      "fps": 30,
+      "sha256": "679ae66d9e37fb905d20ea93287c2ed156f89e6691c4aad98480ff28195e4548",
+      "sequence": "Today 0\u20136s; actual truck map 6\u201315s; More queue 15\u201323s; Today to end",
+      "operations": "Read-only navigation; no completion or GPS sharing"
+    }
+  }
 }

@@ -1,0 +1,140 @@
+[
+  {
+    "capture": "01-dock-delay",
+    "carrier": "design-polish-final",
+    "commands": [
+      {
+        "path": "delay",
+        "status": 200
+      },
+      {
+        "path": "propose",
+        "status": 200
+      }
+    ],
+    "export": {
+      "path": "/tmp/roadstar-polish/final-capture/01-dock-delay.mp4",
+      "start": 6.513,
+      "duration": 25.247,
+      "framing": "Actual full1440x900 viewport after authentication; no UI values changed."
+    },
+    "marks": [
+      {
+        "label": "slice_start",
+        "wallSeconds": 6.268
+      },
+      {
+        "label": "delay_observation_form",
+        "wallSeconds": 8.379
+      },
+      {
+        "label": "delay_request",
+        "wallSeconds": 12.383
+      },
+      {
+        "label": "delay_response",
+        "wallSeconds": 12.52
+      },
+      {
+        "label": "next_load_at_risk",
+        "wallSeconds": 12.685
+      },
+      {
+        "label": "replacement_selected",
+        "wallSeconds": 16.841
+      },
+      {
+        "label": "propose_request",
+        "wallSeconds": 21.843
+      },
+      {
+        "label": "propose_response",
+        "wallSeconds": 22.304
+      },
+      {
+        "label": "slice_end",
+        "wallSeconds": 31.515
+      }
+    ]
+  },
+  {
+    "capture": "02-recovery-approval",
+    "carrier": "design-polish-final",
+    "commands": [
+      {
+        "path": "approve",
+        "status": 200
+      }
+    ],
+    "export": {
+      "path": "/tmp/roadstar-polish/final-capture/02-recovery-approval.mp4",
+      "start": 6.350999999999994,
+      "duration": 26.849000000000004,
+      "framing": "Actual full1440x900 viewport after authentication; no UI values changed."
+    },
+    "marks": [
+      {
+        "label": "slice_start",
+        "wallSeconds": 6.055
+      },
+      {
+        "label": "explicit_approval_review",
+        "wallSeconds": 11.149
+      },
+      {
+        "label": "approve_request",
+        "wallSeconds": 19.506
+      },
+      {
+        "label": "approve_response",
+        "wallSeconds": 19.702
+      },
+      {
+        "label": "approved_replacement",
+        "wallSeconds": 19.904
+      },
+      {
+        "label": "slice_end",
+        "wallSeconds": 32.904
+      }
+    ]
+  },
+  {
+    "capture": "03-driver-acceptance",
+    "carrier": "design-polish-final",
+    "commands": [
+      {
+        "path": "respond",
+        "status": 200
+      }
+    ],
+    "export": {
+      "path": "/tmp/roadstar-polish/final-capture/03-driver-acceptance.mp4",
+      "start": 6.547000000000002,
+      "duration": 26.453,
+      "framing": "Actual full1440x900 viewport after authentication; no UI values changed."
+    },
+    "marks": [
+      {
+        "label": "slice_start",
+        "wallSeconds": 6.27
+      },
+      {
+        "label": "respond_request",
+        "wallSeconds": 13.323
+      },
+      {
+        "label": "respond_response",
+        "wallSeconds": 13.476
+      },
+      {
+        "label": "driver_accepted",
+        "wallSeconds": 13.664
+      },
+      {
+        "label": "slice_end",
+        "wallSeconds": 32.723
+      }
+    ]
+  }
+]

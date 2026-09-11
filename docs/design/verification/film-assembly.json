@@ -1,7 +1,7 @@
 [
   {
     "id": "hook",
-    "source": "/tmp/roadstar-redesign/film/hook-motion.mp4",
+    "source": "/tmp/roadstar-polish/film/hook-motion.mp4",
     "duration": 14,
     "narrationSource": "/home/zin-kg/code/hackathons/roadstar-2026/submission/roadstar/private-build/audio/hook.wav",
     "speechTempo": 1.0528174603174603,
@@ -9,7 +9,7 @@
   },
   {
     "id": "problem",
-    "source": "/tmp/roadstar-redesign/film/problem-motion.mp4",
+    "source": "/tmp/roadstar-polish/film/problem-motion.mp4",
     "duration": 22,
     "narrationSource": "/home/zin-kg/code/hackathons/roadstar-2026/submission/roadstar/private-build/audio/problem.wav",
     "speechTempo": 1.0924230177059275,
@@ -17,7 +17,7 @@
   },
   {
     "id": "delay",
-    "source": "/tmp/roadstar-redesign/capture-final/01-dock-delay.mp4",
+    "source": "/tmp/roadstar-polish/final-capture/01-dock-delay.mp4",
     "duration": 30,
     "narrationSource": "/home/zin-kg/code/hackathons/roadstar-2026/submission/roadstar/private-build/audio/delay.wav",
     "speechTempo": 0.9676545812254076,
@@ -25,7 +25,7 @@
   },
   {
     "id": "approval",
-    "source": "/tmp/roadstar-redesign/capture-final/02-recovery-approval.mp4",
+    "source": "/tmp/roadstar-polish/final-capture/02-recovery-approval.mp4",
     "duration": 28,
     "narrationSource": "/home/zin-kg/code/hackathons/roadstar-2026/submission/roadstar/private-build/audio/approval.wav",
     "speechTempo": 1.0622408077154915,
@@ -33,7 +33,7 @@
   },
   {
     "id": "driver",
-    "source": "/tmp/roadstar-redesign/mobile/roadstar-native-precision-transport-final.mp4",
+    "source": "/tmp/roadstar-polish/film/native-composed.mp4",
     "duration": 28,
     "narrationSource": "/home/zin-kg/code/hackathons/roadstar-2026/submission/roadstar/private-build/audio/driver.wav",
     "speechTempo": 1.185206449668475,
@@ -41,7 +41,7 @@
   },
   {
     "id": "evidence",
-    "source": "/tmp/roadstar-redesign/film/evidence-joined.mp4",
+    "source": "/tmp/roadstar-polish/film/evidence-joined.mp4",
     "duration": 30,
     "narrationSource": "/home/zin-kg/code/hackathons/roadstar-2026/submission/roadstar/private-build/audio/evidence.wav",
     "speechTempo": 1.1686663856098933,
@@ -49,7 +49,7 @@
   },
   {
     "id": "planning",
-    "source": "/tmp/roadstar-redesign/capture-final/07-planning-record.mp4",
+    "source": "/tmp/roadstar-polish/final-capture/07-planning-record.mp4",
     "duration": 26,
     "narrationSource": "/home/zin-kg/code/hackathons/roadstar-2026/submission/roadstar/private-build/audio/planning.wav",
     "speechTempo": 1.2090042235217675,
@@ -57,7 +57,7 @@
   },
   {
     "id": "lineage",
-    "source": "/tmp/roadstar-redesign/film/lineage-motion.mp4",
+    "source": "/tmp/roadstar-polish/film/lineage-motion.mp4",
     "duration": 22,
     "narrationSource": "/home/zin-kg/code/hackathons/roadstar-2026/submission/roadstar/private-build/audio/lineage.wav",
     "speechTempo": 1.4822613548883758,
@@ -65,7 +65,7 @@
   },
   {
     "id": "proof",
-    "source": "/tmp/roadstar-redesign/film/proof-motion.mp4",
+    "source": "/tmp/roadstar-polish/film/proof-motion.mp4",
     "duration": 26,
     "narrationSource": "/home/zin-kg/code/hackathons/roadstar-2026/submission/roadstar/private-build/audio/proof.wav",
     "speechTempo": 1.3103687459389215,
@@ -73,7 +73,7 @@
   },
   {
     "id": "close",
-    "source": "/tmp/roadstar-redesign/film/close-motion.mp4",
+    "source": "/tmp/roadstar-polish/film/close-motion.mp4",
     "duration": 14,
     "narrationSource": "/home/zin-kg/code/hackathons/roadstar-2026/submission/roadstar/private-build/audio/close.wav",
     "speechTempo": 1.266736874236874,

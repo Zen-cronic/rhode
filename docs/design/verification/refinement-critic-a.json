@@ -1,0 +1,41 @@
+{
+  "status": "SCORED",
+  "score_out_of_10": 8.2,
+  "images_inspected": [
+    "web-recovery.png",
+    "web-mobile.png",
+    "web-review.png",
+    "web-login.png",
+    "native-today.png",
+    "native-queue.png",
+    "native-review.png",
+    "deck-cover.png",
+    "deck-data.png",
+    "deck-architecture.png",
+    "film-title.png",
+    "film-diagram.png",
+    "film-native.png",
+    "ref-grab",
+    "ref-uber",
+    "ref-slate",
+    "ref-pallet"
+  ],
+  "largest_gaps": [
+    {
+      "location": "web-review.png",
+      "observation": "Technical caveat receives more emphasis than actual load and driver change.",
+      "priority": "high"
+    },
+    {
+      "location": "native-today.png/native-queue.png",
+      "observation": "Persistent header, duplicated destination detail and routine event spacing consume space.",
+      "priority": "medium"
+    },
+    {
+      "location": "deck-architecture.png",
+      "observation": "Unequal caption alignment and floating lower explanatory text.",
+      "priority": "medium"
+    }
+  ],
+  "provenance": "Fresh isolated polish_critic_a; fixed prompt; full original critique in agent transcript; this file is a coordinator summary."
+}

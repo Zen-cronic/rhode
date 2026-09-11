@@ -1,0 +1,30 @@
+{
+  "status": "SCORED",
+  "score_out_of_10": 8.2,
+  "images_inspected": [
+    "deck-cover.png",
+    "deck-data.png",
+    "web-review.png",
+    "deck-architecture.png",
+    "native-review.png",
+    "web-mobile.png",
+    "film-diagram.png",
+    "film-native.png",
+    "film-title.png",
+    "native-queue.png",
+    "web-recovery.png",
+    "native-today.png",
+    "web-login.png",
+    "ref-grab",
+    "ref-uber",
+    "ref-slate",
+    "ref-pallet"
+  ],
+  "largest_gaps": [
+    "Claimed left clipping of native queue heading",
+    "Uneven recovery/evidence column allocation",
+    "Waiting segment and replacement path share orange encoding"
+  ],
+  "coordinator_response": "Exact immutable native-queue image re-opened after both final assessments: full Tools & activity and Driver / emulator-demo are visible with matching inset. That claimed defect is disputed and no unsupported UI repair was made. Remaining spacing and diagram encoding are subjective design limitations.",
+  "context": "Fresh isolated polish_critic_c, unchanged fixed prompt; no source/history/target; coordinator summary, full assessment retained in agent transcript."
+}

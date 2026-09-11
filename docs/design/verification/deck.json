@@ -1,5 +1,5 @@
 {
-  "revision": "v8",
+  "revision": "v9",
   "slides": 13,
   "notesParts": 13,
   "coreSeconds": 600,
@@ -36,16 +36,18 @@
   ],
   "visualFindings": [],
   "renderDifferences": [
-    "LibreOffice wraps double-count differently on slide 13; both versions remain readable without overlap."
+    "LibreOffice wraps double-count differently on slide13; no overlap or clipping."
   ],
-  "pptxSha256": "986b55c4e3f8b08d9d02643f5e4286e678460411afeba9fd12ed08e76868c362",
-  "validation": "build/validation-v8.json",
+  "pptxSha256": "84bc4c6c2b3081fc64c7bc47e533ac5255d5730c706830696cdeff640cb47548",
+  "pdfSha256": "0690770631d7971c38b9b3d08d98306781c41c9a2652a4d0b7d7bb97e3c39ce6",
+  "validation": "build/validation-v9.json",
   "sourceProvenance": "build/assets-receipt.json",
+  "sourceFrozenDeployment": "00017-bj6",
   "nativePowerPointRenderingVerified": false,
   "editableObjects": [
     "foreground text",
     "five-sheet native table",
     "relationship diagrams"
   ],
-  "claimBoundary": "Visual and package verification; static screenshots do not independently establish new functional verification."
+  "claimBoundary": "Visual and package verification only; static screenshots do not independently establish new functional verification."
 }

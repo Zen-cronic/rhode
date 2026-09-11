@@ -1,0 +1,30 @@
+{
+  "desktop": {
+    "proof": "Truck-route timing screen passed\n138.9 km estimated deadhead · Valhalla modeled travel times",
+    "proofBounds": {
+      "top": 587.5,
+      "bottom": 627.734375,
+      "fullyVisible": true,
+      "pageWidth": 1440,
+      "viewportWidth": 1440
+    },
+    "selectorsInitiallyHidden": true
+  },
+  "mobile": {
+    "proof": "Truck-route timing screen passed\n138.9 km estimated deadhead · Valhalla modeled travel times",
+    "proofBounds": {
+      "top": 591.40625,
+      "bottom": 646.578125,
+      "fullyVisible": true,
+      "pageWidth": 390,
+      "viewportWidth": 390
+    },
+    "selectorsInitiallyHidden": true
+  },
+  "disclosureKeyboardOpens": true,
+  "routeEnabledOnline": true,
+  "routeDisabledOffline": true,
+  "disclosureKeyboardCloses": true,
+  "trackingViewVisible": true,
+  "errors": []
+}

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "presentation-finalization.v1",
-  "finalSha256": "986b55c4e3f8b08d9d02643f5e4286e678460411afeba9fd12ed08e76868c362",
-  "byteCount": 4163176,
+  "finalSha256": "84bc4c6c2b3081fc64c7bc47e533ac5255d5730c706830696cdeff640cb47548",
+  "byteCount": 4259500,
   "packageIntegrity": {
     "chart_count": 0,
     "claim_boundary": "Structural package checks only; no slide text, notes, formulas, chart values, or native PowerPoint execution were inspected.",
@@ -19,13 +19,13 @@
     "finding_count": 0,
     "findings": [],
     "font_policy": {
-      "checked_text_script_count": 138,
+      "checked_text_script_count": 143,
       "native_font_rendering_verified": false,
       "observed_font_families": [
         "Manrope"
       ],
       "observed_font_use_counts": {
-        "Manrope": 138
+        "Manrope": 143
       },
       "passed": true,
       "performed": true
@@ -40,13 +40,13 @@
     "exitCode": 0,
     "findingCount": 0,
     "fontPolicy": {
-      "checked_text_script_count": 138,
+      "checked_text_script_count": 143,
       "native_font_rendering_verified": false,
       "observed_font_families": [
         "Manrope"
       ],
       "observed_font_use_counts": {
-        "Manrope": 138
+        "Manrope": 143
       },
       "passed": true,
       "performed": true
@@ -60,13 +60,13 @@
     "scriptFonts": {},
     "referenceSha256": null,
     "referenceFontsVerifiedInEncodedText": false,
-    "checked_text_script_count": 138,
+    "checked_text_script_count": 143,
     "native_font_rendering_verified": false,
     "observed_font_families": [
       "Manrope"
     ],
     "observed_font_use_counts": {
-      "Manrope": 138
+      "Manrope": 143
     },
     "passed": true,
     "performed": true
@@ -75,7 +75,7 @@
     "performed": true,
     "passed": true,
     "slideCount": 13,
-    "sha256": "986b55c4e3f8b08d9d02643f5e4286e678460411afeba9fd12ed08e76868c362",
+    "sha256": "84bc4c6c2b3081fc64c7bc47e533ac5255d5730c706830696cdeff640cb47548",
     "runtimeNodeModules": "/home/zin-kg/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules",
     "nodeExecutable": "/home/zin-kg/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node"
   },
@@ -109,7 +109,7 @@
     "native_chart_count": 0,
     "native_powerpoint_verified": false,
     "passed": true,
-    "presentation_sha256": "986b55c4e3f8b08d9d02643f5e4286e678460411afeba9fd12ed08e76868c362",
+    "presentation_sha256": "84bc4c6c2b3081fc64c7bc47e533ac5255d5730c706830696cdeff640cb47548",
     "schema_version": "presentation-native-chart-titles.v1",
     "slide_count": 13,
     "source_text_emitted": false,

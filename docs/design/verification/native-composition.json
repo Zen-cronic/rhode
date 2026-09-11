@@ -1,0 +1,26 @@
+{
+  "source": "/tmp/roadstar-redesign/mobile/roadstar-native-density-final.mp4",
+  "shots": [
+    {
+      "start": 0,
+      "end": 5.966667,
+      "crop": "984:1272:48:544"
+    },
+    {
+      "start": 7.2,
+      "end": 14.966667,
+      "crop": "984:1376:48:552"
+    },
+    {
+      "start": 14.966667,
+      "end": 22.966667,
+      "crop": "984:1380:48:544"
+    },
+    {
+      "start": 22.966667,
+      "end": 26.3,
+      "crop": "984:1272:48:544"
+    }
+  ],
+  "note": "Actual footage; clean complete component groups; scrolling transition omitted. No UI values changed."
+}
