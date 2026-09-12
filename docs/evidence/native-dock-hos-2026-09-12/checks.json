@@ -1,0 +1,29 @@
+{
+  "verifiedAt": "2026-09-12T18:43:05.462800+00:00",
+  "apkSha256": "d11c8ba21fc282e554f65171e9a7964baf3b9863f35bf0e90e9adb2ef5ddc65f",
+  "installedApkSha256": "d11c8ba21fc282e554f65171e9a7964baf3b9863f35bf0e90e9adb2ef5ddc65f",
+  "abis": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "emulator": "API35 emulator-5556",
+  "auth": "Firebase HTTPS preview",
+  "mobileTests": 46,
+  "passed": 46,
+  "mobileTypeScript": true,
+  "rootAndWebTypeScript": true,
+  "apiOpenVisitRegressionTests": 2,
+  "compiledWebBuild": true,
+  "iosJavascriptExport": "index-73cfa7f540ddd8a7abf017bfb437d96a.hbc",
+  "iosNativeExecution": false,
+  "offline": {
+    "airplaneMode": "enabled",
+    "wifi": "disabled",
+    "mobileData": "disabled",
+    "terminatedPid": "13779",
+    "restartedPid": "14027",
+    "proof": "offline-restart.png and .xml",
+    "scope": "Final APK installed with retained app data and launched while offline; prior saved75 estimate remained dated. Networking subsequently restored."
+  },
+  "limits": "No physical-device background-location or iOS native verification. New More snapshot refresh also has two regression tests for no-event freshness and observable network errors."
+}

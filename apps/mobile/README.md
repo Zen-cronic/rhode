@@ -157,3 +157,8 @@ Final density-pass film: `/tmp/roadstar-redesign/mobile/roadstar-native-density-
 More → Axle loading evidence now supports source verification, explicit configuration review, retained failed/passed assessments and scoped offline drafts/commands. API35 stale-source, restart/reconnect and exact-retry evidence is in [native-axle-review.md](../../docs/native-axle-review.md). Hosted axle parity and assigned-driver PDF/history/acceptance are now verified; see [cloud-axle-review.md](../../docs/cloud-axle-review.md).
 
 When changing `EXPO_PUBLIC_AUTH_MODE` between a loopback test and Firebase release, force `:app:createBundleReleaseJsAndAssets --rerun-tasks` before `:app:assembleRelease`; the observed Gradle cache reused the earlier environment-specific JS otherwise. Restore any temporary generated cleartext setting and inspect the actual installed login screen. Never publish a local-demo test artifact as the Firebase preview.
+
+
+## Open dock exposure and time-dependent synchronization
+
+Dispatcher More now shows source-bound provisional detention and all supported HOS limits, with dated offline restoration and uncertainty holds. Duty/More refresh full snapshots even with no new event cursor. Native Firebase approval/driver acceptance and API35 restart evidence: [native dock HOS](../../docs/native-dock-hos.md).46mobile tests pass; final Firebase APK includesARM64/x86_64. Physical/iOS testing remains deferred.
