@@ -24,6 +24,7 @@ export async function simulatorPresentation(store:Store,a:Actor,input:{runId:str
  // Recheck the returned binding as well as the preflight inventory identity.
  await ownRun(store,a,result);
  demand(result.run_id===input.runId&&result.assignment_id===run.assignment_id,'NOT_FOUND','Recording assignment changed.',404);
- const {schema,run_id,assignment_id,start_time_ms,routes,events,snapshot,total,next_offset,provenance,evidence,speed_semantics,clock_semantics}=result;
- return {schema,run_id,assignment_id,start_time_ms,routes,events,snapshot,total,offset:result.offset,next_offset,provenance,evidence,speed_semantics,clock_semantics};
+ demand(result.comparison_basis_hash===run.comparison_basis_hash&&JSON.stringify(result.intervention)===JSON.stringify(run.intervention)&&result.modeled_completion_ms===run.modeled_completion_ms,'SIMULATOR_CONTROL','Recording comparison evidence changed after the inventory check.',409);
+ const {schema,run_id,assignment_id,start_time_ms,routes,events,snapshot,total,next_offset,provenance,evidence,speed_semantics,clock_semantics,comparison_basis_hash,intervention,modeled_completion_ms}=result;
+ return {schema,run_id,assignment_id,start_time_ms,routes,events,snapshot,total,offset:result.offset,next_offset,provenance,evidence,speed_semantics,clock_semantics,comparison_basis_hash,intervention,modeled_completion_ms};
 }

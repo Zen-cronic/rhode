@@ -30,16 +30,17 @@ test('recording pages require dispatcher ownership before and after the source f
  const carrierId='sim-presentation-'+randomUUID();await store.seed(carrierId);
  const actor=await store.membership('demo-dispatcher',carrierId),driver=await store.membership('demo-driver-1',carrierId);
  const trip:any=await store.dispatch(actor,{key:randomUUID(),expectedVersion:1},{loadId:'RS-1042',driverId:'D-01',truckId:'T-101',trailerId:'V-101'});
- const run={run_id:'recording',carrier_id:carrierId,assignment_id:trip.id,api_origin:'http://127.0.0.1:4010'};
+ const comparison={comparison_basis_hash:'b'.repeat(64),intervention:{kind:'baseline',road_hold:null,road_slowdown:null},modeled_completion_ms:5000};
+ const run={run_id:'recording',carrier_id:carrierId,assignment_id:trip.id,api_origin:'http://127.0.0.1:4010',...comparison};
  let returned:any=run,requests:string[]=[],status=200;
- const page={schema:1,start_time_ms:1000,routes:[],events:[],snapshot:'a'.repeat(64),total:0,offset:0,next_offset:null,provenance:'synthetic',internal_secret:'excluded'};
+ const page={schema:1,start_time_ms:1000,routes:[],events:[],snapshot:'a'.repeat(64),total:0,offset:0,next_offset:null,provenance:'synthetic',internal_secret:'excluded',...comparison};
  const server=createServer((req,res)=>{requests.push(req.method+' '+req.url);res.setHeader('content-type','application/json');const presentation=req.url?.includes('/presentation?');res.statusCode=presentation?status:200;res.end(JSON.stringify(presentation?(status===200?{...page,...returned}:{detail:'Recording changed'}):run));});
  await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));
  const saved={SIMULATOR_CONTROL_URL:process.env.SIMULATOR_CONTROL_URL,SIMULATOR_OPERATIONAL_ORIGIN:process.env.SIMULATOR_OPERATIONAL_ORIGIN,K_SERVICE:process.env.K_SERVICE};
  process.env.SIMULATOR_CONTROL_URL='http://127.0.0.1:'+(server.address() as {port:number}).port;process.env.SIMULATOR_OPERATIONAL_ORIGIN=run.api_origin;delete process.env.K_SERVICE;
  try{
   const result:any=await simulatorPresentation(store,actor,{runId:'recording'});
-  assert.equal(result.snapshot,page.snapshot);for(const key of ['carrier_id','api_origin','internal_secret'])assert.equal(key in result,false);
+  assert.equal(result.snapshot,page.snapshot);assert.deepEqual({comparison_basis_hash:result.comparison_basis_hash,intervention:result.intervention,modeled_completion_ms:result.modeled_completion_ms},comparison);for(const key of ['carrier_id','api_origin','internal_secret'])assert.equal(key in result,false);
   const count=requests.length;
   await assert.rejects(simulatorPresentation(store,driver,{runId:'recording'}),/dispatcher/i);
   for(const input of [{runId:'../run'},{runId:'recording',offset:'1'},{runId:'recording',limit:'1001'},{runId:'recording',offset:'-1'}])await assert.rejects(simulatorPresentation(store,actor,input),e=>e instanceof DomainError&&e.status===400);
@@ -47,6 +48,9 @@ test('recording pages require dispatcher ownership before and after the source f
   await simulatorPresentation(store,actor,{runId:'recording',offset:'2',limit:'10',snapshot:page.snapshot});assert.ok(requests.at(-1)?.includes('offset=2&limit=10&snapshot='+page.snapshot));
   for(const changed of [{carrier_id:'foreign'},{assignment_id:'foreign-assignment'},{api_origin:'https://other.example'},{run_id:'other-run'}]){
    returned={...run,...changed};await assert.rejects(simulatorPresentation(store,actor,{runId:'recording'}),e=>e instanceof DomainError&&e.code==='NOT_FOUND');
+  }
+  for(const changed of [{comparison_basis_hash:'c'.repeat(64)},{intervention:{kind:'road_hold',road_hold:{start_seconds:60,duration_seconds:30},road_slowdown:null}},{modeled_completion_ms:6000}]){
+   returned={...run,...changed};await assert.rejects(simulatorPresentation(store,actor,{runId:'recording'}),e=>e instanceof DomainError&&e.code==='SIMULATOR_CONTROL'&&e.status===409);
   }
   returned=run;status=409;await assert.rejects(simulatorPresentation(store,actor,{runId:'recording'}),e=>e instanceof DomainError&&e.status===409);
   status=200;await db.query("UPDATE loads SET body=jsonb_set(body,'{provenance}','\"live\"') WHERE carrier_id=$1 AND id=$2",[carrierId,trip.loadId]);
