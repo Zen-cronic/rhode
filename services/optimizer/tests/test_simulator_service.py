@@ -126,10 +126,12 @@ def test_pause_and_status_remain_responsive_during_a_slow_batch(monkeypatch):
     asyncio.run(exercise())
 
 
-def test_delay_lost_ack_retries_exact_command_after_observation_and_clock(monkeypatch):
+@pytest.mark.parametrize('event_kind', ['hold', 'slowdown'])
+def test_delay_lost_ack_retries_exact_command_after_observation_and_clock(monkeypatch, event_kind):
     import json
     run=install_run(monkeypatch)
-    run['replay']=Replay([[-79.9,43.5],[-79.91,43.5]],1000,disruption_start_seconds=2,disruption_seconds=120,route_evidence='synthetic-test-route')
+    event_options = {'disruption_start_seconds':2, 'disruption_seconds':120} if event_kind == 'hold' else {'slowdown_start_seconds':2, 'slowdown_seconds':120, 'slowdown_factor':.25}
+    run['replay']=Replay([[-79.9,43.5],[-79.91,43.5]],1000,route_evidence='synthetic-test-route',**event_options)
     run['replay'].paused=False
     monkeypatch.setenv('SIMULATOR_TOKEN','synthetic-test-token')
     posts=[];stored={};observed=[];contexts=[];clock={'clock':'1970-01-01T00:00:01Z','version':1}
@@ -441,3 +443,37 @@ def test_control_run_inventory_is_carrier_scoped_and_closed_route_errors_are_ret
         assert not sim.get('run').get('control_pending')
         assert sim.get('run')['replay'].paused
     asyncio.run(exercise())
+
+
+def test_each_road_event_changes_forecast_only_after_its_own_observation(monkeypatch):
+    import json
+    from datetime import datetime, timezone
+    run=install_run(monkeypatch)
+    r=Replay([[-79.9,43.5],[-80,43.5]],1000,dock_wait_seconds=10,
+             slowdown_start_seconds=30,slowdown_seconds=60,slowdown_factor=.25,
+             disruption_start_seconds=100,disruption_seconds=30,route_evidence='synthetic-test-route')
+    run['replay']=r;r.paused=False
+    monkeypatch.setenv('SIMULATOR_TOKEN','synthetic-test-token')
+    posts=[];clock={'clock':'1970-01-01T00:00:01Z','version':1}
+    def handler(request):
+        if request.url.path=='/api/simulation-assignment':
+            return httpx.Response(200,json={'version':2,'endAt':'1970-01-01T00:00:01Z'})
+        if request.method=='GET':return httpx.Response(200,json=clock)
+        body=json.loads(request.content)
+        if request.url.path=='/api/simulation-clock':clock.update(clock=body['at'],version=clock['version']+1)
+        if request.url.path=='/api/delay':
+            assert datetime.fromisoformat(body['observedAt'])==datetime.fromisoformat(clock['clock'].replace('Z','+00:00'))
+            posts.append(body)
+        return httpx.Response(200,json={})
+    original=httpx.AsyncClient
+    monkeypatch.setattr(sim.httpx,'AsyncClient',lambda **kwargs:original(**kwargs,transport=httpx.MockTransport(handler)))
+    asyncio.run(sim.advance('run',sim.Advance(seconds=140)))
+    assert len(posts)==3
+    for post,seconds,hold,slow in zip(posts,[0,30,100],[False,False,True],[False,True,True]):
+        assert post['observedAt']==datetime.fromtimestamp(1+seconds,timezone.utc).isoformat()
+        assert post['expectedEnd']==datetime.fromtimestamp(r.forecast_completion_ms(hold,include_slowdown=slow)/1000,timezone.utc).isoformat()
+    assert all(e['duty']=='driving' for e in run['events'] if e['phase']=='road_slowdown')
+    sim.runs.clear();restored=sim.get('run')
+    assert restored['replay'].paused and restored['replay'].conditions_hash()==r.conditions_hash()
+    assert restored['road_slowdown_observed'] and restored['road_hold_observed']
+    assert restored['delay_reports']==run['delay_reports']

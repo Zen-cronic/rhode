@@ -79,3 +79,60 @@ def test_completion_forecast_is_exact_bounded_and_does_not_mutate_replay():
     assert r.phase()=='route_complete'
     with pytest.raises(ValueError,match='forecast horizon'):
         r.forecast_completion_ms(True,max_seconds=1)
+
+
+def test_slowdown_moves_continuously_consumes_driving_and_preserves_speed_integral():
+    options=dict(coordinates=[[-79.9,43.5],[-80.4,43.5]],start_time_ms=1000,route_evidence='synthetic-test-route')
+    baseline=Replay(**options);slow=Replay(**options,slowdown_start_seconds=60,slowdown_seconds=600,slowdown_factor=.25)
+    baseline.paused=slow.paused=False
+    normal=baseline.advance_samples(720);events=slow.advance_samples(720)
+    assert events[:60]==normal[:60]
+    assert events[60]['phase']=='road_slowdown' and events[660]['phase']=='driving'
+    assert all(e['duty']=='driving' for e in events)
+    assert all(b['odometerKm']>a['odometerKm'] for a,b in zip(events,events[1:]))
+    for i in range(61,661):
+        assert abs(events[i]['speedKph']-normal[i]['speedKph']*.25)<1e-9
+    assert abs(events[661]['speedKph']-normal[661]['speedKph'])<1e-9
+    assert abs(sum(e['speedKph']/3600 for e in events)-events[-1]['odometerKm'])<1e-9
+    assert events[-1]['odometerKm']<normal[-1]['odometerKm']
+    # Phase/duty is effective at t; speed records the interval ending at t.
+    assert events[60]['speedKph']==normal[60]['speedKph']
+    slow.reset();slow.paused=False
+    assert slow.advance_samples(7)+slow.advance_samples(713)==events
+
+
+def test_slowdown_forecast_excludes_unobserved_events_and_is_exact_without_mutation():
+    import copy
+    r=Replay([[-79.9,43.5],[-80,43.5]],1000,disruption_start_seconds=400,disruption_seconds=120,
+             slowdown_start_seconds=20,slowdown_seconds=300,slowdown_factor=.3,route_evidence='synthetic-test-route')
+    before=copy.deepcopy(r.__dict__)
+    neutral=r.forecast_completion_ms(False,include_slowdown=False)
+    slowdown=r.forecast_completion_ms(False,include_slowdown=True)
+    all_events=r.forecast_completion_ms(True,include_slowdown=True)
+    assert neutral<slowdown<all_events and r.__dict__==before
+    r.paused=False;r.advance_samples((all_events-r.start_time_ms)//1000-1)
+    assert r.phase()!='route_complete'
+    r.advance_samples(1);assert r.phase()=='route_complete'
+
+
+def test_slowdown_does_not_turn_dock_or_stationary_hold_into_driving():
+    r=Replay([[-79.9,43.5],[-80,43.5]],0,dock_wait_seconds=10,disruption_start_seconds=15,disruption_seconds=5,
+             slowdown_start_seconds=0,slowdown_seconds=30,slowdown_factor=.2,route_evidence='synthetic-test-route')
+    r.paused=False;events=r.advance_samples(40)
+    assert all(e['phase']=='dock_wait' and e['duty']=='on_duty' for e in events[:10])
+    assert all(e['phase']=='road_hold' and e['duty']=='on_duty' for e in events[15:20])
+    assert events[20]['phase']=='road_slowdown' and events[20]['duty']=='driving'
+    assert events[30]['phase']=='driving'
+
+
+def test_legacy_fingerprint_and_slowdown_validation():
+    import pytest
+    options=dict(coordinates=[[-79.9,43.5],[-79.91,43.5]],start_time_ms=1000,route_evidence='synthetic-test-route')
+    legacy=Replay(**options)
+    assert legacy.conditions_hash()=='b70fd2ce8df280aa4272b9eed6566f976340ead3669824fe4ff890f045d49452'
+    assert legacy.initial_conditions()['model_version']=='road-events-v2'
+    assert Replay(**options,slowdown_seconds=60).initial_conditions()['model_version']=='road-events-v3'
+    for factor in [0,1,-1,float('nan'),float('inf')]:
+        with pytest.raises(ValueError,match='Slowdown factor'):Replay(**options,slowdown_factor=factor)
+    for key in ['slowdown_seconds','slowdown_start_seconds']:
+        with pytest.raises(ValueError,match='event durations'):Replay(**options,**{key:-1})

@@ -68,6 +68,8 @@ def replace_remaining_route(previous: Replay, coordinates: list[list[float]], st
     fork = Replay(combined, previous.start_time_ms, seed=previous.seed, speed_kph=previous.speed_kph,
                   dock_wait_seconds=previous.dock_wait_seconds, disruption_seconds=previous.disruption_seconds,
                   disruption_start_seconds=previous.disruption_start_seconds, stop_indices=stops,
+                  slowdown_start_seconds=previous.slowdown_start_seconds, slowdown_seconds=previous.slowdown_seconds,
+                  slowdown_factor=previous.slowdown_factor,
                   stop_wait_seconds=waits, route_evidence=previous.route_evidence)
     # Interpolating a spherical segment introduces tiny rounding differences. Keep
     # the measured traveled distance exactly and correct that one prefix length.

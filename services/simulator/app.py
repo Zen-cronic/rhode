@@ -87,7 +87,7 @@ def restore_run(run_id):
         run = envelope['run']
         saved = run.pop('replay')
         initial = saved['initial'].copy()
-        if initial.pop('model_version') != 'road-events-v2' or run['run_id'] != run_id:
+        if initial.pop('model_version') not in ('road-events-v2', 'road-events-v3') or run['run_id'] != run_id:
             raise ValueError('Run identity or model version changed')
         replay = Replay(**initial)
         if saved['conditions_hash'] != replay.conditions_hash():
@@ -118,6 +118,9 @@ class Start(BaseModel):
     disruption_seconds: int = Field(default=0, ge=0, le=86400)
     disruption_start_seconds: int = Field(default=60, ge=0, le=86400)
     seed: int = 42
+    slowdown_seconds: int = Field(default=0, ge=0, le=86400)
+    slowdown_start_seconds: int = Field(default=60, ge=0, le=86400)
+    slowdown_factor: float = Field(default=0.35, gt=0, lt=1, allow_inf_nan=False)
 
 
 class Advance(BaseModel):
@@ -144,7 +147,7 @@ async def create(data: Start):
         coordinates.extend(points[1:] if coordinates else points)
         stops.append(len(coordinates)-1)
     try:
-        replay = Replay(coordinates, int(data.start_time.timestamp()*1000), seed=data.seed, dock_wait_seconds=data.dock_wait_seconds, stop_indices=stops, stop_wait_seconds=data.stop_wait_seconds, disruption_seconds=data.disruption_seconds, disruption_start_seconds=data.disruption_start_seconds, route_evidence='valhalla-truck')
+        replay = Replay(coordinates, int(data.start_time.timestamp()*1000), seed=data.seed, dock_wait_seconds=data.dock_wait_seconds, stop_indices=stops, stop_wait_seconds=data.stop_wait_seconds, disruption_seconds=data.disruption_seconds, disruption_start_seconds=data.disruption_start_seconds, slowdown_seconds=data.slowdown_seconds, slowdown_start_seconds=data.slowdown_start_seconds, slowdown_factor=data.slowdown_factor, route_evidence='valhalla-truck')
     except (ValueError, IndexError) as error:
         raise HTTPException(400, str(error)) from error
     run_id = str(uuid4())
@@ -218,7 +221,7 @@ async def synchronize_clock(client, run, at, headers):
 
 
 async def report_delay(client, run, event, headers):
-    if event.get('phase') not in ('dock_wait', 'road_hold'):
+    if event.get('phase') not in ('dock_wait', 'road_hold', 'road_slowdown'):
         return
     # Keep exact commands and receipts across retries and same-trip resets. A lost
     # acknowledgement must not silently acquire a different expected version.
@@ -228,10 +231,13 @@ async def report_delay(client, run, event, headers):
     if report is None:
         include_hold = event['phase'] == 'road_hold' or run.get('road_hold_observed', False)
         run['road_hold_observed'] = include_hold
+        include_slowdown = event['phase'] == 'road_slowdown' or run.get('road_slowdown_observed', False)
+        run['road_slowdown_observed'] = include_slowdown
+        forecast_key = (include_hold, include_slowdown)
         forecasts = run.setdefault('completion_forecasts', {})
-        if include_hold not in forecasts:
-            forecasts[include_hold] = run['replay'].forecast_completion_ms(include_hold)
-        end_ms = forecasts[include_hold]
+        if forecast_key not in forecasts:
+            forecasts[forecast_key] = run['replay'].forecast_completion_ms(include_hold, include_slowdown=include_slowdown)
+        end_ms = forecasts[forecast_key]
         if end_ms <= run.get('reported_end_ms', 0):
             return
         response = await client.get('/api/simulation-assignment', params={'assignmentId': run['assignment_id']}, headers=headers)
@@ -244,7 +250,7 @@ async def report_delay(client, run, event, headers):
             'assignmentId': run['assignment_id'],
             'expectedEnd': datetime.fromtimestamp(end_ms/1000, timezone.utc).isoformat(),
             'observedAt': event['at'],
-            'reason': f"Simulator observed {event['phase']}; modeled completion uses seeded road speeds and configured stop dwell. Road disruption included: {include_hold}. Conditions {run['replay'].conditions_hash()}. Dispatcher review required."
+            'reason': f"Simulator observed {event['phase']}; modeled completion uses seeded road speeds and configured stop dwell. Road hold included: {include_hold}; slowdown included: {include_slowdown}. Conditions {run['replay'].conditions_hash()}. Dispatcher review required."
         }, 'result': None}
         reports[key] = report
         save_run(run)  # Durable exact expected version before the consequential POST.
@@ -308,7 +314,7 @@ async def advance(run_id: str, data: Advance):
                         response.raise_for_status()
                         run['events'].append(event)
                         pending['sent'] += 1
-                        if pending['sent'] % 2 == 0 or event.get('phase') in ('dock_wait', 'road_hold'):
+                        if pending['sent'] % 2 == 0 or event.get('phase') in ('dock_wait', 'road_hold', 'road_slowdown'):
                             await synchronize_clock(client, run, event['at'], headers)
                         await report_delay(client, run, event, headers)
                     if pending['sent']:

@@ -91,3 +91,15 @@ def test_transition_keeps_completed_stop_index_at_duplicate_leg_vertex():
     new=replace_remaining_route(old,*alternate(old)).replay
     assert new.sample()==old.sample()
     assert new.stop_indices[1]==2 and new.coordinates[1]==new.coordinates[2]
+
+
+def test_transition_retains_active_global_slowdown_without_resetting_duration():
+    old=base();old.slowdown_start_seconds=5;old.slowdown_seconds=60;old.slowdown_factor=.25
+    old.paused=False;old.advance_samples(10);old.paused=True
+    new=replace_remaining_route(old,*alternate(old)).replay
+    assert new.sample()==old.sample() and new.phase()=='road_slowdown'
+    assert (new.slowdown_start_seconds,new.slowdown_seconds,new.slowdown_factor)==(5,60,.25)
+    assert new.initial_conditions()['model_version']=='road-events-v3'
+    new.paused=False;events=new.advance_samples(60)
+    assert events[-1]['at_ms']==old.start_time_ms+70000
+    assert new.elapsed_seconds==70 and not new._slowed()

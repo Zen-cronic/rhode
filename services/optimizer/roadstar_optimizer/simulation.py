@@ -24,6 +24,9 @@ class Replay:
     stop_indices: list[int] | None = None
     stop_wait_seconds: list[int] | None = None
     disruption_start_seconds: int = 60
+    slowdown_start_seconds: int = 60
+    slowdown_seconds: int = 0
+    slowdown_factor: float = 0.35
     _lengths: list[float] = field(init=False, repr=False)
     _distance: float = field(init=False, default=0, repr=False)
     _next_stop: int = field(init=False, default=1, repr=False)
@@ -36,8 +39,10 @@ class Replay:
             raise ValueError('Verified truck-route geometry or explicitly labeled test route required')
         if any(len(p) != 2 or not all(math.isfinite(v) for v in p) or not -180 <= p[0] <= 180 or not -90 <= p[1] <= 90 for p in self.coordinates):
             raise ValueError('Finite longitude/latitude geometry required')
-        if any(not isinstance(v, int) or v < 0 for v in [self.dock_wait_seconds, self.disruption_seconds, self.disruption_start_seconds]):
+        if any(not isinstance(v, int) or v < 0 for v in [self.dock_wait_seconds, self.disruption_seconds, self.disruption_start_seconds, self.slowdown_seconds, self.slowdown_start_seconds]):
             raise ValueError('Nonnegative integer event durations required')
+        if not math.isfinite(self.slowdown_factor) or not 0 < self.slowdown_factor < 1:
+            raise ValueError('Slowdown factor must be finite and strictly between zero and one')
         self.stop_indices = list(self.stop_indices) if self.stop_indices is not None else [0, len(self.coordinates)-1]
         if not self.stop_indices or any(not isinstance(i, int) or i < 0 or i >= len(self.coordinates) for i in self.stop_indices) or self.stop_indices != sorted(set(self.stop_indices)) or self.stop_indices[0] != 0 or self.stop_indices[-1] != len(self.coordinates)-1:
             raise ValueError('Ordered unique stop indices must include route start and end')
@@ -65,18 +70,24 @@ class Replay:
     def _held(self):
         return self.disruption_start_seconds <= self.elapsed_seconds < self.disruption_start_seconds+self.disruption_seconds
 
+    def _slowed(self):
+        return self.slowdown_start_seconds <= self.elapsed_seconds < self.slowdown_start_seconds+self.slowdown_seconds
+
     def phase(self):
         if self._wait > 0:
             return 'dock_wait'
         if self._next_stop >= len(self.stop_indices):
             return 'route_complete'
-        return 'road_hold' if self._held() else 'driving'
+        if self._held():
+            return 'road_hold'
+        return 'road_slowdown' if self._slowed() else 'driving'
 
     def _speed(self):
         # The seed changes actual motion; no process-global RNG or tick-size dependence.
         bucket = self.elapsed_seconds // 60
         value = int(sha256(f'{self.seed}:{bucket}'.encode()).hexdigest()[:8], 16)
-        return self.speed_kph*(0.75+(value % 26)/100)
+        factor = self.slowdown_factor if self._slowed() else 1
+        return self.speed_kph*(0.75+(value % 26)/100)*factor
 
     def sample(self):
         index = bisect.bisect_left(self._lengths, self._distance)
@@ -87,7 +98,7 @@ class Replay:
             segment = self._lengths[index]-self._lengths[index-1]
             fraction = 0 if segment == 0 else (self._distance-self._lengths[index-1])/segment
             position = [a[0]+fraction*(b[0]-a[0]), a[1]+fraction*(b[1]-a[1])]
-        return {'at_ms': self.start_time_ms+self.elapsed_seconds*1000, 'position': {'lng': position[0], 'lat': position[1]}, 'speedKph': self._last_speed, 'odometerKm': self._distance, 'duty': 'driving' if self.phase() == 'driving' else 'on_duty', 'provenance': 'synthetic', 'accuracyM': 5, 'phase': self.phase()}
+        return {'at_ms': self.start_time_ms+self.elapsed_seconds*1000, 'position': {'lng': position[0], 'lat': position[1]}, 'speedKph': self._last_speed, 'odometerKm': self._distance, 'duty': 'driving' if self.phase() in ('driving', 'road_slowdown') else 'on_duty', 'provenance': 'synthetic', 'accuracyM': 5, 'phase': self.phase()}
 
     def _step(self):
         before = self._distance
@@ -102,16 +113,18 @@ class Replay:
         self.elapsed_seconds += 1
         self._last_speed = (self._distance-before)*3600
 
-    def forecast_completion_ms(self, include_disruption: bool, max_seconds: int = 7*86400):
+    def forecast_completion_ms(self, include_disruption: bool, max_seconds: int = 7*86400, include_slowdown: bool | None = None):
         """Exact modeled finish, including configured stop dwell; never advances this replay.
 
-        A road hold is included only after it is observed. This is a scenario forecast,
+        Callers select observed road holds and slowdowns separately. This is a scenario forecast,
         not a traffic prediction or physical completion timestamp.
         """
         options = self.initial_conditions().copy()
         options.pop('model_version')
         if not include_disruption:
             options['disruption_seconds'] = 0
+        if not (include_disruption if include_slowdown is None else include_slowdown):
+            options['slowdown_seconds'] = 0
         forecast = Replay(**options)
         while forecast.phase() != 'route_complete' and forecast.elapsed_seconds < max_seconds:
             forecast._step()
@@ -138,7 +151,12 @@ class Replay:
         return self.sample()
 
     def initial_conditions(self):
-        return {'model_version': 'road-events-v2', 'coordinates': self.coordinates, 'start_time_ms': self.start_time_ms, 'seed': self.seed, 'speed_kph': self.speed_kph, 'dock_wait_seconds': self.dock_wait_seconds, 'disruption_seconds': self.disruption_seconds, 'disruption_start_seconds': self.disruption_start_seconds, 'stop_indices': self.stop_indices, 'stop_wait_seconds': self.stop_wait_seconds, 'route_evidence': self.route_evidence}
+        initial = {'model_version': 'road-events-v2', 'coordinates': self.coordinates, 'start_time_ms': self.start_time_ms, 'seed': self.seed, 'speed_kph': self.speed_kph, 'dock_wait_seconds': self.dock_wait_seconds, 'disruption_seconds': self.disruption_seconds, 'disruption_start_seconds': self.disruption_start_seconds, 'stop_indices': self.stop_indices, 'stop_wait_seconds': self.stop_wait_seconds, 'route_evidence': self.route_evidence}
+        # Preserve historical fingerprints and observation IDs for unchanged runs.
+        if self.slowdown_seconds:
+            initial.update(model_version='road-events-v3', slowdown_start_seconds=self.slowdown_start_seconds,
+                           slowdown_seconds=self.slowdown_seconds, slowdown_factor=self.slowdown_factor)
+        return initial
 
     def conditions_hash(self):
         return sha256(json.dumps(self.initial_conditions(), sort_keys=True).encode()).hexdigest()
