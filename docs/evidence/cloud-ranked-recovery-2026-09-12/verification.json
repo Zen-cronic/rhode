@@ -1,0 +1,128 @@
+{
+  "verifiedAt": "2026-09-12T21:51:01.763Z",
+  "webBase": "https://roadstar-web-739889188415.us-central1.run.app",
+  "apiBase": "https://roadstar-api-739889188415.us-central1.run.app",
+  "carrier": "ranked-recovery-cloud-8ea0cc51-fe31-46ee-ae92-80463dcf5891",
+  "deployed": {
+    "optimizer": "roadstar-optimizer-00015-vuk",
+    "api": "roadstar-api-00036-woy",
+    "web": "roadstar-web-00054-dih",
+    "documents": "roadstar-documents-00021-tam"
+  },
+  "delayId": "5845be6e-8716-4193-ad6b-c8288dfc8155",
+  "recommendationId": "e61357eb-d4f7-49d0-abdd-46730e35c829",
+  "selected": {
+    "driverId": "D-02",
+    "truckId": "T-102",
+    "trailerId": "V-102"
+  },
+  "candidates": [
+    {
+      "timing": {
+        "availableAt": "2026-09-13T12:00:00.000Z",
+        "evaluatedAt": "2026-09-13T12:00:00.000Z",
+        "completionAt": "2026-09-13T18:39:00.000Z",
+        "pickupReadyAt": "2026-09-13T16:15:00.000Z",
+        "travelMinutes": 99,
+        "serviceMinutes": 45,
+        "pickupArrivalAt": "2026-09-13T13:38:00.000Z",
+        "pickupLateMinutes": 0
+      },
+      "reasons": [],
+      "truckId": "T-102",
+      "driverId": "D-02",
+      "eligible": true,
+      "trailerId": "V-102",
+      "deadheadKm": 138.9
+    },
+    {
+      "timing": {
+        "availableAt": "2026-09-13T12:00:00.000Z",
+        "evaluatedAt": "2026-09-13T12:00:00.000Z",
+        "completionAt": "2026-09-13T18:39:00.000Z",
+        "pickupReadyAt": "2026-09-13T16:15:00.000Z",
+        "travelMinutes": 99,
+        "serviceMinutes": 45,
+        "pickupArrivalAt": "2026-09-13T12:00:00.000Z",
+        "pickupLateMinutes": 0
+      },
+      "reasons": [
+        "Current HOS evidence is missing or stale."
+      ],
+      "truckId": "T-102",
+      "driverId": "D-03",
+      "eligible": false,
+      "trailerId": "V-102",
+      "deadheadKm": 0
+    }
+  ],
+  "comparison": {
+    "current": {
+      "axle": {
+        "note": "Synthetic declared axle clearance only; no physical loading assessment.",
+        "reasons": [],
+        "eligible": true,
+        "required": false
+      },
+      "note": "Truck-route travel times with declared work budgets. OSM restrictions and supplied dimensions require review; not certified ELD or legal clearance. Prior work: RS-1042: 105 min driving, 270 min on duty (full plan; current progress unavailable). Full service allowance retained; future waiting assumed on duty.",
+      "timing": {
+        "availableAt": "2026-09-13T17:00:00.000Z",
+        "evaluatedAt": "2026-09-13T12:00:00.000Z",
+        "completionAt": "2026-09-13T19:24:00.000Z",
+        "pickupReadyAt": "2026-09-13T17:00:00.000Z",
+        "travelMinutes": 99,
+        "serviceMinutes": 45,
+        "pickupArrivalAt": "2026-09-13T17:00:00.000Z",
+        "pickupLateMinutes": 45
+      },
+      "reasons": [
+        "Resource reserved by RS-1042.",
+        "Driver cannot reach pickup after prior committed work under the current planning estimate."
+      ],
+      "eligible": false,
+      "deadheadKm": 0,
+      "routingEvidence": "valhalla-truck",
+      "routeFingerprint": "2a3e6fb0b7839a185a6ae27a681bfe856a3f4f03f3c894f28612d98260d93af7"
+    },
+    "proposed": {
+      "axle": {
+        "note": "Synthetic declared axle clearance only; no physical loading assessment.",
+        "reasons": [],
+        "eligible": true,
+        "required": false
+      },
+      "note": "Truck-route travel times with declared work budgets. OSM restrictions and supplied dimensions require review; not certified ELD or legal clearance.",
+      "timing": {
+        "availableAt": "2026-09-13T12:00:00.000Z",
+        "evaluatedAt": "2026-09-13T12:00:00.000Z",
+        "completionAt": "2026-09-13T18:39:00.000Z",
+        "pickupReadyAt": "2026-09-13T16:15:00.000Z",
+        "travelMinutes": 99,
+        "serviceMinutes": 45,
+        "pickupArrivalAt": "2026-09-13T13:38:00.000Z",
+        "pickupLateMinutes": 0
+      },
+      "reasons": [],
+      "eligible": true,
+      "deadheadKm": 138.9,
+      "routingEvidence": "valhalla-truck",
+      "routeFingerprint": "0f4a04379a69c89034d920d555f47d2c2aaa5bd64c06ce5517072a7f9dc221dd"
+    },
+    "evaluatedAt": "2026-09-13T12:00:00.000Z"
+  },
+  "forbiddenRoleStatus": 403,
+  "staleApprovalStatus": 409,
+  "originalAssignmentStatus": "superseded",
+  "replacementAssignmentStatus": "accepted",
+  "posts": [],
+  "checks": [
+    "Firebase-authenticated hosted dispatcher requested one server-ranked recovery",
+    "Feasible D-02 / T-102 / V-102 ranked ahead of the retained missing-HOS rejection",
+    "Dispatcher reviewed and approved the pending revision",
+    "Simulator approval was forbidden and a new stale approval was rejected without mutation",
+    "Separate Firebase driver accepted the offered replacement",
+    "Original assignment became superseded only after approval",
+    "Hosted desktop and 390px flows rendered without overflow or page errors"
+  ],
+  "limits": "Isolated synthetic Southern Ontario scenario. Route and timing values are modeled with configured services. No human task-time, measured traffic, revenue or savings claim. Hosted simulator controls remain intentionally unavailable; 3D uses retained verified local recording evidence."
+}
