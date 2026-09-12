@@ -29,6 +29,7 @@ export const schemas={
   'complete-stop':z.object({assignmentId:uuid,stopId:id,occurredAt:z.string().datetime({offset:true}).optional(),note:z.string().max(2000).optional()}),
   dispatch:assignmentInput,
   propose:assignmentInput.extend({reason:z.string().max(2000).optional()}),
+  recommend:z.object({loadId:id,reason:z.string().min(1).max(2000).optional()}),
   approve:z.object({proposalId:uuid}),
   respond:z.object({assignmentId:uuid,action:z.enum(['accept','reject'])}),
   'work-session':z.discriminatedUnion('action',[z.object({action:z.literal('start')}),z.object({action:z.literal('end'),sessionId:uuid})]),

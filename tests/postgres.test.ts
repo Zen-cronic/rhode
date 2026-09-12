@@ -37,6 +37,14 @@ test('delay identifies next load and recovery removes delayed resource conflict'
   const approved:any=await store.approve(dispatcher,command(),{proposalId:p.id});assert.equal(approved.assignment.driverId,'D-02');
   assert.equal((await store.snapshot(dispatcher)).assignments.find(a=>a.id===next.id)?.status,'superseded');
 });
+test('ranked recovery recommends a feasible alternate and retains rejected constraints before approval',async()=>{
+  const {dispatcher,driver,simulator,carrierId}=await setup(),driver2=await store.membership('demo-driver-2',carrierId);const first:any=await store.dispatch(dispatcher,command(),input);await store.respond(driver,command(),{assignmentId:first.id,action:'accept'});
+  const next:any=await store.dispatch(dispatcher,command(),{...input,loadId:'RS-1043'});await store.delay(simulator,command(2),{assignmentId:first.id,expectedEnd:'2026-09-13T17:00:00Z',observedAt:'2026-09-13T15:30:00Z',reason:'Dock departure delayed'});
+  const cmd=command(2),recommendation:any=await store.recommend(dispatcher,cmd,{loadId:'RS-1043',reason:'Rank alternate resources for the affected pickup.'});assert.deepEqual(await store.recommend(dispatcher,cmd,{loadId:'RS-1043',reason:'Rank alternate resources for the affected pickup.'}),recommendation);
+  assert.deepEqual([recommendation.body.driverId,recommendation.body.truckId,recommendation.body.trailerId],['D-02','T-102','V-102']);assert.equal(recommendation.body.candidates[0].eligible,true);assert.ok(recommendation.body.candidates.some((candidate:any)=>candidate.driverId==='D-03'&&!candidate.eligible&&candidate.reasons.some((reason:string)=>/HOS evidence/.test(reason))));
+  assert.equal((await db.query('SELECT count(*)::int AS count FROM proposals WHERE carrier_id=$1',[carrierId])).rows[0].count,1);const approved:any=await store.approve(dispatcher,command(),{proposalId:recommendation.id});assert.equal(approved.assignment.driverId,'D-02');await store.respond(driver2,command(),{assignmentId:approved.assignment.id,action:'accept'});
+  const final=await store.snapshot(dispatcher);assert.equal(final.assignments.find(assignment=>assignment.id===next.id)?.status,'superseded');assert.equal(final.assignments.find(assignment=>assignment.id===approved.assignment.id)?.status,'accepted');
+});
 test('driver completes stops in sequence; retries do not duplicate and completion releases reservations',async()=>{
   const {dispatcher,driver,carrierId}=await setup();const a:any=await store.dispatch(dispatcher,command(),input);await store.respond(driver,command(),{assignmentId:a.id,action:'accept'});
   await assert.rejects(store.completeStop(driver,command(2),{assignmentId:a.id,stopId:london.id}),{code:'STOP_ORDER'});

@@ -213,6 +213,34 @@ export class Store {
     const load=await this.load(c,a,input.loadId);demand(load.version===cmd.expectedVersion,'STALE_VERSION','Load changed. Refresh.');demand(load.status==='open','INVALID_TRANSITION','Load is already assigned.');
     const proof=await this.check(c,a,load,input);demand(proof.eligible,'INELIGIBLE',proof.reasons.join(' '));return this.offer(c,a,load,input);
   });}
+  recommend(a:Actor,cmd:Command,input:Row){this.dispatcher(a);return this.command(a,cmd,'recovery.recommended',input,async c=>{
+    const load=await this.load(c,a,input.loadId);demand(load.version===cmd.expectedVersion,'STALE_VERSION','Load changed. Refresh.');
+    const current=(await c.query("SELECT * FROM assignments WHERE carrier_id=$1 AND load_id=$2 AND status IN ('offered','accepted')",[a.carrierId,load.id])).rows[0];
+    demand(current,'RECOVERY_REQUIRED','An active assignment is required for recovery.',409);const old=assignment(current);
+    demand(!(await c.query("SELECT 1 FROM proposals WHERE carrier_id=$1 AND load_id=$2 AND expected_version=$3 AND status='pending'",[a.carrierId,load.id,load.version])).rows.length,'RECOMMENDATION_EXISTS','A current recovery recommendation already awaits review.');
+    demand(!(await closureAreas(c,a.carrierId,[old.id])).length,'CLOSURE_ROUTE_REVIEW_REQUIRED','Closure-affected trips require a remaining-route review; reassignment cannot discard closure evidence.');
+    demand(old.status!=='accepted'||load.status!=='in_transit','IN_PROGRESS','An in-transit load needs a reviewed physical handoff; automatic reassignment is unavailable.');
+    demand(!await groupFor(c,a.carrierId,old.id),'GROUP_RECOVERY_REQUIRED','Consolidated trips require review of the complete manifest.');
+    const rows=(await c.query('SELECT id,kind,version,body FROM resources WHERE carrier_id=$1 ORDER BY kind,id',[a.carrierId])).rows.map(row=>({...row.body,id:row.id,kind:row.kind,version:row.version}));
+    const drivers=rows.filter(row=>row.kind==='driver'&&row.id!==old.driverId),trucks=rows.filter(row=>row.kind==='truck'&&row.id!==old.truckId&&row.axleClearance==='verified'&&row.routingProfile),trailers=rows.filter(row=>row.kind==='trailer'&&row.id!==old.trailerId&&row.equipment===load.equipment&&Number.isFinite(row.capacityLb)&&row.capacityLb>=Number(load.weightLb));
+    demand(drivers.length&&trucks.length&&trailers.length,'NO_RECOVERY_RESOURCES','No alternate driver, verified truck and compatible trailer set is available.');
+    const candidates:Row[]=[];
+    for(const driver of drivers)for(const truck of trucks)for(const trailer of trailers){
+      const choice={loadId:load.id,driverId:driver.id,truckId:truck.id,trailerId:trailer.id};
+      try{const proof=await this.check(c,a,load,choice,old.id);candidates.push({...choice,eligible:proof.eligible,reasons:proof.reasons,proof});}
+      catch(error){if(error instanceof DomainError)candidates.push({...choice,eligible:false,reasons:[error.message]});else throw error;}
+    }
+    const score=(candidate:Row)=>[candidate.eligible?0:1,candidate.proof?.timing?.pickupLateMinutes??Number.MAX_SAFE_INTEGER,Date.parse(candidate.proof?.timing?.completionAt??'')||Number.MAX_SAFE_INTEGER,candidate.proof?.deadheadKm??Number.MAX_SAFE_INTEGER,`${candidate.driverId}/${candidate.truckId}/${candidate.trailerId}`];
+    candidates.sort((left,right)=>{const aScore=score(left),bScore=score(right);for(let index=0;index<aScore.length;index++){if(aScore[index]===bScore[index])continue;return aScore[index]<bScore[index]?-1:1;}return 0;});
+    const chosen=candidates.find(candidate=>candidate.eligible);demand(chosen,'NO_FEASIBLE_RECOVERY',candidates.flatMap(candidate=>candidate.reasons).filter(Boolean).slice(0,4).join(' ')||'No feasible alternate resource combination.');
+    let currentProof:import('../../../packages/domain/src/index.ts').Screening|undefined,currentUnavailable:string|undefined;
+    try{currentProof=await this.check(c,a,load,old,old.id);}catch(error){if(error instanceof DomainError)currentUnavailable=error.message;else throw error;}
+    const resourceIds=[chosen.driverId,chosen.truckId,chosen.trailerId,old.driverId,old.truckId,old.trailerId],resources=await c.query('SELECT id,version FROM resources WHERE carrier_id=$1 AND id=ANY($2::text[])',[a.carrierId,[...new Set(resourceIds)]]);
+    const comparison={...(currentProof?{current:currentProof}:{}),...(currentUnavailable?{currentUnavailable}:{}),proposed:chosen.proof,evaluatedAt:chosen.proof.timing?.evaluatedAt};
+    const id=randomUUID(),body={loadId:load.id,driverId:chosen.driverId,truckId:chosen.truckId,trailerId:chosen.trailerId,reason:String(input.reason??'RoadStar ranked alternate resources after a recorded disruption.'),proof:chosen.proof,comparison,currentAssignmentId:old.id,currentAssignmentVersion:old.version,resources:resources.rows,candidates:candidates.slice(0,8).map(candidate=>({driverId:candidate.driverId,truckId:candidate.truckId,trailerId:candidate.trailerId,eligible:candidate.eligible,reasons:candidate.reasons,deadheadKm:candidate.proof?.deadheadKm,timing:candidate.proof?.timing})),assumptions:['Declared HOS budgets','Valhalla truck route with supplied dimensions; OSM restriction coverage applies','Current assignment resources excluded; alternate trucks require routing profiles and reviewed axle clearance; trailers require matching equipment and payload capacity']};
+    await c.query("INSERT INTO proposals(carrier_id,id,load_id,expected_version,status,body) VALUES($1,$2,$3,$4,'pending',$5)",[a.carrierId,id,load.id,load.version,JSON.stringify(body)]);
+    return {id,revision:1,status:'pending',loadId:load.id,body};
+  });}
   propose(a:Actor,cmd:Command,input:Row){this.dispatcher(a);return this.command(a,cmd,'recovery.proposed',input,async c=>{
     const load=await this.load(c,a,input.loadId);demand(load.version===cmd.expectedVersion,'STALE_VERSION','Load changed.');
     const current=await c.query("SELECT * FROM assignments WHERE carrier_id=$1 AND load_id=$2 AND status IN ('offered','accepted')",[a.carrierId,load.id]);
