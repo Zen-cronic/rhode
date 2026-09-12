@@ -27,6 +27,17 @@ export function approvePlan(s:Store,a:Actor,cmd:Command,input:any){s.dispatcher(
  }
  await c.query("UPDATE planning_runs SET status='approved',version=version+1 WHERE carrier_id=$1 AND id=$2",[a.carrierId,plan.id]);await c.query('INSERT INTO plan_approvals(carrier_id,id,planning_run_id,approved_by,evidence) VALUES($1,$2,$3,$4,$5)',[a.carrierId,randomUUID(),plan.id,a.uid,JSON.stringify({inputHash:fresh.input_hash,groups})]);return {planId:plan.id,status:'approved',version:plan.version+1,groups};
 });}
+// Read original plan service allocations so historical manifests need no rewrite.
+export async function groupWork(c:pg.PoolClient,carrierId:string,group:any){
+ const plan=(await c.query('SELECT input FROM planning_runs WHERE carrier_id=$1 AND id=$2',[carrierId,group.planning_run_id])).rows[0];
+ const ids=[...new Set<string>(group.body.stops.map((stop:any)=>stop.loadId))];
+ const services=ids.map(id=>plan?.input.loads.find((load:any)=>load.id===id));
+ demand(services.every(load=>load&&Number.isFinite(load.pickup_service)&&Number.isFinite(load.delivery_service)),'PLANNING_EVIDENCE_MISSING','Original manifest service evidence is required before further commitments.');
+ const serviceMinutes=services.reduce((sum,load)=>sum+load.pickup_service+load.delivery_service,0);
+ const drivingMinutes=group.body.drivingMinutes;
+ const window=Math.ceil((timestamp(group.body.endAt)-timestamp(group.body.startAt))/60000);
+ return {drivingMinutes,serviceMinutes,dutyMinutes:Math.max(drivingMinutes+serviceMinutes,window)};
+}
 export async function groupFor(c:pg.PoolClient,carrierId:string,assignmentId:string){return (await c.query('SELECT g.* FROM trip_groups g JOIN trip_members m ON m.carrier_id=g.carrier_id AND m.group_id=g.id WHERE g.carrier_id=$1 AND m.assignment_id=$2',[carrierId,assignmentId])).rows[0];}
 export async function respondGroup(s:Store,c:pg.PoolClient,a:Actor,v:Assignment,action:string){const group=await groupFor(c,a.carrierId,v.id);if(!group)return null;demand(group.status==='offered','INVALID_TRANSITION','Trip group has already been answered.');
  if(action==='accept')for(const e of group.body.resourceVersions){const row=(await c.query('SELECT version FROM resources WHERE carrier_id=$1 AND id=$2',[a.carrierId,e.id])).rows[0];demand(row?.version===e.version,'STALE_PLAN','Vehicle or duty evidence changed after offer. Dispatcher must review again.');}

@@ -9,7 +9,7 @@ import {emulatorVerification} from './verification.ts';
 import {remainingWork} from './remaining-work.ts';
 import {withDutyHistory} from './hos.ts';
 import {prepareDetention} from './billing.ts';
-import {approvePlan,commitmentHash,groupFor,respondGroup,checkGroupStop,releaseCompletedGroup} from './trip-groups.ts';
+import {approvePlan,commitmentHash,groupFor,groupWork,respondGroup,checkGroupStop,releaseCompletedGroup} from './trip-groups.ts';
 import {roadRoute,computation} from './planning.ts';
 import {Files,sha256} from './files.ts';
 import type pg from 'pg';
@@ -177,7 +177,8 @@ export class Store {
       const stops=group?group.body.stops:[{assignmentId:prior.id,stopId:priorLoad.pickup.id,point:priorLoad.pickup},{assignmentId:prior.id,stopId:priorLoad.delivery.id,point:priorLoad.delivery}];
       const members=group?rows.rows.filter(r=>stops.some((stop:any)=>stop.assignmentId===r.id)):[prior];
       const releaseAt=iso(new Date(Math.max(...members.map(r=>new Date(r.end_at).getTime()))));
-      const work=await remainingWork(c,a.carrierId,{assignmentIds:[...new Set<string>(stops.map((stop:any)=>stop.assignmentId))],stops,truck:await this.resource<Truck>(c,a,prior.truck_id,'truck'),provenance:priorLoad.provenance,now,startAt:iso(prior.start_at),releaseAt,availableAt,drivingMinutes:group?group.body.drivingMinutes:priorLoad.drivingMinutes,serviceMinutes:group?Math.max(0,group.body.dutyMinutes-group.body.drivingMinutes):priorLoad.serviceMinutes});
+      const groupBudget=group?await groupWork(c,a.carrierId,group):null;
+      const work=await remainingWork(c,a.carrierId,{assignmentIds:[...new Set<string>(stops.map((stop:any)=>stop.assignmentId))],stops,truck:await this.resource<Truck>(c,a,prior.truck_id,'truck'),provenance:priorLoad.provenance,now,startAt:iso(prior.start_at),releaseAt,availableAt,drivingMinutes:groupBudget?groupBudget.drivingMinutes:priorLoad.drivingMinutes,serviceMinutes:groupBudget?groupBudget.serviceMinutes:priorLoad.serviceMinutes});
       projections.push({loadId:priorLoad.id,...work});
       driver={...driver,position:stops.at(-1).point,budget:driver.budget?{...driver.budget,drivingMinutes:driver.budget.drivingMinutes-work.drivingMinutes,onDutyMinutes:driver.budget.onDutyMinutes-work.dutyMinutes,cycleMinutes:driver.budget.cycleMinutes-work.dutyMinutes}:null};
       availableAt=work.availableAt;
@@ -438,8 +439,9 @@ export class Store {
         if(group&&projectedGroups.has(group.id))continue;
         if(group)projectedGroups.add(group.id);
         const l=group?null:await this.load(c,a,prior.load_id);
-        const drivingMinutes=group?group.body.drivingMinutes:l!.drivingMinutes;
-        const dutyMinutes=group?group.body.dutyMinutes:l!.drivingMinutes+l!.serviceMinutes;
+        const groupBudget=group?await groupWork(c,a.carrierId,group):null;
+        const drivingMinutes=groupBudget?groupBudget.drivingMinutes:l!.drivingMinutes;
+        const dutyMinutes=groupBudget?groupBudget.dutyMinutes:l!.drivingMinutes+l!.serviceMinutes;
         driver={...driver,position:group?group.body.stops.at(-1).point:l!.delivery,budget:{...driver.budget!,drivingMinutes:Math.max(0,driver.budget!.drivingMinutes-drivingMinutes),onDutyMinutes:Math.max(0,driver.budget!.onDutyMinutes-dutyMinutes),cycleMinutes:Math.max(0,driver.budget!.cycleMinutes-dutyMinutes)}};
       }
       if(availableAt>1440){rejected.push({vehicle_id:truck.id,reason:'Committed beyond planning horizon'});continue;}
