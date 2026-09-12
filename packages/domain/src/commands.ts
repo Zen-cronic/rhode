@@ -1,9 +1,11 @@
+import {axleReviewSchema} from './axle.ts';
 import {hosReviewSchema} from './hos-import.ts';
 import {z} from 'zod';
 const id=z.string().min(1).max(128),uuid=z.string().uuid();
 const assignmentInput=z.object({loadId:id,driverId:id,truckId:id,trailerId:id});
 const closureArea=z.object({west:z.number().min(-180).max(180),east:z.number().min(-180).max(180),south:z.number().min(-90).max(90),north:z.number().min(-90).max(90)}).refine(a=>a.west<a.east&&a.south<a.north&&a.east-a.west<=.5&&a.north-a.south<=.5,'Positive regional closure bounds required');
 export const schemas={
+  'review-axles':axleReviewSchema,
   'correct-visit-times':z.object({visitId:uuid,stopId:id,documentId:uuid,arrivalAt:z.string().datetime({offset:true}),departureAt:z.string().datetime({offset:true}),fingerprint:z.string().regex(/^[a-f0-9]{64}$/),sourceNote:z.string().trim().min(20).max(2000),reason:z.string().trim().min(20).max(2000),acknowledgeConflictingEvidence:z.literal(true)}),
   'simulator-control':z.object({runId:z.string().regex(/^[A-Za-z0-9_-]{1,80}$/),expectedState:z.string().regex(/^[a-f0-9]{64}$/),action:z.enum(['pause','resume','reset','advance','adopt-route']),seconds:z.number().int().min(1).max(60).optional(),revisionId:uuid.optional(),expectedRevision:z.number().int().min(1).optional()}),
   'reconcile-visits':z.object({assignmentId:uuid,fingerprint:z.string().regex(/^[a-f0-9]{64}$/),reason:z.string().trim().min(20).max(2000),acknowledgeRevisedEvidence:z.literal(true)}),

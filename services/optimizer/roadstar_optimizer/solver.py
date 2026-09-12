@@ -1,9 +1,11 @@
 from datetime import datetime
 from hashlib import sha256
 import json
-from typing import Literal
+from typing import Annotated, Literal
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 from pydantic import BaseModel, Field, model_validator
+
+Grams = Annotated[int, Field(ge=0, le=100000000)]
 
 class Vehicle(BaseModel):
     id: str
@@ -17,6 +19,7 @@ class Vehicle(BaseModel):
     available_at: int = Field(ge=0, le=1440)
     evidence_at: datetime
     maintenance_hold: bool = False
+    axle_capacity_g: tuple[Grams, Grams, Grams] | None = None
 
 class Shipment(BaseModel):
     id: str
@@ -28,6 +31,8 @@ class Shipment(BaseModel):
     delivery_window: tuple[int, int]
     pickup_service: int = Field(ge=0)
     delivery_service: int = Field(ge=0)
+    allowed_vehicles: list[str] | None = None
+    axle_demands_g: dict[str, tuple[Grams, Grams, Grams]] = Field(default_factory=dict)
 
 class Problem(BaseModel):
     now: datetime
@@ -57,6 +62,14 @@ class Problem(BaseModel):
                 raise ValueError('Time windows require 0 <= start <= end <= 1440')
         if len({v.id for v in self.vehicles}) != len(self.vehicles) or len({l.id for l in self.loads}) != len(self.loads):
             raise ValueError('Duplicate vehicle/load IDs')
+        for v in self.vehicles:
+            if v.axle_capacity_g is not None and any(x < 0 for x in v.axle_capacity_g):
+                raise ValueError('Axle group capacity must be nonnegative grams')
+            for load in self.loads:
+                allowed = load.allowed_vehicles is None or v.id in load.allowed_vehicles
+                demand = load.axle_demands_g.get(v.id)
+                if v.axle_capacity_g is not None and allowed and (demand is None or any(x < 0 for x in demand)):
+                    raise ValueError('Every allowed assessed load needs three nonnegative axle demands')
         return self
 
 def solve(problem: Problem):
@@ -89,6 +102,17 @@ def solve(problem: Problem):
     for name, demands, capacities in [('Weight', weights, [v.capacity_lb for v in problem.vehicles]), ('Pallets', pallets, [v.pallet_capacity for v in problem.vehicles])]:
         callback = routing.RegisterUnaryTransitCallback(lambda a, d=demands: d[manager.IndexToNode(a)])
         routing.AddDimensionWithVehicleCapacity(callback, 0, capacities, True, name)
+    # Vehicle-specific static payload reactions; tare is deducted from capacity.
+    for group_index, name in enumerate(['SteerAxle', 'DriveAxles', 'TrailerAxles']):
+        callbacks=[]
+        for v in problem.vehicles:
+            demands=[0]*n
+            for i, load in enumerate(problem.loads):
+                added=load.axle_demands_g.get(v.id,(0,0,0))[group_index]
+                demands[count+2*i:count+2*i+2]=[added,-added]
+            callbacks.append(routing.RegisterTransitCallback(lambda a,b,d=demands:d[manager.IndexToNode(a)]))
+        capacities=[v.axle_capacity_g[group_index] if v.axle_capacity_g is not None else 1000000000 for v in problem.vehicles]
+        routing.AddDimensionWithVehicleTransitAndCapacity(callbacks,0,capacities,True,name)
     rejected = []
     compatible_by_load = {}
     for i, load in enumerate(problem.loads):
@@ -101,7 +125,7 @@ def solve(problem: Problem):
         time.CumulVar(d).SetRange(*load.delivery_window)
         routing.AddDisjunction([p], 1000000)
         routing.AddDisjunction([d], 1000000)
-        allowed = [j for j, v in enumerate(problem.vehicles) if v.available_at < v.shift_minutes and v.equipment == load.equipment and v.capacity_lb >= load.weight_lb and v.pallet_capacity >= load.pallets and not v.maintenance_hold and 0 <= (problem.now - v.evidence_at).total_seconds() <= 900]
+        allowed = [j for j, v in enumerate(problem.vehicles) if v.available_at < v.shift_minutes and v.equipment == load.equipment and v.capacity_lb >= load.weight_lb and v.pallet_capacity >= load.pallets and not v.maintenance_hold and 0 <= (problem.now - v.evidence_at).total_seconds() <= 900 and (load.allowed_vehicles is None or v.id in load.allowed_vehicles)]
         compatible_by_load[load.id] = allowed
         # SetValues includes -1 so optional incompatible shipments can be dropped.
         routing.VehicleVar(p).SetValues([-1] + allowed)
@@ -112,14 +136,14 @@ def solve(problem: Problem):
             # Do not pick up FTL while another shipment is already aboard.
             routing.solver().Add(routing.ActiveVar(p) * routing.GetDimensionOrDie('Weight').CumulVar(p) == 0)
         if not allowed:
-            rejected.append({'load_id': load.id, 'reason': 'No equipment/capacity/maintenance/HOS-evidence compatible vehicle'})
+            rejected.append({'load_id': load.id, 'reason': 'No equipment/capacity/maintenance/HOS/axle-evidence compatible vehicle'})
     params = pywrapcp.DefaultRoutingSearchParameters()
     params.first_solution_strategy = routing_enums_pb2.FirstSolutionStrategy.PARALLEL_CHEAPEST_INSERTION
     params.local_search_metaheuristic = routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH
     params.time_limit.seconds = problem.time_limit_seconds
     solution = routing.SolveWithParameters(params)
-    # Approval must reject proposals computed before waiting counted as duty.
-    fingerprint = sha256(json.dumps({'policy': 'on-duty-wait-v2', 'problem': problem.model_dump(mode='json')}, sort_keys=True).encode()).hexdigest()
+    # Bind approval to the constraint policy as well as the problem data.
+    fingerprint = sha256(json.dumps({'policy': 'axle-groups-on-duty-wait-v3', 'problem': problem.model_dump(mode='json')}, sort_keys=True).encode()).hexdigest()
     if not solution:
         return {'status': 'no_solution_found', 'routes': [], 'infeasible_loads': [{'load_id': l.id, 'reason': 'No solution found within bounded search; infeasibility not proven'} for l in problem.loads], 'input_hash': fingerprint}
     routes = []
@@ -138,6 +162,6 @@ def solve(problem: Problem):
         if solution.Value(routing.NextVar(p)) == p and not any(x['load_id'] == load.id for x in rejected):
             compatible = compatible_by_load[load.id]
             before_release = compatible and all(problem.vehicles[j].available_at > load.pickup_window[1] for j in compatible)
-            reason = ('Pickup closes before every compatible vehicle finishes its committed work.' if before_release else 'Unserved under supported time-window, capacity and declared duty limits; optimality not proven')
+            reason = ('Pickup closes before every compatible vehicle finishes its committed work.' if before_release else 'Unserved under supported time-window, payload/axle capacity and declared duty limits; optimality not proven')
             rejected.append({'load_id': load.id, 'reason': reason})
     return {'status': 'proposal', 'routes': routes, 'infeasible_loads': rejected, 'input_hash': fingerprint, 'routing_evidence': problem.routing_evidence, 'evidence_ref': problem.evidence_ref, 'assumptions': ['Declared HOS budgets, not certified ELD', 'Planned waiting counts as on-duty time', 'No legal break/rest scheduling', 'Open routes; no forced depot return', 'No independent dispatch authority'], 'modeled': True}

@@ -14,7 +14,7 @@ export type Driver = {
   position: Point; budget: {drivingMinutes: number; onDutyMinutes: number; shiftMinutes: number; cycleMinutes: number} | null;
   budgetAsOf: string | null; provenance: Provenance;
 };
-export type Truck = {id: string; axleClearance: 'verified' | 'unknown'; provenance: Provenance; routingProfile?: {height:number;width:number;length:number;weight:number;axle_load:number;hazmat:boolean;evidence:'operator-verified'|'synthetic-scenario'}};
+export type Truck = {id: string; axleAssessmentRequired?:boolean; axleConfigurationHash?:string; axleClearance: 'verified' | 'unknown'; provenance: Provenance; routingProfile?: {height:number;width:number;length:number;weight:number;axle_load:number;hazmat:boolean;evidence:'operator-verified'|'synthetic-scenario'}};
 export type Trailer = {id: string; equipment: Equipment; capacityLb: number; provenance: Provenance};
 export type Assignment = {
   visitReviewRequired?: boolean;

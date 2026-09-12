@@ -80,3 +80,41 @@ def test_reported_duty_includes_planned_wait_so_following_load_cannot_reuse_it()
     # Waiting is on duty, never an inferred rest break or a fresh HOS budget.
     p.vehicles[0].duty_minutes=159
     assert solve(p)['routes']==[]
+
+
+def test_ltl_axle_groups_limit_simultaneous_cargo_even_when_gross_payload_fits():
+    p=problem()
+    p.vehicles[0].axle_capacity_g=(1000000,1000000,10000000)
+    p.loads[0].mode='LTL'
+    p.loads[0].allowed_vehicles=['truck-1']
+    p.loads[0].axle_demands_g={'truck-1':(0,0,6000000)}
+    p.loads[0].pickup_window=(10,10)
+    p.loads[0].delivery_window=(100,200)
+    p.loads.append(p.loads[0].model_copy(deep=True,update={'id':'L2'}))
+    # Both pickups are at minute 10, deliveries >=100. Serving both requires
+    # 12t on a group with 10t remaining, although 40k lb gross payload fits.
+    p.loads[0].pickup_service=0
+    p.loads[1].pickup_service=0
+    p.matrices=[[[0,10,40,10,40,0],[10,0,30,0,30,0],[40,30,0,30,0,0],[10,0,30,0,30,0],[40,30,0,30,0,0],[0,0,0,0,0,0]]]
+    result=solve(Problem.model_validate(p.model_dump()))
+    assert len(result['routes'])==1
+    assert len({s['load_id'] for s in result['routes'][0]['stops']})==1
+    assert len(result['infeasible_loads'])==1
+    p.vehicles[0].axle_capacity_g=(1000000,1000000,12000000)
+    result=solve(p)
+    assert len({s['load_id'] for s in result['routes'][0]['stops']})==2
+
+
+def test_assessed_vehicle_requires_per_load_reactions_and_respects_pair_exclusions():
+    import pytest
+    p=problem()
+    p.vehicles[0].axle_capacity_g=(1,1,1)
+    with pytest.raises(ValueError):
+        Problem.model_validate(p.model_dump())
+    p.loads[0].allowed_vehicles=[]
+    p.loads[0].axle_demands_g={'truck-1':(-1,0,0)}
+    with pytest.raises(ValueError):
+        Problem.model_validate(p.model_dump())
+    p.loads[0].axle_demands_g={}
+    result=solve(Problem.model_validate(p.model_dump()))
+    assert result['routes']==[]

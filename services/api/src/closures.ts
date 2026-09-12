@@ -1,3 +1,4 @@
+import {axleProof} from './axles.ts';
 import type pg from 'pg';
 import type {Store,Actor} from './store.ts';
 import {demand,DomainError,timestamp,distanceKm,type Driver,type Truck,type Trailer} from '../../../packages/domain/src/index.ts';
@@ -37,6 +38,7 @@ export async function routeRevisionProof(store:Store,c:pg.PoolClient,a:Actor,ass
   const completionAt=new Date(timestamp(now)+dutyMinutes*60000).toISOString(),reasons:string[]=[];
   if(!driver.budget||!driver.budgetAsOf)reasons.push('Current HOS evidence is unavailable.');
   else{if(drivingMinutes>driver.budget.drivingMinutes)reasons.push('Insufficient driving budget.');if(dutyMinutes>driver.budget.onDutyMinutes)reasons.push('Insufficient on-duty budget.');if(dutyMinutes>driver.budget.cycleMinutes)reasons.push('Insufficient cycle budget.');if(dutyMinutes>driver.budget.shiftMinutes)reasons.push('Elapsed shift window would be exceeded.');}
+  const axle=await axleProof(c,a.carrierId,load,truck,trailer);reasons.push(...axle.reasons);
   if(load.weightLb===null||load.weightLb<=0||load.weightLb>trailer.capacityLb)reasons.push('Payload capacity or weight is unverified.');
   if(trailer.equipment!==load.equipment||truck.axleClearance!=='verified')reasons.push('Equipment or axle clearance is unverified.');
   if(timestamp(completionAt)>timestamp(load.endAt))reasons.push('Alternate completion exceeds the load appointment; dispatcher recovery is unresolved.');
@@ -46,6 +48,6 @@ export async function routeRevisionProof(store:Store,c:pg.PoolClient,a:Actor,ass
   const holds=(await c.query("SELECT reason FROM maintenance_holds WHERE carrier_id=$1 AND resource_id=ANY($2::text[]) AND resolved_at IS NULL AND period && tstzrange($3,$4,'[)')",[a.carrierId,[driver.id,truck.id,trailer.id],now,completionAt])).rows;
   reasons.push(...holds.map(r=>`Maintenance hold: ${r.reason}`));
   const routeFingerprint=createHash('sha256').update(JSON.stringify({closures,profile:truck.routingProfile,legs})).digest('hex');
-  return {...base,eligible:!reasons.length,reasons,resources,telemetryId:latest.id,origin:latest.body.position,originAt:new Date(latest.at).toISOString(),odometerKm:latest.body.odometerKm,completedStops:completed,remainingStops:stops,drivingMinutes,dutyMinutes,completionAt,routeFingerprint,route,hasToll:!!route.route.trip.summary?.has_toll,note:'Remaining route from same-trip GPS. Full service allowance retained; no rest inferred. Routing is modeled and requires dispatcher approval; original observations remain unchanged.'};
+  return {...base,axle,eligible:!reasons.length,reasons,resources,telemetryId:latest.id,origin:latest.body.position,originAt:new Date(latest.at).toISOString(),odometerKm:latest.body.odometerKm,completedStops:completed,remainingStops:stops,drivingMinutes,dutyMinutes,completionAt,routeFingerprint,route,hasToll:!!route.route.trip.summary?.has_toll,note:'Remaining route from same-trip GPS. Full service allowance retained; no rest inferred. Routing is modeled and requires dispatcher approval; original observations remain unchanged.'};
  }catch(error){if(!(error instanceof DomainError))throw error;return {...base,eligible:false,reasons:[error.message],failureCode:error.code};}
 }
