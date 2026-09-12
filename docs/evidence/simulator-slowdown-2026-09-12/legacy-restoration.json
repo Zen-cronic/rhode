@@ -1,0 +1,14 @@
+{
+  "verifiedAt": "2026-09-12T17:30:40.948Z",
+  "checks": "All eight existing runs restored paused; exact initial conditions, event histories, route transitions, pending state, hashes and progress retained",
+  "hashes": {
+    "3566d003-0208-48eb-aab6-037e1cbc6a28": "9920577a48a874c0cf1880c5f5b1c7084776b5a705fc617ad9cc9ec29ca4707a",
+    "51ba7e0c-74b2-47b1-9681-5ba93b6155df": "43f0b95a9f8124f6f182dee7f137176bc1c02ab8aea2742e4baa9dab1fd0872d",
+    "62d05ef7-7f4f-4828-9d7a-362f17bab5d6": "33c0cf54e79cdd44460c00a054e646e6e7a4cf605d39098fe3774c456f96a937",
+    "7042fb47-4998-46fa-a5df-68048d7510be": "561519423dc39851ca3a5d0fc5626d9ce7fb0ef2404ba12cd43294fca7a8be91",
+    "7c275f64-8af8-4649-b7a2-e4638f4157b1": "6af3280f6f41f762cc86ff4766fe3c8d5b8618aa2d5d58dbc4ef0d1e5cdaf07f",
+    "cc12677d-ef80-4990-9e69-19ff3862b86d": "194ebd14ce8d6e9f82543c376de217628c559d904ea55edf67ac0652403858d0",
+    "d4d6fd07-b354-4738-804f-d88cd3acd68e": "73f5a7d658650189927da34633f73dc34e54d276389c1eead315eb7b7778f62b",
+    "fae9cd3a-c12e-4aab-b111-63bc6ffa66ae": "ac9a72d5e6cde9df93d05190ff08060dc58416e522ccf46295e5dfcbe67edc67"
+  }
+}

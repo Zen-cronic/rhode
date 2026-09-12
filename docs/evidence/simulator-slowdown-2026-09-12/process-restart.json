@@ -1,0 +1,46 @@
+{
+  "verifiedAt": "2026-09-12T17:42:18.824Z",
+  "checks": "Real process stop/start restores all ten runs paused with exact retained observations, versions, delays, conditions and progress, including the v3 slowdown branch",
+  "runs": {
+    "3566d003-0208-48eb-aab6-037e1cbc6a28": {
+      "sha256": "a33fe0e5c212f6bb095272c1cbc1d216170712c98d76f4d97731373fb280e573",
+      "modelVersion": "road-events-v2"
+    },
+    "51ba7e0c-74b2-47b1-9681-5ba93b6155df": {
+      "sha256": "c5880af343e398a10800a8f55d6a3de55de2facd5a4f4eb2bab9bf451f3244b1",
+      "modelVersion": "road-events-v2"
+    },
+    "62d05ef7-7f4f-4828-9d7a-362f17bab5d6": {
+      "sha256": "687cc4575573481742486e1878ff32b1e0b3593b0c94dfeba4890afd2411bf23",
+      "modelVersion": "road-events-v2"
+    },
+    "7042fb47-4998-46fa-a5df-68048d7510be": {
+      "sha256": "4a298a17412dd5f7485db9b276c59717f85e5c9f5670a1778049ca3efebf2080",
+      "modelVersion": "road-events-v2"
+    },
+    "7c275f64-8af8-4649-b7a2-e4638f4157b1": {
+      "sha256": "6294353e35b873751a817d6088bd173a53d978d9ae7036f714407f0e5aeaf0d8",
+      "modelVersion": "road-events-v2"
+    },
+    "8bd10b8b-09e1-4082-ad94-05eb4020f1a7": {
+      "sha256": "4e8ee613e8f4217ee60796dcca1963e16a1508756ea850e1ae233a82f02aadb8",
+      "modelVersion": "road-events-v3"
+    },
+    "cc12677d-ef80-4990-9e69-19ff3862b86d": {
+      "sha256": "ad393230e7bf995b6ee2ca1341d831d16f48079ccb394abc3d21eee600839e88",
+      "modelVersion": "road-events-v2"
+    },
+    "d311205f-0733-4e79-90db-a189fa8b28bd": {
+      "sha256": "f03714c359f9f4a7d65b8968274d3c28cf4016bce4afe95a5c5ea8633212129c",
+      "modelVersion": "road-events-v2"
+    },
+    "d4d6fd07-b354-4738-804f-d88cd3acd68e": {
+      "sha256": "a32d64f9afd1a679e56b4cbd423dc142b109321383f04dc7b634c9f3d5de02aa",
+      "modelVersion": "road-events-v2"
+    },
+    "fae9cd3a-c12e-4aab-b111-63bc6ffa66ae": {
+      "sha256": "bbf148e5ced606ec1926f55a4677c2d1622b4ac4e48fa57ca6d276c171d9de87",
+      "modelVersion": "road-events-v2"
+    }
+  }
+}

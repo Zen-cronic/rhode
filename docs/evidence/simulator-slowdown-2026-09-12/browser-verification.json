@@ -1,0 +1,29 @@
+{
+  "verifiedAt": "2026-09-12T17:38:53.502Z",
+  "observed": [
+    {
+      "kind": "baseline",
+      "selectedId": "c78c4c3d065b3e664ca0c9bab2d2ef2c976076b6dceae098e371d3b14d2e1cf8",
+      "speedKph": 58.80000000000791,
+      "odometerKm": 40.95700000000061,
+      "at": "2026-09-13T13:09:59+00:00"
+    },
+    {
+      "kind": "slowdown",
+      "selectedId": "832cd698b093d0e85d3d2d5af39c78e889ea2de5cbf4e877b0a1cfc97a89f9d9",
+      "speedKph": 5.879999999996954,
+      "odometerKm": 13.314699999999801,
+      "at": "2026-09-13T13:09:59+00:00"
+    }
+  ],
+  "errors": [],
+  "writes": [],
+  "checks": [
+    "Compiled local dispatcher displays matching acknowledged sample counts and odometer totals for both branches",
+    "Selected historical samples match exact source IDs and show positive speed and driving duty",
+    "390px selected evidence has no horizontal overflow",
+    "Offline cached history retains selected source evidence",
+    "Read-only browser inspection sends no operational POST commands"
+  ],
+  "scope": "Existing UI, third design retained. Focused simulator and source sample captures; no new basemap/satellite or native-device claim."
+}

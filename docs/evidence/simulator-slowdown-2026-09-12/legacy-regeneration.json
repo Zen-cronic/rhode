@@ -1,0 +1,7 @@
+{
+  "verifiedAt": "2026-09-12T17:36:12.412261+00:00",
+  "runId": "fae9cd3a-c12e-4aab-b111-63bc6ffa66ae",
+  "conditionsHash": "2732cdec738b6fc9c1dea41d032f97c8293514dfa86bc2bd18307cdcdb29b054",
+  "observations": 10201,
+  "checks": "New model regenerates every stored legacy sample, including time, position, speed, odometer, phase and duty, without emitting or mutating any operational record."
+}

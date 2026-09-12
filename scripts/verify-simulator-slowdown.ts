@@ -1,0 +1,47 @@
+import assert from 'node:assert/strict';
+import{randomUUID,createHash}from'node:crypto';
+import{readFile,writeFile,mkdir}from'node:fs/promises';
+import{spawnSync}from'node:child_process';
+import{pool}from'../services/api/src/db.ts';
+import{Store}from'../services/api/src/store.ts';
+import{milton,london}from'../services/api/src/fixtures.ts';
+const pointer='data/simulator-slowdown-fixture.json',dir='docs/evidence/simulator-slowdown-2026-09-12',db=pool('postgresql://roadstar:local-roadstar-only@127.0.0.1:55432/roadstar');
+function canonical(v:any):any{return Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;}
+const hash=(v:any)=>createHash('sha256').update(JSON.stringify(canonical(v))).digest('hex');
+async function api(carrier:string,path:string,body?:unknown,version=1,role='demo-dispatcher'){
+ const r=await fetch('http://127.0.0.1:4010/api/'+path,{method:body===undefined?'GET':'POST',headers:{'content-type':'application/json',authorization:'Bearer '+role,'x-carrier-id':carrier,'idempotency-key':randomUUID(),'if-match':String(version)},body:body===undefined?undefined:JSON.stringify(body)});const out=await r.json();assert.ok(r.ok,JSON.stringify(out));return out as any;
+}
+async function sim(path:string,body?:unknown){const r=await fetch('http://127.0.0.1:4020'+path,{method:body===undefined?'GET':'POST',headers:{'content-type':'application/json'},body:body===undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(300000)});const out=await r.json();assert.ok(r.ok,JSON.stringify(out));return out as any;}
+async function runTo(id:string,seconds:number){await sim(`/runs/${id}/resume`,{});let s=await sim(`/runs/${id}`);while(s.elapsed_seconds<seconds){await sim(`/runs/${id}/advance`,{seconds:Math.min(300,seconds-s.elapsed_seconds)});s=await sim(`/runs/${id}`);console.log(JSON.stringify({id,elapsed:s.elapsed_seconds,phase:s.phase}));}await sim(`/runs/${id}/pause`,{});return await sim(`/runs/${id}`);}
+async function snapshot(carrier:string){const out:any={};for(const table of ['telemetry','resources','loads','assignments','reservations','disruptions','stop_visits','invoice_revisions','scenarios'])out[table]=(await db.query(`SELECT * FROM ${table} WHERE carrier_id=$1 ORDER BY id`,[carrier])).rows;return JSON.parse(JSON.stringify(out));}
+function forecast(conditions:any){const root=process.cwd(),env='/home/zin-kg/.pyenv/versions/.roadstar';const r=spawnSync('poetry',['run','python','-c',"import json,sys;from roadstar_optimizer.simulation import Replay;x=json.load(sys.stdin);x.pop('model_version');r=Replay(**x);print(json.dumps({'baseline':r.forecast_completion_ms(False,include_slowdown=False),'configured':r.forecast_completion_ms(False,include_slowdown=True)}))"],{cwd:root+'/services/optimizer',input:JSON.stringify(conditions),encoding:'utf8',env:{...process.env,VIRTUAL_ENV:env,PATH:env+'/bin:'+process.env.PATH}});assert.equal(r.status,0,r.stderr);return JSON.parse(r.stdout);}
+try{
+ await mkdir(dir,{recursive:true});const resume=process.argv[2]==='resume';let f:any;
+ if(resume){f=JSON.parse(await readFile(pointer,'utf8'));assert.ok(f.branches.length===2&&!f.verified,'Resume requires this incomplete two-branch fixture');}
+ else{try{await readFile(pointer);throw Error('Retained slowdown fixture exists; preserve it before intentionally creating another.');}catch(e:any){if(e.code!=='ENOENT')throw e;}
+ f={createdAt:new Date().toISOString(),branches:[]};await writeFile(pointer,JSON.stringify(f));
+ for(const kind of ['baseline','slowdown']){
+  const carrier='traffic-'+kind+'-'+randomUUID();await new Store(db).seed(carrier);
+  const load=(await db.query("SELECT body FROM loads WHERE carrier_id=$1 AND id='RS-1042'",[carrier])).rows[0].body;load.endAt='2026-09-13T15:10:00Z';await db.query("UPDATE loads SET body=$2 WHERE carrier_id=$1 AND id='RS-1042'",[carrier,JSON.stringify(load)]);
+  const initial=await api(carrier,'state');const normalized={loads:initial.loads.sort((a:any,b:any)=>a.id.localeCompare(b.id)),resources:initial.resources.sort((a:any,b:any)=>a.id.localeCompare(b.id)),clock:initial.scenarios[0].clock};
+  const trip=await api(carrier,'dispatch',{loadId:'RS-1042',driverId:'D-01',truckId:'T-101',trailerId:'V-101'});await api(carrier,'respond',{assignmentId:trip.id,action:'accept'},1,'demo-driver-1');
+  const request={assignment_id:trip.id,carrier_id:carrier,start_time:trip.startAt,seed:42,route:{locations:[milton,london].map(p=>({lat:p.lat,lon:p.lng})),truck:{height:4.1,width:2.6,length:23,weight:40,axle_load:9,hazmat:false,evidence:'synthetic-scenario'}},...(kind==='slowdown'?{slowdown_start_seconds:600,slowdown_seconds:1800,slowdown_factor:.1}:{})};
+  const run=await sim('/runs',request),before=await snapshot(carrier);f.branches.push({kind,carrier,trip,run,request,initial:normalized,initialHash:hash(normalized),before});await writeFile(pointer,JSON.stringify(f));
+ }
+ }
+ const [base,slow]=f.branches;assert.equal(base.initialHash,slow.initialHash,'Normalized actual initial load/resource/clock conditions must match');
+ // Separate carrier and observation identities prevent one branch changing the other.
+ for(const branch of f.branches){if(!branch.preEvent)branch.preEvent=await runTo(branch.run.id,599);assert.equal(branch.preEvent.delay_reports.length,0);}
+ assert.deepEqual(base.preEvent.events.map(({id,assignmentId,...e}:any)=>e),slow.preEvent.events.map(({id,assignmentId,...e}:any)=>e));
+ for(const branch of f.branches){branch.end=await runTo(branch.run.id,2400);branch.state=await api(branch.carrier,'state');branch.after=await snapshot(branch.carrier);branch.forecast=forecast(branch.end.initial_conditions);const bindings=(rows:any[])=>rows.map(({version,...row})=>row);assert.deepEqual(bindings(branch.after.assignments),bindings(branch.before.assignments));assert.equal(branch.after.assignments[0].version,branch.before.assignments[0].version+branch.end.delay_reports.length);assert.deepEqual(branch.after.reservations,branch.before.reservations);assert.equal(branch.after.telemetry.length,2401);await writeFile(pointer,JSON.stringify(f));}
+ const a=base.end.events,b=slow.end.events;assert.ok(b.at(-1).odometerKm<a.at(-1).odometerKm);assert.equal(slow.end.phase,'driving');assert.equal(slow.end.delay_reports.length,1);assert.equal(base.end.delay_reports.length,0);assert.equal(slow.end.delay_reports[0].body.observedAt,b[600].at);assert.ok(slow.forecast.configured>base.forecast.configured);
+ assert.equal(new Date(slow.end.delay_reports[0].body.expectedEnd).getTime(),slow.forecast.configured);
+ for(let i=601;i<=2400;i++){assert.ok(b[i].speedKph>0);assert.ok(Math.abs(b[i].speedKph-a[i].speedKph*.1)<1e-7);}
+ assert.ok(Math.abs(b.slice(1).reduce((sum:number,e:any)=>sum+e.speedKph/3600,0)-b.at(-1).odometerKm)<1e-7);
+ const driver=(branch:any)=>branch.state.resources.find((r:any)=>r.id==='D-01');assert.deepEqual(driver(base).budget,driver(slow).budget);assert.equal(driver(slow).hosEvidence.drivingMinutes,40);assert.ok(b.every((e:any)=>e.duty==='driving'));
+ const replayBefore=await snapshot(slow.carrier);await sim(`/runs/${slow.run.id}/reset`,{});const replay=await runTo(slow.run.id,2400);assert.deepEqual(replay.events,b);assert.deepEqual(await snapshot(slow.carrier),replayBefore);
+ const strip=(x:any)=>{const {model_version,slowdown_seconds,slowdown_start_seconds,slowdown_factor,...rest}=x;return rest;};assert.deepEqual(strip(base.end.initial_conditions),strip(slow.end.initial_conditions));
+ f.verifiedAt=new Date().toISOString();f.verified=true;await writeFile(pointer,JSON.stringify(f));
+ const receipt={verifiedAt:f.verifiedAt,commonInitialHash:base.initialHash,commonRouteAndClockHash:hash(strip(base.end.initial_conditions)),intervention:{startSeconds:600,durationSeconds:1800,speedFactor:.1},branches:f.branches.map((x:any)=>({kind:x.kind,carrier:x.carrier,assignmentId:x.trip.id,runId:x.run.id,conditionsHash:x.run.conditions_hash,modelVersion:x.end.initial_conditions.model_version,eventHash:hash(x.end.events),observations:x.end.events.length,elapsedSeconds:x.end.elapsed_seconds,distanceKm:x.end.events.at(-1).odometerKm,forecast:x.forecast,driver:driver(x),delayReports:x.end.delay_reports})),checks:['Identical actual initial loads/resources/clock and actual route geometry, seed and stop conditions','Distinct synthetic carriers and observation identities','No slowdown delay before its own observation at 600s','Thirty minutes of positive speed at exactly 10% of baseline interval speed','Reduced distance, integrated speed/odometer consistency and later modeled completion','Equal 40 minutes of driving-duty consumption; no rest credit','Assignment resources/status/schedule and reservations unchanged; each delay increments the assignment version to invalidate stale reviews','Same slow branch reset/replay preserves 2401 events and nine operational record sets'],limits:'Declared synthetic timed slowdown on a Valhalla-routed Milton–London corridor; not live traffic or posted-limit simulation. Forecast uses seeded speeds and known event duration. Comparison covers the first 40 minutes, including the entire 30-minute slowdown; neither complete route nor measured revenue savings. No native or cloud control verification.'};
+ await writeFile(dir+'/verification.json',JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify(receipt.branches.map((x:any)=>({kind:x.kind,distanceKm:x.distanceKm,forecast:x.forecast,drivingMinutes:x.driver.hosEvidence.drivingMinutes}))));
+}finally{await db.end();}

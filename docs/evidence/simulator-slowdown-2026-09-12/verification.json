@@ -1,0 +1,140 @@
+{
+  "verifiedAt": "2026-09-12T17:35:43.464Z",
+  "commonInitialHash": "f59ff8b8fc03658c235379e8887cf5dee4f8e4e4009296f4527c92215bbfffb3",
+  "commonRouteAndClockHash": "184bed42ba95b25860a94bbc9c7955231fe2918f075039c9a7ccdb7a2179f7aa",
+  "intervention": {
+    "startSeconds": 600,
+    "durationSeconds": 1800,
+    "speedFactor": 0.1
+  },
+  "branches": [
+    {
+      "kind": "baseline",
+      "carrier": "traffic-baseline-45482f39-4de5-43ef-91fc-206dda57276f",
+      "assignmentId": "7d097672-6295-4935-8db5-dd20a36ef257",
+      "runId": "d311205f-0733-4e79-90db-a189fa8b28bd",
+      "conditionsHash": "cf997f3a65fae4cbe7fa4f320dada08e783dc78885780b7f528d45851a66f32c",
+      "modelVersion": "road-events-v2",
+      "eventHash": "02c5b64c68268012552e5f08c97c37cd52bffa1fb9e91b1164c7e6db57030bf9",
+      "observations": 2401,
+      "elapsedSeconds": 2400,
+      "distanceKm": 40.97333333333395,
+      "forecast": {
+        "baseline": 1789310707000,
+        "configured": 1789310707000
+      },
+      "driver": {
+        "id": "D-01",
+        "duty": "driving",
+        "name": "Alex Chen · demo",
+        "budget": {
+          "drivingMinutes": 380,
+          "onDutyMinutes": 410,
+          "cycleMinutes": 830,
+          "shiftMinutes": 470
+        },
+        "position": {
+          "lat": 43.41418366934907,
+          "lng": -80.32698726863259
+        },
+        "budgetAsOf": "2026-09-13T13:10:00.000Z",
+        "provenance": "synthetic",
+        "kind": "driver",
+        "version": 2402,
+        "hosEvidence": {
+          "status": "modeled",
+          "profile": "declared-budget-history",
+          "basisAt": "2026-09-13T12:00:00.000Z",
+          "shiftDeadline": "2026-09-13T21:00:00.000Z",
+          "observations": 2401,
+          "drivingMinutes": 40,
+          "onDutyMinutes": 70,
+          "elapsedMinutes": 70,
+          "certifiedELD": false,
+          "note": "Dated duty intervals consume declared initial budgets. No automatic rest/day/cycle reset or certified ELD claim."
+        }
+      },
+      "delayReports": []
+    },
+    {
+      "kind": "slowdown",
+      "carrier": "traffic-slowdown-80f414f5-a154-4957-bba0-ac2ac6fa7564",
+      "assignmentId": "31325234-e1e9-4398-b867-7eaf492f15e9",
+      "runId": "8bd10b8b-09e1-4082-ad94-05eb4020f1a7",
+      "conditionsHash": "871d7037d01d3105a6c107ae8750f57af59a48d2b5850f95d66adf73dbf1e463",
+      "modelVersion": "road-events-v3",
+      "eventHash": "0e39c15c4f688cda7a8bc7dbd08af53da12fc21a4efc12ac6b4beea5a228ac55",
+      "observations": 2401,
+      "elapsedSeconds": 2400,
+      "distanceKm": 13.316333333333134,
+      "forecast": {
+        "baseline": 1789310707000,
+        "configured": 1789312313000
+      },
+      "driver": {
+        "id": "D-01",
+        "duty": "driving",
+        "name": "Alex Chen · demo",
+        "budget": {
+          "drivingMinutes": 380,
+          "onDutyMinutes": 410,
+          "cycleMinutes": 830,
+          "shiftMinutes": 470
+        },
+        "position": {
+          "lat": 43.48332815304884,
+          "lng": -80.00245998781143
+        },
+        "budgetAsOf": "2026-09-13T13:10:00.000Z",
+        "provenance": "synthetic",
+        "kind": "driver",
+        "version": 2403,
+        "hosEvidence": {
+          "status": "modeled",
+          "profile": "declared-budget-history",
+          "basisAt": "2026-09-13T12:00:00.000Z",
+          "shiftDeadline": "2026-09-13T21:00:00.000Z",
+          "observations": 2401,
+          "drivingMinutes": 40,
+          "onDutyMinutes": 70,
+          "elapsedMinutes": 70,
+          "certifiedELD": false,
+          "note": "Dated duty intervals consume declared initial budgets. No automatic rest/day/cycle reset or certified ELD claim."
+        }
+      },
+      "delayReports": [
+        {
+          "key": "bfa3db61d26529ae8a4a601763727142a868b2822c2a9cf8404c2ef8ab890fa6",
+          "version": 2,
+          "end_ms": 1789312313000,
+          "body": {
+            "assignmentId": "31325234-e1e9-4398-b867-7eaf492f15e9",
+            "expectedEnd": "2026-09-13T15:11:53+00:00",
+            "observedAt": "2026-09-13T12:40:00+00:00",
+            "reason": "Simulator observed road_slowdown; modeled completion uses seeded road speeds and configured stop dwell. Road hold included: False; slowdown included: True. Conditions 871d7037d01d3105a6c107ae8750f57af59a48d2b5850f95d66adf73dbf1e463. Dispatcher review required."
+          },
+          "result": {
+            "id": "3f80407d-9673-4911-a799-ddad773e6a50",
+            "assignmentId": "31325234-e1e9-4398-b867-7eaf492f15e9",
+            "expectedEnd": "2026-09-13T15:11:53+00:00",
+            "impactedLoads": [],
+            "provenance": "synthetic",
+            "status": "awaiting_recovery",
+            "note": "Observed delay retained; planned reservations remain visible until a feasible recovery is approved."
+          }
+        }
+      ]
+    }
+  ],
+  "checks": [
+    "Identical actual initial loads/resources/clock and actual route geometry, seed and stop conditions",
+    "Distinct synthetic carriers and observation identities",
+    "No slowdown delay before its own observation at 600s",
+    "Thirty minutes of positive speed at exactly 10% of baseline interval speed",
+    "Reduced distance, integrated speed/odometer consistency and later modeled completion",
+    "Equal 40 minutes of driving-duty consumption; no rest credit",
+    "Assignment resources/status/schedule and reservations unchanged; each delay increments the assignment version to invalidate stale reviews",
+    "Same slow branch reset/replay preserves 2401 events and nine operational record sets"
+  ],
+  "limits": "Declared synthetic timed slowdown on a Valhalla-routed Milton–London corridor; not live traffic or posted-limit simulation. Forecast uses seeded speeds and known event duration. Comparison covers the first 40 minutes, including the entire 30-minute slowdown; neither complete route nor measured revenue savings. No native or cloud control verification."
+}
