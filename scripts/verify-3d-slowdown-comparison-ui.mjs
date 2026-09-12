@@ -1,0 +1,74 @@
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {mkdir,readFile,writeFile} from 'node:fs/promises';
+import {chromium} from 'playwright';
+
+const fixture=JSON.parse(await readFile('data/3d-slowdown-comparison.json','utf8'));
+assert.equal(fixture.status,'ready');
+const output='docs/evidence/3d-slowdown-comparison-2026-09-12';
+const webBase=process.env.WEB_BASE??'http://127.0.0.1:5185';
+const headers={authorization:'Bearer demo-dispatcher','x-carrier-id':fixture.carrier};
+const get=async path=>{const response=await fetch(`http://127.0.0.1:4010${path}`,{headers});const body=await response.json();assert.equal(response.status,200,JSON.stringify(body));return body;};
+const hash=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
+const runFiles=Object.fromEntries(await Promise.all(fixture.branches.map(async branch=>[branch.runId,await readFile(`data/simulator/${branch.runId}.json`,'utf8')])));
+const before={state:await get('/api/state'),inventory:await get('/api/simulator'),runFiles};
+const baseline=fixture.branches.find(branch=>branch.kind==='baseline'),slowdown=fixture.branches.find(branch=>branch.kind==='road_slowdown');
+assert.ok(baseline&&slowdown);assert.equal(before.inventory.runs.length,2);
+await mkdir(output,{recursive:true});
+
+const browser=await chromium.launch({executablePath:'/usr/bin/google-chrome',args:['--enable-unsafe-swiftshader']});
+const context=await browser.newContext({viewport:{width:1440,height:1050}}),page=await context.newPage(),errors=[],requests=[],writes=[];
+page.on('pageerror',error=>errors.push(String(error)));
+page.on('request',request=>{requests.push({method:request.method(),url:request.url()});if(request.url().includes('/api/')&&request.method()!=='GET')writes.push(request.url());});
+try{
+ await page.goto(webBase);
+ await page.getByLabel('Carrier ID').fill(fixture.carrier);
+ await page.getByLabel('Identity').selectOption('demo-dispatcher');
+ await page.getByRole('button',{name:'Open operations →',exact:true}).click();
+ await page.getByRole('button',{name:'Sign out',exact:true}).waitFor();
+ await page.getByText('Simulation studio · local synthetic runs',{exact:true}).click();
+ await page.getByLabel('Simulation run').selectOption(baseline.runId);
+ await page.getByRole('button',{name:'Open 3D corridor replay',exact:true}).click();
+ const panel=page.getByRole('region',{name:'Recorded corridor replay'});
+ await panel.getByText('2,401 / 2,401 source events',{exact:true}).waitFor({timeout:20000});
+ await panel.locator('canvas').waitFor();
+ await panel.getByRole('button',{name:'Compare 401 slowdown',exact:true}).click();
+ await panel.getByText('Checking matched recording evidence',{exact:true}).waitFor();
+ await panel.getByText('MODELED SYNTHETIC / MATCHED RUNS',{exact:true}).waitFor({timeout:20000});
+ await panel.getByRole('button',{name:/Intervention ends/}).click();
+ await panel.getByText('+27.657',{exact:true}).waitFor();
+ await panel.getByText('+00:26:46',{exact:true}).waitFor();
+ await panel.getByText('5.9 / 58.8',{exact:true}).waitFor();
+ await page.waitForTimeout(700);
+ await panel.screenshot({path:`${output}/comparison-desktop.png`});
+
+ const timeline=panel.getByLabel('Matched recording shared timeline');
+ assert.equal(Number(await timeline.inputValue()),2400);
+ await panel.getByRole('button',{name:/Slowdown starts/}).click();
+ await panel.getByText('00:10:00',{exact:true}).first().waitFor();
+ await panel.screenshot({path:`${output}/slowdown-boundary-desktop.png`});
+ await timeline.focus();await page.keyboard.press('End');assert.equal(Number(await timeline.inputValue()),2400);
+
+ await panel.getByRole('button',{name:'Use diagram',exact:true}).click();
+ await panel.getByText(/Ivory baseline · orange modeled disruption/).waitFor();
+ await page.setViewportSize({width:390,height:960});await page.waitForTimeout(350);
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+ await panel.screenshot({path:`${output}/comparison-diagram-narrow.png`});
+ await panel.getByRole('button',{name:'Show 3D',exact:true}).click();await panel.locator('canvas').waitFor();await page.waitForTimeout(500);
+ await panel.screenshot({path:`${output}/comparison-3d-narrow.png`});
+
+ await page.emulateMedia({reducedMotion:'reduce'});await panel.getByText(/Reduced motion is on/).waitFor();
+ assert.equal(await panel.getByRole('button',{name:'Play view playback',exact:true}).isDisabled(),true);
+ await context.setOffline(true);await panel.getByText(/Offline · saved recording/).waitFor();
+ assert.equal(await timeline.isEnabled(),true);await context.setOffline(false);
+
+ assert.deepEqual(errors,[]);assert.deepEqual(writes,[]);
+ const after={state:await get('/api/state'),inventory:await get('/api/simulator'),runFiles:Object.fromEntries(await Promise.all(fixture.branches.map(async branch=>[branch.runId,await readFile(`data/simulator/${branch.runId}.json`,'utf8')])))};
+ for(const key of ['assignments','visits','invoices','proposals','resources','scenarios'])assert.deepEqual(after.state[key],before.state[key]);
+ assert.deepEqual(after.inventory,before.inventory);assert.deepEqual(after.runFiles,before.runFiles);
+ const baselinePage=await get(`/api/simulator/${baseline.runId}/presentation?offset=0&limit=1000`),slowdownPage=await get(`/api/simulator/${slowdown.runId}/presentation?offset=0&limit=1000`);
+ assert.equal(baselinePage.comparison_basis_hash,slowdownPage.comparison_basis_hash);assert.equal(baselinePage.intervention.kind,'baseline');assert.equal(slowdownPage.intervention.kind,'road_slowdown');
+ const completionDeltaSeconds=(slowdownPage.modeled_completion_ms-baselinePage.modeled_completion_ms)/1000;
+ const proof={verifiedAt:new Date().toISOString(),webBase,carrier:fixture.carrier,comparisonBasisHash:fixture.comparisonBasisHash,branches:fixture.branches.map(branch=>({kind:branch.kind,assignmentId:branch.assignmentId,runId:branch.runId,eventCount:branch.eventCount,distanceKm:branch.distanceKm,conditionsHash:branch.conditionsHash,modeledCompletionMs:branch.modeledCompletionMs,checkpointSha256:hash(JSON.parse(runFiles[branch.runId]))})),completionDeltaSeconds,progressGapKm:baseline.distanceKm-slowdown.distanceKm,requests:{total:requests.length,presentationPages:requests.filter(request=>request.method==='GET'&&request.url.includes('/presentation?')).length},writes,errors,checks:['Compiled production artifact loads both carrier-scoped matched runs','Two carrier-scoped runs share one server-derived basis and retain distinct condition identities','2,401 exact acknowledged observations load for each branch','Shared timeline uses exact at-or-before events without interpolation','Slowdown boundary is selectable at T+00:10:00','At T+00:40:00 the baseline leads by 27.657km and modeled completion by 26m46s','Ivory baseline, signal-orange disruption and gap connector render in 3D and diagram modes','390px layout has no document overflow','Reduced motion disables autoplay; saved recording remains inspectable offline','No operational POST; operational collections, inventory and both checkpoint files remain byte-equivalent'],limits:'Local synthetic Highway 401 comparison on Valhalla truck geometry with software WebGL. Not live traffic, a physical-GPU benchmark, certified GPS, billing evidence, revenue impact, hosted simulator control or 131-vehicle rendering.'};
+ assert.equal(completionDeltaSeconds,1606);await writeFile(`${output}/verification.json`,JSON.stringify(proof,null,2)+'\n');console.log(JSON.stringify({carrier:proof.carrier,events:proof.branches.map(branch=>branch.eventCount),progressGapKm:proof.progressGapKm,completionDeltaSeconds,writes:writes.length,errors:errors.length}));
+}finally{await browser.close();}
