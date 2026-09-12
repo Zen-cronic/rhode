@@ -12,6 +12,7 @@ export interface CorridorSceneProps{
  reducedMotion:boolean;
  playing:boolean;
  onUnavailable:()=>void;
+ comparison?:{baseline:CorridorEvent;disrupted:CorridorEvent};
 }
 
 const ORANGE='#e65c32',IVORY='#f5f3ed',GRAPHITE='#242729';
@@ -70,7 +71,7 @@ function InstancedRail({points,width,height,color,y}:{points:Point3[];width:numb
  </instancedMesh>;
 }
 
-function RouteObject({route,projection,marker,playing}:{route:CorridorRoute;projection:RouteProjection;marker:MarkerProjection;playing:boolean}){
+function RouteObject({route,projection,marker,playing,comparison}:{route:CorridorRoute;projection:RouteProjection;marker:MarkerProjection;playing:boolean;comparison?:{baseline:MarkerProjection;disrupted:MarkerProjection}}){
  const stops=route.stop_indices.map(index=>projection.points[index]).filter(Boolean);
  return <group>
   <InstancedRail points={projection.points} width={.34} height={.12} y={.10} color="#434846"/>
@@ -79,16 +80,21 @@ function RouteObject({route,projection,marker,playing}:{route:CorridorRoute;proj
    <mesh rotation={[-Math.PI/2,0,0]} receiveShadow><cylinderGeometry args={[.32,.32,.07,24]}/><meshStandardMaterial color={index===stops.length-1?ORANGE:IVORY} roughness={.82}/></mesh>
    <mesh position={[0,.12,0]} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[.13,.2,20]}/><meshBasicMaterial color={GRAPHITE}/></mesh>
   </group>)}
-  <TruckMarker position={marker.position} heading={marker.heading} playing={playing}/>
+  {comparison?<>
+   <InstancedRail points={[comparison.baseline.position,comparison.disrupted.position]} width={.035} height={.025} y={.34} color="#aeb1a9"/>
+   <TruckMarker position={comparison.baseline.position} heading={comparison.baseline.heading} playing={false} tone="baseline"/>
+   <TruckMarker position={comparison.disrupted.position} heading={comparison.disrupted.heading} playing={playing} tone="disrupted"/>
+  </>:<TruckMarker position={marker.position} heading={marker.heading} playing={playing} tone="disrupted"/>}
  </group>;
 }
 
-function TruckMarker({position,heading,playing}:{position:Point3;heading:number;playing:boolean}){
+function TruckMarker({position,heading,playing,tone}:{position:Point3;heading:number;playing:boolean;tone:'baseline'|'disrupted'}){
+ const baseline=tone==='baseline',body=baseline?IVORY:ORANGE,cab=baseline?'#d4d3cc':IVORY,halo=baseline?'#f5f3ed':'#f2b098';
  return <group position={position} rotation={[0,heading,0]}>
-  <mesh position={[0,.19,0]} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[.58,.7,28]}/><meshBasicMaterial color={playing?'#f2b098':'#fff0df'}/></mesh>
+  <mesh position={[0,.19,0]} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[.58,.7,28]}/><meshBasicMaterial color={playing?halo:baseline?'#d7d6cf':'#fff0df'}/></mesh>
   <group>
-   <mesh position={[0,.24,-.15]} castShadow><boxGeometry args={[.48,.36,.88]}/><meshStandardMaterial color={ORANGE} roughness={.7}/></mesh>
-   <mesh position={[0,.28,.46]} castShadow><boxGeometry args={[.45,.42,.36]}/><meshStandardMaterial color={IVORY} roughness={.75}/></mesh>
+   <mesh position={[0,.24,-.15]} castShadow><boxGeometry args={[.48,.36,.88]}/><meshStandardMaterial color={body} roughness={.7}/></mesh>
+   <mesh position={[0,.28,.46]} castShadow><boxGeometry args={[.45,.42,.36]}/><meshStandardMaterial color={cab} roughness={.75}/></mesh>
    <mesh position={[0,.34,.645]}><boxGeometry args={[.31,.16,.02]}/><meshStandardMaterial color="#4b5854" roughness={.45}/></mesh>
   </group>
  </group>;
@@ -123,13 +129,17 @@ function ContextWatch({onUnavailable}:{onUnavailable:()=>void}){
 export default function CorridorScene(props:CorridorSceneProps){
  const projection=useMemo(()=>projectRoute(props.route),[props.route.key]);
  const marker=useMemo(()=>projectMarker(projection,props.event),[projection,props.event.sample.position.lat,props.event.sample.position.lng]);
+ const comparison=useMemo(()=>props.comparison?{
+  baseline:projectMarker(projection,props.comparison.baseline),
+  disrupted:projectMarker(projection,props.comparison.disrupted),
+ }:undefined,[projection,props.comparison?.baseline.sample.position.lat,props.comparison?.baseline.sample.position.lng,props.comparison?.disrupted.sample.position.lat,props.comparison?.disrupted.sample.position.lng]);
  return <div className="corridor-canvas" aria-label="Three-dimensional recorded route view">
   <Canvas orthographic frameloop="demand" dpr={[1,1.5]} shadows gl={{antialias:true,powerPreference:'high-performance'}} camera={{position:[10.5,11.5,14],zoom:42,near:.1,far:100}} fallback={<span className="corridor-webgl-fallback">3D unavailable. Use diagram.</span>}>
    <color attach="background" args={['#202325']}/><fog attach="fog" args={['#202325',21,40]}/>
    <ambientLight intensity={1.25}/><directionalLight position={[8,14,9]} intensity={2.2} castShadow shadow-mapSize={[1024,1024]}/>
    <mesh rotation={[-Math.PI/2,0,0]} position={[0,-.06,0]} receiveShadow><planeGeometry args={[24,19]}/><meshStandardMaterial color="#2b2f30" roughness={.95}/></mesh>
    <gridHelper args={[22,14,'#464c48','#303533']} position={[0,-.045,0]}/>
-   <RouteObject route={props.route} projection={projection} marker={marker} playing={props.playing}/>
+   <RouteObject route={props.route} projection={projection} marker={marker} playing={props.playing} comparison={comparison}/>
    <CameraRig view={props.camera} reducedMotion={props.reducedMotion} position={marker.position}/><ContextWatch onUnavailable={props.onUnavailable}/>
   </Canvas>
  </div>;
