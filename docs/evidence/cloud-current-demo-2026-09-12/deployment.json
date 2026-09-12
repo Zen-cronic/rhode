@@ -1,0 +1,73 @@
+{
+  "verifiedAt": "2026-09-12T21:52:22.481Z",
+  "project": "roadstar-2026-kzh",
+  "region": "us-central1",
+  "services": {
+    "optimizer": {
+      "revision": "roadstar-optimizer-00015-vuk",
+      "trafficPercent": 100,
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/optimizer@sha256:d2d94f2c9cbc54ff34b88db2b26281574d0b7931bef4f2e0ba3d0240b76a8142",
+      "ready": "True"
+    },
+    "api": {
+      "revision": "roadstar-api-00036-woy",
+      "trafficPercent": 100,
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/api@sha256:5e451fa4f0ef5437f7a66232d7c70e80b41c8bfc0d8e4b0cac0157fef51861df",
+      "ready": "True"
+    },
+    "web": {
+      "revision": "roadstar-web-00054-dih",
+      "trafficPercent": 100,
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:fb2e1ab196bd0608ab4f88fe5940cef7891668c4defb060cf3f081b9fee2663b",
+      "ready": "True"
+    },
+    "documents": {
+      "revision": "roadstar-documents-00021-tam",
+      "trafficPercent": 100,
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/api@sha256:5e451fa4f0ef5437f7a66232d7c70e80b41c8bfc0d8e4b0cac0157fef51861df",
+      "ready": "True"
+    }
+  },
+  "publicChecks": {
+    "apiHealth": {
+      "status": 200,
+      "body": {
+        "ok": true,
+        "database": "postgresql",
+        "auth": "firebase"
+      }
+    },
+    "web": {
+      "status": 200
+    },
+    "film": {
+      "status": 200,
+      "bytes": 17590568,
+      "sha256": "54d7eb79775a0c0eb51f35da2a8cc2f2aba6768100f20a6e350256d6438dfe77",
+      "durationSeconds": 240.096,
+      "video": "H.264 1920x1080 24fps",
+      "audio": "AAC"
+    }
+  },
+  "rankedRecovery": {
+    "carrier": "ranked-recovery-cloud-8ea0cc51-fe31-46ee-ae92-80463dcf5891",
+    "recommendationId": "e61357eb-d4f7-49d0-abdd-46730e35c829",
+    "selected": {
+      "driverId": "D-02",
+      "truckId": "T-102",
+      "trailerId": "V-102"
+    },
+    "originalAssignmentStatus": "superseded",
+    "replacementAssignmentStatus": "accepted",
+    "forbiddenRoleStatus": 403,
+    "staleApprovalStatus": 409
+  },
+  "checks": [
+    "All four latest created revisions are ready and receive 100% traffic",
+    "API reports PostgreSQL with Firebase authentication",
+    "Public web returns RoadStar application shell",
+    "Hosted four-minute film is byte-identical to the verified tracked master",
+    "Hosted recovery preserves rejected HOS evidence, dispatcher approval and separate driver acceptance"
+  ],
+  "limits": "Approved seven-day GCP preview. Isolated synthetic scenario. Hosted simulator controls remain intentionally unavailable because a simulator Cloud Run resource was not included in the approved cost estimate. The deployed web contains the 3D renderer and the hosted film shows verified local recording evidence. Physical Android and native iOS verification remain deferred."
+}
