@@ -1,0 +1,39 @@
+{
+  "verifiedAt": "2026-09-12T18:08:12.534364+00:00",
+  "implementation": "2ae6b6d",
+  "checks": [
+    {
+      "command": "npm run typecheck",
+      "exit": 0
+    },
+    {
+      "command": "npm run typecheck --workspace @roadstar/web",
+      "exit": 0
+    },
+    {
+      "command": "npm run build --workspace @roadstar/web -- --outDir ../../data/slowdown-web",
+      "mode": "local-demo with API4010",
+      "exit": 0
+    },
+    {
+      "command": "NODE_ENV=test ROAD_ROUTING_TEST_URL=http://127.0.0.1:4040 OPTIMIZER_URL=http://127.0.0.1:4040 npm test",
+      "database": "local PostgreSQL16 on55432",
+      "exit": 0,
+      "tests": 104,
+      "passed": 104,
+      "skipped": 0,
+      "durationMs": 38565.635327
+    },
+    {
+      "command": "node scripts/verify-dock-hos.ts resume",
+      "exit": 0,
+      "note": "Same retained 9901 samples after two error-envelope verifier corrections"
+    },
+    {
+      "command": "node scripts/verify-dock-hos-ui.mjs",
+      "exit": 0,
+      "note": "One navigation selector correction; actual dispatcher approval and separate responsive driver acceptance"
+    }
+  ],
+  "scope": "Local API/built-web proof; no new hosted/native deployment or movement-interlock claim"
+}

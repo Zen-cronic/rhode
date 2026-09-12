@@ -1,0 +1,39 @@
+{
+  "verifiedAt": "2026-09-12T18:06:28.667Z",
+  "carrier": "dock-hos-df041d1c-3788-4844-80b5-536be3e04872",
+  "approval": {
+    "proposalId": "22a1fa00-1fc3-4f34-850d-3386bfcab381",
+    "assignment": {
+      "id": "701d2709-9070-41c9-9b0f-d57bfd04cf10",
+      "loadId": "RS-1043",
+      "driverId": "D-02",
+      "truckId": "T-102",
+      "trailerId": "V-102",
+      "startAt": "2026-09-13T16:15:00.000Z",
+      "endAt": "2026-09-13T19:00:00.000Z",
+      "status": "offered",
+      "version": 1,
+      "visitReviewRequired": false
+    },
+    "status": "approved"
+  },
+  "accepted": {
+    "id": "701d2709-9070-41c9-9b0f-d57bfd04cf10",
+    "loadId": "RS-1043",
+    "driverId": "D-02",
+    "truckId": "T-102",
+    "trailerId": "V-102",
+    "startAt": "2026-09-13T16:15:00.000Z",
+    "endAt": "2026-09-13T19:00:00.000Z",
+    "status": "accepted",
+    "version": 2,
+    "visitReviewRequired": false
+  },
+  "errors": [],
+  "checks": [
+    "Built desktop and 390px billing show exhausted on-duty budget and source-bound CAD75 provisional detention",
+    "Source IDs remain readable without horizontal overflow",
+    "Separate dispatcher approval and responsive driver acceptance use operational commands"
+  ],
+  "limits": "Local synthetic scenario. Responsive browser driver, not native-device proof. No automatic roadside relief or movement interlock."
+}
