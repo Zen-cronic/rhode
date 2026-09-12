@@ -1,0 +1,535 @@
+{
+  "verifiedAt": "2026-09-12T01:13:09.026Z",
+  "carrier": "return-load-6d9b1b48-e624-4213-b935-96b9d63c63ca",
+  "priorAssignment": "ac1240ea-38f8-4c24-8341-8b7298ef5bcf",
+  "planId": "c86073e3-614d-4f99-ba2e-9a6f1a31f3ba",
+  "stalePlanId": "9c18d943-c1a5-48de-b0bf-cca06e766bb5",
+  "beforeAssignments": [
+    {
+      "id": "ac1240ea-38f8-4c24-8341-8b7298ef5bcf",
+      "loadId": "RS-1042",
+      "driverId": "D-01",
+      "truckId": "T-101",
+      "trailerId": "V-101",
+      "startAt": "2026-09-13T12:30:00.000Z",
+      "endAt": "2026-09-13T16:00:00.000Z",
+      "status": "accepted",
+      "version": 2,
+      "visitReviewRequired": false
+    }
+  ],
+  "beforeReservations": [
+    {
+      "carrier_id": "return-load-6d9b1b48-e624-4213-b935-96b9d63c63ca",
+      "id": "2d259b26-fc0f-4f2a-a9bc-db8520e6f2bf",
+      "assignment_id": "ac1240ea-38f8-4c24-8341-8b7298ef5bcf",
+      "resource_id": "D-01",
+      "period": "[\"2026-09-13 12:30:00+00\",\"2026-09-13 16:00:00+00\")",
+      "active": true
+    },
+    {
+      "carrier_id": "return-load-6d9b1b48-e624-4213-b935-96b9d63c63ca",
+      "id": "53fda98b-2637-48c4-ab89-0f71f06b3752",
+      "assignment_id": "ac1240ea-38f8-4c24-8341-8b7298ef5bcf",
+      "resource_id": "T-101",
+      "period": "[\"2026-09-13 12:30:00+00\",\"2026-09-13 16:00:00+00\")",
+      "active": true
+    },
+    {
+      "carrier_id": "return-load-6d9b1b48-e624-4213-b935-96b9d63c63ca",
+      "id": "543d17b3-3e13-463c-bd4f-5af825f9a660",
+      "assignment_id": "ac1240ea-38f8-4c24-8341-8b7298ef5bcf",
+      "resource_id": "V-101",
+      "period": "[\"2026-09-13 12:30:00+00\",\"2026-09-13 16:00:00+00\")",
+      "active": true
+    }
+  ],
+  "plan": {
+    "id": "c86073e3-614d-4f99-ba2e-9a6f1a31f3ba",
+    "input": {
+      "now": "2026-09-13T12:00:00.000Z",
+      "loads": [
+        {
+          "id": "RS-1043",
+          "mode": "FTL",
+          "pallets": 12,
+          "equipment": "Dry Van",
+          "weight_lb": 18000,
+          "pickup_window": [
+            225,
+            225
+          ],
+          "pickup_service": 15,
+          "delivery_window": [
+            225,
+            405
+          ],
+          "delivery_service": 15
+        },
+        {
+          "id": "RS-1044",
+          "mode": "FTL",
+          "pallets": 12,
+          "equipment": "Dry Van",
+          "weight_lb": 18000,
+          "pickup_window": [
+            330,
+            330
+          ],
+          "pickup_service": 15,
+          "delivery_window": [
+            330,
+            465
+          ],
+          "delivery_service": 15
+        }
+      ],
+      "profiles": [
+        {
+          "width": 2.6,
+          "hazmat": false,
+          "height": 4.1,
+          "length": 23,
+          "weight": 40,
+          "evidence": "synthetic-scenario",
+          "axle_load": 9
+        }
+      ],
+      "vehicles": [
+        {
+          "id": "T-101",
+          "truckId": "T-101",
+          "driverId": "D-01",
+          "equipment": "Dry Van",
+          "trailerId": "V-101",
+          "capacity_lb": 44500,
+          "evidence_at": "2026-09-13T12:00:00.000Z",
+          "available_at": 240,
+          "duty_minutes": 315,
+          "cycle_minutes": 735,
+          "shift_minutes": 540,
+          "driving_minutes": 315,
+          "pallet_capacity": 26,
+          "maintenance_hold": false
+        }
+      ],
+      "versions": [
+        {
+          "id": "RS-1043",
+          "kind": "load",
+          "version": 1
+        },
+        {
+          "id": "RS-1044",
+          "kind": "load",
+          "version": 1
+        },
+        {
+          "id": "D-01",
+          "kind": "driver",
+          "version": 1
+        },
+        {
+          "id": "T-101",
+          "kind": "truck",
+          "version": 3
+        },
+        {
+          "id": "V-101",
+          "kind": "trailer",
+          "version": 1
+        }
+      ],
+      "locations": [
+        {
+          "lat": 42.987,
+          "lon": -81.176
+        },
+        {
+          "lat": 42.987,
+          "lon": -81.176
+        },
+        {
+          "lat": 43.5183,
+          "lon": -79.8774
+        },
+        {
+          "lat": 43.412,
+          "lon": -80.448
+        },
+        {
+          "lat": 43.5183,
+          "lon": -79.8774
+        }
+      ],
+      "evidence_ref": "c86073e3-614d-4f99-ba2e-9a6f1a31f3ba",
+      "commitmentHash": "e9370134420356bae4e9b29e5e2115daf4285b337fb7a5ed064d1730251bc425",
+      "time_limit_seconds": 3
+    },
+    "result": {
+      "routes": [
+        {
+          "stops": [
+            {
+              "stop": "pickup",
+              "minute": 330,
+              "load_id": "RS-1044"
+            },
+            {
+              "stop": "delivery",
+              "minute": 386,
+              "load_id": "RS-1044"
+            }
+          ],
+          "vehicle_id": "T-101",
+          "duty_minutes": 161,
+          "driving_minutes": 117
+        }
+      ],
+      "status": "proposal",
+      "dataset": "unverified",
+      "modeled": true,
+      "input_hash": "b43737a576e6b41f01d2503f0b135e8bd671ecd942074c198bd8551e42a9af09",
+      "assumptions": [
+        "Declared HOS budgets, not certified ELD",
+        "Planned waiting counts as on-duty time",
+        "No legal break/rest scheduling",
+        "Open routes; no forced depot return",
+        "No independent dispatch authority",
+        "Pickup appointment fixed at supplied start; delivery must finish by supplied end",
+        "26-pallet synthetic trailer allowance; verify before live use",
+        "Optimization is a proposal; route execution still requires dispatcher approval"
+      ],
+      "evidence_ref": "c86073e3-614d-4f99-ba2e-9a6f1a31f3ba",
+      "infeasible_loads": [
+        {
+          "reason": "Pickup closes before every compatible vehicle finishes its committed work.",
+          "load_id": "RS-1043"
+        }
+      ],
+      "routing_evidence": "valhalla-truck",
+      "vehicle_profiles": [
+        {
+          "width": 2.6,
+          "hazmat": false,
+          "height": 4.1,
+          "length": 23,
+          "weight": 40,
+          "evidence": "synthetic-scenario",
+          "axle_load": 9
+        }
+      ]
+    },
+    "status": "proposal",
+    "version": 1,
+    "carrier_id": "return-load-6d9b1b48-e624-4213-b935-96b9d63c63ca",
+    "created_by": "demo-dispatcher",
+    "recorded_at": "2026-09-12T01:12:57.959065+00:00"
+  },
+  "blocked": {
+    "error": {
+      "code": "INELIGIBLE",
+      "message": "Resource reserved by RS-1042. Driver cannot reach pickup after prior committed work under the current planning estimate.",
+      "requestId": "req-3o"
+    }
+  },
+  "conflict": {
+    "error": {
+      "code": "STALE_PLAN",
+      "message": "Operational inputs changed. Recompute.",
+      "requestId": "req-3s"
+    }
+  },
+  "comparison": {
+    "nearbyPickupKm": 0,
+    "alternatePickupStraightLineKm": 75.60062174013822,
+    "priorRelease": "2026-09-13T16:00:00Z",
+    "nearbyPickup": "2026-09-13T15:45:00Z",
+    "alternativePickup": "2026-09-13T17:30:00Z"
+  },
+  "limitations": [
+    "Synthetic appointments and declared budgets; actual Valhalla truck matrix",
+    "Attractive means nearby pickup, not a verified rate or revenue estimate",
+    "Prior trip is projected from its full plan; no observed live delivery progress",
+    "Bounded search does not prove optimality; no new axle-group calculation"
+  ],
+  "approved": {
+    "planId": "c86073e3-614d-4f99-ba2e-9a6f1a31f3ba",
+    "status": "approved",
+    "version": 2,
+    "groups": [
+      {
+        "groupId": "44cec448-2c24-44db-af40-470971020c52",
+        "planningRunId": "c86073e3-614d-4f99-ba2e-9a6f1a31f3ba",
+        "driverId": "D-01",
+        "truckId": "T-101",
+        "trailerId": "V-101",
+        "startAt": "2026-09-13T16:00:00.000Z",
+        "endAt": "2026-09-13T18:41:00.000Z",
+        "stops": [
+          {
+            "assignmentId": "6214b300-d3eb-4560-a839-c8833be460a8",
+            "loadId": "RS-1044",
+            "stop": "pickup",
+            "stopId": "kitchener-return",
+            "point": {
+              "id": "kitchener-return",
+              "lat": 43.412,
+              "lng": -80.448,
+              "name": "Kitchener return pickup \u00b7 synthetic location",
+              "radiusM": 180
+            },
+            "minute": 330,
+            "customer": "Synthetic feasible return \u00b7 later appointment",
+            "weightLb": 18000,
+            "pallets": 12,
+            "mode": "FTL"
+          },
+          {
+            "assignmentId": "6214b300-d3eb-4560-a839-c8833be460a8",
+            "loadId": "RS-1044",
+            "stop": "delivery",
+            "stopId": "milton-yard",
+            "point": {
+              "id": "milton-yard",
+              "lat": 43.5183,
+              "lng": -79.8774,
+              "name": "Milton terminal \u00b7 demo location",
+              "radiusM": 200
+            },
+            "minute": 386,
+            "customer": "Synthetic feasible return \u00b7 later appointment",
+            "weightLb": 18000,
+            "pallets": 12,
+            "mode": "FTL"
+          }
+        ],
+        "drivingMinutes": 117,
+        "dutyMinutes": 161,
+        "routingEvidence": "valhalla-truck",
+        "inputHash": "b43737a576e6b41f01d2503f0b135e8bd671ecd942074c198bd8551e42a9af09",
+        "resourceVersions": [
+          {
+            "id": "D-01",
+            "version": 1
+          },
+          {
+            "id": "T-101",
+            "version": 3
+          },
+          {
+            "id": "V-101",
+            "version": 1
+          }
+        ],
+        "assumptions": [
+          "Declared HOS budgets, not certified ELD",
+          "Planned waiting counts as on-duty time",
+          "No legal break/rest scheduling",
+          "Open routes; no forced depot return",
+          "No independent dispatch authority",
+          "Pickup appointment fixed at supplied start; delivery must finish by supplied end",
+          "26-pallet synthetic trailer allowance; verify before live use",
+          "Optimization is a proposal; route execution still requires dispatcher approval"
+        ],
+        "provenance": "synthetic"
+      }
+    ]
+  },
+  "finalAssignments": [
+    {
+      "id": "6214b300-d3eb-4560-a839-c8833be460a8",
+      "loadId": "RS-1044",
+      "driverId": "D-01",
+      "truckId": "T-101",
+      "trailerId": "V-101",
+      "startAt": "2026-09-13T16:00:00.000Z",
+      "endAt": "2026-09-13T18:41:00.000Z",
+      "status": "accepted",
+      "version": 2,
+      "visitReviewRequired": false
+    },
+    {
+      "id": "ac1240ea-38f8-4c24-8341-8b7298ef5bcf",
+      "loadId": "RS-1042",
+      "driverId": "D-01",
+      "truckId": "T-101",
+      "trailerId": "V-101",
+      "startAt": "2026-09-13T12:30:00.000Z",
+      "endAt": "2026-09-13T16:00:00.000Z",
+      "status": "accepted",
+      "version": 2,
+      "visitReviewRequired": false
+    }
+  ],
+  "finalGroup": {
+    "id": "44cec448-2c24-44db-af40-470971020c52",
+    "body": {
+      "endAt": "2026-09-13T18:41:00.000Z",
+      "stops": [
+        {
+          "mode": "FTL",
+          "stop": "pickup",
+          "point": {
+            "id": "kitchener-return",
+            "lat": 43.412,
+            "lng": -80.448,
+            "name": "Kitchener return pickup \u00b7 synthetic location",
+            "radiusM": 180
+          },
+          "loadId": "RS-1044",
+          "minute": 330,
+          "stopId": "kitchener-return",
+          "pallets": 12,
+          "customer": "Synthetic feasible return \u00b7 later appointment",
+          "weightLb": 18000,
+          "assignmentId": "6214b300-d3eb-4560-a839-c8833be460a8"
+        },
+        {
+          "mode": "FTL",
+          "stop": "delivery",
+          "point": {
+            "id": "milton-yard",
+            "lat": 43.5183,
+            "lng": -79.8774,
+            "name": "Milton terminal \u00b7 demo location",
+            "radiusM": 200
+          },
+          "loadId": "RS-1044",
+          "minute": 386,
+          "stopId": "milton-yard",
+          "pallets": 12,
+          "customer": "Synthetic feasible return \u00b7 later appointment",
+          "weightLb": 18000,
+          "assignmentId": "6214b300-d3eb-4560-a839-c8833be460a8"
+        }
+      ],
+      "groupId": "44cec448-2c24-44db-af40-470971020c52",
+      "startAt": "2026-09-13T16:00:00.000Z",
+      "truckId": "T-101",
+      "driverId": "D-01",
+      "inputHash": "b43737a576e6b41f01d2503f0b135e8bd671ecd942074c198bd8551e42a9af09",
+      "trailerId": "V-101",
+      "provenance": "synthetic",
+      "assumptions": [
+        "Declared HOS budgets, not certified ELD",
+        "Planned waiting counts as on-duty time",
+        "No legal break/rest scheduling",
+        "Open routes; no forced depot return",
+        "No independent dispatch authority",
+        "Pickup appointment fixed at supplied start; delivery must finish by supplied end",
+        "26-pallet synthetic trailer allowance; verify before live use",
+        "Optimization is a proposal; route execution still requires dispatcher approval"
+      ],
+      "dutyMinutes": 161,
+      "planningRunId": "c86073e3-614d-4f99-ba2e-9a6f1a31f3ba",
+      "drivingMinutes": 117,
+      "routingEvidence": "valhalla-truck",
+      "resourceVersions": [
+        {
+          "id": "D-01",
+          "version": 1
+        },
+        {
+          "id": "T-101",
+          "version": 3
+        },
+        {
+          "id": "V-101",
+          "version": 1
+        }
+      ]
+    },
+    "status": "accepted",
+    "version": 2,
+    "driver_id": "D-01",
+    "carrier_id": "return-load-6d9b1b48-e624-4213-b935-96b9d63c63ca",
+    "planning_run_id": "c86073e3-614d-4f99-ba2e-9a6f1a31f3ba"
+  },
+  "reservations": [
+    {
+      "carrier_id": "return-load-6d9b1b48-e624-4213-b935-96b9d63c63ca",
+      "id": "0db00b57-f9e3-493b-9bdd-00c801485562",
+      "assignment_id": "6214b300-d3eb-4560-a839-c8833be460a8",
+      "resource_id": "T-101",
+      "period": "[\"2026-09-13 16:00:00+00\",\"2026-09-13 18:41:00+00\")",
+      "active": true
+    },
+    {
+      "carrier_id": "return-load-6d9b1b48-e624-4213-b935-96b9d63c63ca",
+      "id": "2d259b26-fc0f-4f2a-a9bc-db8520e6f2bf",
+      "assignment_id": "ac1240ea-38f8-4c24-8341-8b7298ef5bcf",
+      "resource_id": "D-01",
+      "period": "[\"2026-09-13 12:30:00+00\",\"2026-09-13 16:00:00+00\")",
+      "active": true
+    },
+    {
+      "carrier_id": "return-load-6d9b1b48-e624-4213-b935-96b9d63c63ca",
+      "id": "53fda98b-2637-48c4-ab89-0f71f06b3752",
+      "assignment_id": "ac1240ea-38f8-4c24-8341-8b7298ef5bcf",
+      "resource_id": "T-101",
+      "period": "[\"2026-09-13 12:30:00+00\",\"2026-09-13 16:00:00+00\")",
+      "active": true
+    },
+    {
+      "carrier_id": "return-load-6d9b1b48-e624-4213-b935-96b9d63c63ca",
+      "id": "543d17b3-3e13-463c-bd4f-5af825f9a660",
+      "assignment_id": "ac1240ea-38f8-4c24-8341-8b7298ef5bcf",
+      "resource_id": "V-101",
+      "period": "[\"2026-09-13 12:30:00+00\",\"2026-09-13 16:00:00+00\")",
+      "active": true
+    },
+    {
+      "carrier_id": "return-load-6d9b1b48-e624-4213-b935-96b9d63c63ca",
+      "id": "76b08a35-e127-4219-8efd-fd67d1ebc8ad",
+      "assignment_id": "6214b300-d3eb-4560-a839-c8833be460a8",
+      "resource_id": "D-01",
+      "period": "[\"2026-09-13 16:00:00+00\",\"2026-09-13 18:41:00+00\")",
+      "active": true
+    },
+    {
+      "carrier_id": "return-load-6d9b1b48-e624-4213-b935-96b9d63c63ca",
+      "id": "b546a3cb-ba31-4e55-a77a-e482fab4e4af",
+      "assignment_id": "6214b300-d3eb-4560-a839-c8833be460a8",
+      "resource_id": "V-101",
+      "period": "[\"2026-09-13 16:00:00+00\",\"2026-09-13 18:41:00+00\")",
+      "active": true
+    }
+  ],
+  "errors": [],
+  "checks": [
+    "Actual Valhalla/OR-Tools prefers reachable later Kitchener return over zero-deadhead London pickup before prior release",
+    "Direct dispatch also rejects the missed pickup",
+    "Original commitment retained and HOS work deducted once",
+    "Stale plan rejects with no assignment; exact optimization and approval retry produce no duplicates",
+    "Built 1440px and 390px expose availability, ordered stops and specific rejection",
+    "Offline approval disabled",
+    "Web dispatcher approval then separate responsive driver acceptance",
+    "Six non-overlapping reservations; original three unchanged; missed return stays open"
+  ],
+  "scope": "Local built web, PostgreSQL and independent worker with real Ontario routing. No cloud rollout or native app change.",
+  "followup": {
+    "apiCommit": "60a7105",
+    "backend": {
+      "passed": 94,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 40807.844103
+    },
+    "pythonFull": {
+      "passed": 44,
+      "durationSeconds": 12.94
+    },
+    "pythonFinalPolicy": {
+      "passed": 7,
+      "durationSeconds": 10.23
+    },
+    "web": {
+      "passed": 14,
+      "skipped": 2,
+      "skipReason": "Firebase test configuration absent"
+    },
+    "historicalManifest": "Real group integration intentionally restores an old duty total; following planning still deducts original full interval and original service evidence. Historical record is not rewritten by the projection.",
+    "captureScope": "Screenshots use final worker policy and web artifact, before the API-only historical projection follow-up. Follow-up is verified by full backend integration tests."
+  }
+}
