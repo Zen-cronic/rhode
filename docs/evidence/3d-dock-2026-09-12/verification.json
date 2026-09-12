@@ -1,0 +1,57 @@
+{
+  "verifiedAt": "2026-09-12T19:37:07.531Z",
+  "carrier": "dock-hos-df041d1c-3788-4844-80b5-536be3e04872",
+  "runId": "b86cc7dd-bd80-470a-bf19-b31f6c471e40",
+  "eventCount": 9901,
+  "conditionsHash": "daaacea955b28521406519fd8986d5311a614a6a95cd9eb10274d78baef7e384",
+  "sample": {
+    "position": {
+      "lng": -81.200091,
+      "lat": 42.990168
+    },
+    "speedKph": 0,
+    "odometerKm": 0,
+    "duty": "on_duty",
+    "provenance": "synthetic",
+    "accuracyM": 5,
+    "phase": "dock_wait",
+    "at": "2026-09-13T15:15:00+00:00",
+    "assignmentId": "b0e685b0-7196-44a9-9635-e7bd588dab36",
+    "id": "6ac93ab52f44739536b490566ef9cdc9a84d08246e5a00ec9f2bcc7f749ff8d2"
+  },
+  "estimate": {
+    "visitId": "08209fee-63a5-4b32-be05-83467d84bad4",
+    "assignmentId": "b0e685b0-7196-44a9-9635-e7bd588dab36",
+    "driverId": "D-01",
+    "asOf": "2026-09-13T15:15:00.000Z",
+    "evidenceAt": "2026-09-13T15:15:00.000Z",
+    "evidenceAgeSeconds": 0,
+    "arrivalEvent": "7e6788c74663d9d808fb8f5a2f43f49d210a37ae937f2c6055779bdfc823f54f",
+    "evidenceId": "6ac93ab52f44739536b490566ef9cdc9a84d08246e5a00ec9f2bcc7f749ff8d2",
+    "precision": "observed_open_visit",
+    "status": "estimate",
+    "reason": "Provisional through the last confirmed inside sample. Departure and billing review are still required.",
+    "dwellMinutes": 165,
+    "billableMinutes": 45,
+    "amountCents": 7500,
+    "currency": "CAD",
+    "contract": {
+      "id": "demo-ftl",
+      "version": 1,
+      "freeMinutes": 120,
+      "rateCentsPerHour": 10000
+    }
+  },
+  "errors": [],
+  "writes": [],
+  "checks": [
+    "Built lazy 3D renderer with real retained S06 evidence",
+    "Three camera views and DOM selection",
+    "390px no document overflow",
+    "Dated offline evidence retained",
+    "User diagram switch and dispatched WebGL context-loss fallback",
+    "Held evidence removes amount; response override only, no source mutation",
+    "Read-only view preserves operational records and acknowledged event count"
+  ],
+  "limits": "Local synthetic dock diorama. Illustrative facility geometry; no historical scrub, corridor motion, hosted simulator control or physical site evidence. Held state uses a labeled intercepted browser response. Software renderer functional checks do not establish real GPU performance."
+}

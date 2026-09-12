@@ -1,0 +1,12 @@
+{
+  "verifiedAt": "2026-09-12T19:38:47.258Z",
+  "checks": [
+    "3D JavaScript absent until explicitly opened",
+    "One lazy scene chunk reused after close/reopen",
+    "Keyboard camera activation with reduced motion",
+    "Canvas unmounted on close",
+    "Regular localhost5174 preview renders source-backed3D scene"
+  ],
+  "errors": [],
+  "limits": "Browser functional checks; no physical GPU frame-rate claim. CUA browser integration unavailable in this runtime; Playwright used."
+}

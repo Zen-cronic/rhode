@@ -1,0 +1,43 @@
+{
+  "workflow": "NATIVE_PARALLEL implementation; independent fresh-context visual critics",
+  "target": 9,
+  "callsUsed": 3,
+  "callCap": 3,
+  "assessments": [
+    {
+      "score": 7.2,
+      "findings": [
+        "narrow scene obscured by overlays",
+        "oversized narrow controls",
+        "raw source IDs dominate"
+      ]
+    },
+    {
+      "score": 7.8,
+      "images": "visual-b",
+      "findings": [
+        "operational consequence lacks emphasis",
+        "excess narrow scene height",
+        "selected evidence follows generic metrics"
+      ]
+    },
+    {
+      "score": 7.8,
+      "images": "visual-c",
+      "findings": [
+        "narrow metric columns wrap values and explanations",
+        "on-duty constraint lacks hierarchy",
+        "small muted metadata"
+      ]
+    }
+  ],
+  "finalStatus": "NEEDS_REVISION",
+  "finalScore": null,
+  "reason": "Three-call visual cap reached below target. Final legibility fixes applied and rendered after the third assessment; final artifact is functionally verified but not independently rescored. Do not reuse7.8 as its final score.",
+  "postCritiqueChanges": [
+    "narrow metrics are horizontal rows with unbroken value/unit",
+    "on-duty held badge has stronger contrast",
+    "larger darker observation timestamp"
+  ],
+  "limits": "Subjective craft feedback, not a usability study or performance measurement."
+}

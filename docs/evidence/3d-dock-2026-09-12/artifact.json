@@ -1,0 +1,20 @@
+{
+  "verifiedAt": "2026-09-12T19:39:40.403629+00:00",
+  "files": {
+    "apps/web/src/DockScene.tsx": "a64e0b7fab9231e0d48239a134bd3e30442f7af7483d25b63c0a36db04ba55c6",
+    "apps/web/src/dock-scene.css": "008c34ac256397a50c8b3302356e6c3ec495b00dd40212f63057ffe2bb019c78",
+    "apps/web/src/DockRehearsal.tsx": "80a944aebe66fdba8dc1eb8aa469bec69f40f92dac921ea81c8cce51359ec25f",
+    "apps/web/src/dock-rehearsal.css": "1b5eae21c6b572a678bddf024dc8c410397e4031d443d055972b2aa109b48958",
+    "apps/web/src/dock-rehearsal-model.ts": "eb8ada28cc416c897496ebd89799ad879cc006fe22b068f6a18d5b28e8ed9911"
+  },
+  "tests": {
+    "dockProjection": 4,
+    "mobileRegression": 50,
+    "webRouteEvidence": 3,
+    "webFirebaseAuth": "2 skipped; required environment absent",
+    "webAndRootTypecheck": "passed"
+  },
+  "rendering": "React Three Fiber9.7.0 / Three0.186.0 / React19.1.0",
+  "cost": "No new cloud resource or generated-media call",
+  "sourceData": "Retained synthetic S06 run; production data untouched"
+}
