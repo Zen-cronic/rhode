@@ -1,0 +1,240 @@
+{
+  "verifiedAt": "2026-09-12T22:21:32.514Z",
+  "comparison": {
+    "pairs": 5,
+    "identicalSyntheticStartingShape": true,
+    "manual": {
+      "dispatcherActivations": 8,
+      "commandRequests": 2,
+      "medianScriptedElapsedMs": 768,
+      "elapsedMs": [
+        1092,
+        768,
+        820,
+        724,
+        681
+      ],
+      "rejectedReasonRetainedInProposal": false
+    },
+    "ranked": {
+      "dispatcherActivations": 2,
+      "commandRequests": 1,
+      "medianScriptedElapsedMs": 511,
+      "elapsedMs": [
+        574,
+        528,
+        509,
+        511,
+        493
+      ],
+      "rejectedReasonRetainedInProposal": true
+    },
+    "activationDifference": 6,
+    "requestDifference": 1
+  },
+  "runs": [
+    {
+      "ordinal": 1,
+      "manual": {
+        "carrier": "workflow-manual-1-d478659d-27cd-41f3-9354-1de6e4cdbf3e",
+        "elapsedMs": 1092,
+        "dispatcherActivations": 8,
+        "commandRequests": 2,
+        "rejected": {
+          "driverId": "D-03",
+          "code": "INELIGIBLE",
+          "reason": "Current HOS evidence is missing or stale.",
+          "retainedInProposal": false
+        },
+        "selected": {
+          "driverId": "D-02",
+          "truckId": "T-102",
+          "trailerId": "V-102"
+        }
+      },
+      "ranked": {
+        "carrier": "workflow-ranked-1-e351f91f-2938-4a72-9c46-e8a7d5fd86a5",
+        "elapsedMs": 574,
+        "dispatcherActivations": 2,
+        "commandRequests": 1,
+        "candidatesScreened": 2,
+        "rejected": {
+          "driverId": "D-03",
+          "reasons": [
+            "Current HOS evidence is missing or stale."
+          ],
+          "retainedInProposal": true
+        },
+        "selected": {
+          "driverId": "D-02",
+          "truckId": "T-102",
+          "trailerId": "V-102"
+        }
+      }
+    },
+    {
+      "ordinal": 2,
+      "manual": {
+        "carrier": "workflow-manual-2-6dc86991-cf54-414b-a746-a94a937e9ce5",
+        "elapsedMs": 768,
+        "dispatcherActivations": 8,
+        "commandRequests": 2,
+        "rejected": {
+          "driverId": "D-03",
+          "code": "INELIGIBLE",
+          "reason": "Current HOS evidence is missing or stale.",
+          "retainedInProposal": false
+        },
+        "selected": {
+          "driverId": "D-02",
+          "truckId": "T-102",
+          "trailerId": "V-102"
+        }
+      },
+      "ranked": {
+        "carrier": "workflow-ranked-2-285e8705-fd3c-4fcb-97bd-ee89fa73a455",
+        "elapsedMs": 528,
+        "dispatcherActivations": 2,
+        "commandRequests": 1,
+        "candidatesScreened": 2,
+        "rejected": {
+          "driverId": "D-03",
+          "reasons": [
+            "Current HOS evidence is missing or stale."
+          ],
+          "retainedInProposal": true
+        },
+        "selected": {
+          "driverId": "D-02",
+          "truckId": "T-102",
+          "trailerId": "V-102"
+        }
+      }
+    },
+    {
+      "ordinal": 3,
+      "manual": {
+        "carrier": "workflow-manual-3-1454acd6-7c24-4591-8619-1aad2e0ed296",
+        "elapsedMs": 820,
+        "dispatcherActivations": 8,
+        "commandRequests": 2,
+        "rejected": {
+          "driverId": "D-03",
+          "code": "INELIGIBLE",
+          "reason": "Current HOS evidence is missing or stale.",
+          "retainedInProposal": false
+        },
+        "selected": {
+          "driverId": "D-02",
+          "truckId": "T-102",
+          "trailerId": "V-102"
+        }
+      },
+      "ranked": {
+        "carrier": "workflow-ranked-3-bd94b102-cef8-44ce-ae37-a1e035ea419d",
+        "elapsedMs": 509,
+        "dispatcherActivations": 2,
+        "commandRequests": 1,
+        "candidatesScreened": 2,
+        "rejected": {
+          "driverId": "D-03",
+          "reasons": [
+            "Current HOS evidence is missing or stale."
+          ],
+          "retainedInProposal": true
+        },
+        "selected": {
+          "driverId": "D-02",
+          "truckId": "T-102",
+          "trailerId": "V-102"
+        }
+      }
+    },
+    {
+      "ordinal": 4,
+      "manual": {
+        "carrier": "workflow-manual-4-e5cdea8f-fc7c-40d3-a5bf-bbe8f566ff43",
+        "elapsedMs": 724,
+        "dispatcherActivations": 8,
+        "commandRequests": 2,
+        "rejected": {
+          "driverId": "D-03",
+          "code": "INELIGIBLE",
+          "reason": "Current HOS evidence is missing or stale.",
+          "retainedInProposal": false
+        },
+        "selected": {
+          "driverId": "D-02",
+          "truckId": "T-102",
+          "trailerId": "V-102"
+        }
+      },
+      "ranked": {
+        "carrier": "workflow-ranked-4-a584af0e-c7bb-4710-867b-f1238a27f355",
+        "elapsedMs": 511,
+        "dispatcherActivations": 2,
+        "commandRequests": 1,
+        "candidatesScreened": 2,
+        "rejected": {
+          "driverId": "D-03",
+          "reasons": [
+            "Current HOS evidence is missing or stale."
+          ],
+          "retainedInProposal": true
+        },
+        "selected": {
+          "driverId": "D-02",
+          "truckId": "T-102",
+          "trailerId": "V-102"
+        }
+      }
+    },
+    {
+      "ordinal": 5,
+      "manual": {
+        "carrier": "workflow-manual-5-dd2b56ad-afb4-409e-917d-7678311712dc",
+        "elapsedMs": 681,
+        "dispatcherActivations": 8,
+        "commandRequests": 2,
+        "rejected": {
+          "driverId": "D-03",
+          "code": "INELIGIBLE",
+          "reason": "Current HOS evidence is missing or stale.",
+          "retainedInProposal": false
+        },
+        "selected": {
+          "driverId": "D-02",
+          "truckId": "T-102",
+          "trailerId": "V-102"
+        }
+      },
+      "ranked": {
+        "carrier": "workflow-ranked-5-a4db9a78-870f-4fd6-beb3-70c5c5d31121",
+        "elapsedMs": 493,
+        "dispatcherActivations": 2,
+        "commandRequests": 1,
+        "candidatesScreened": 2,
+        "rejected": {
+          "driverId": "D-03",
+          "reasons": [
+            "Current HOS evidence is missing or stale."
+          ],
+          "retainedInProposal": true
+        },
+        "selected": {
+          "driverId": "D-02",
+          "truckId": "T-102",
+          "trailerId": "V-102"
+        }
+      }
+    }
+  ],
+  "checks": [
+    "Five isolated manual/ranked carrier pairs began from the same seeded assignments and delay shape",
+    "Manual assembly tested D-03, received the HOS rejection, then selected D-02 / T-102 / V-102",
+    "Ranked recovery selected the same feasible resources and retained the D-03 rejection in one proposal",
+    "The built UI exposes exact combinations/rejections/reason count without a human-time or financial claim",
+    "Desktop and 390px workflow receipts rendered without page errors or horizontal overflow"
+  ],
+  "limits": "Local Playwright automation against synthetic data. Elapsed values measure scripted browser/API execution on this machine, not dispatcher task time, usability, carrier savings, or an external fragmented-tool baseline. Activation counts start after login and state readiness."
+}
