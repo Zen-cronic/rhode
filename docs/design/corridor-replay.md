@@ -1,6 +1,6 @@
 # Corridor replay — implementation brief
 
-Status: IN_PROGRESS. Packet `PB-RS-3D-CORRIDOR-20260912`, September 12, 2026. Conservative preparation target is September 13 at noon EDT; the official noon/2 PM conflict remains unresolved. The operator explicitly approved 3D implementation and later approved retaining the third Precision transport design.
+Status: FUNCTIONALLY_ACCEPTED; VISUAL_NEEDS_REVISION (8.0/10 at critique cap). Packet `PB-RS-3D-CORRIDOR-20260912`, September 12, 2026. Conservative preparation target is September 13 at noon EDT; the official noon/2 PM conflict remains unresolved. The operator explicitly approved 3D implementation and later approved retaining the third Precision transport design.
 
 The dispatcher should be able to open one recorded synthetic trip and understand the long dock wait, the start of motion, observed speed and distance, and the current route epoch. This is a presentation-time instrument over acknowledged history. Its controls must never resume, advance, reset, approve, invoice, or change scenario time.
 

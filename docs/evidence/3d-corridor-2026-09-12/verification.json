@@ -1,0 +1,28 @@
+{
+  "verifiedAt": "2026-09-12T20:31:40.392Z",
+  "carrier": "complete-replay-bb948ea3-83b9-4827-9ccd-f359be64a080",
+  "runId": "fae9cd3a-c12e-4aab-b111-63bc6ffa66ae",
+  "recordingSnapshot": "b18be8d445e16cbb70105bd60458fd2b2d766542ac50d3a3558adfe8b87d298b",
+  "samples": 10201,
+  "sourceEventHash": "abc688b8652682b33cbcf0b813c4ad285b8c3132a779cead246ecb4eb63007d2",
+  "routeCoordinates": 77,
+  "presentationRequests": 40,
+  "errors": [],
+  "writes": [],
+  "checks": [
+    "Built renderer lazy-loads only after explicit open",
+    "All 10201 acknowledged events assemble before playback",
+    "Movement milestone displays exact sample 9901 time, speed, odometer and ID",
+    "View-only play/pause, exact slider, Home/End/Arrow stepping and Perspective/Plan cameras",
+    "A changed inventory event count/conditions hash clears and reloads the displayed recording",
+    "Reduced motion disables automatic playback",
+    "390px layout has no document overflow",
+    "Completed recording remains available offline; offline-before-load stays explicit",
+    "Manual diagram and WebGL context-loss fallbacks",
+    "A continuation-page conflict discards an already accepted first page",
+    "A labeled two-epoch browser fixture swaps the rendered route epoch at the exact cursor boundary",
+    "Empty-recording and offline-before-load states stay explicit",
+    "No operational POST; assignments, visits, invoices, proposals, resources, scenarios and simulator state unchanged"
+  ],
+  "limits": "Local synthetic complete replay with software WebGL. Facility HOS/detention remain separate current-state evidence. Inventory revision, continuation conflict, route-epoch transition and empty UI states use labeled browser response fixtures; deterministic route binding is also covered by server/model tests. No physical GPU, hosted control, native 3D or 131-driver rendering claim."
+}
