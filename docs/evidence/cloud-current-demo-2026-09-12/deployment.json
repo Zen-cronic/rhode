@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-09-12T21:52:22.481Z",
+  "verifiedAt": "2026-09-12T22:02:38.864Z",
   "project": "roadstar-2026-kzh",
   "region": "us-central1",
   "services": {
@@ -40,8 +40,40 @@
     "web": {
       "status": 200
     },
+    "artifacts": [
+      {
+        "name": "roadstar-demo.mp4",
+        "status": 200,
+        "contentType": "video/mp4",
+        "bytes": 17590568,
+        "sha256": "54d7eb79775a0c0eb51f35da2a8cc2f2aba6768100f20a6e350256d6438dfe77"
+      },
+      {
+        "name": "roadstar-demo.srt",
+        "status": 200,
+        "contentType": "application/x-subrip; charset=utf-8",
+        "bytes": 6242,
+        "sha256": "f39241c893c0818500e4c498338bbf53002fe75b708a47c856ccfca605e7fedb"
+      },
+      {
+        "name": "roadstar-pitch.pdf",
+        "status": 200,
+        "contentType": "application/pdf",
+        "bytes": 643123,
+        "sha256": "eb8a84de25fe41212162815f9362f191f2f4e88fcbc8c659addfb29ab5bfee29"
+      },
+      {
+        "name": "roadstar-pitch.pptx",
+        "status": 200,
+        "contentType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "bytes": 4259655,
+        "sha256": "2e4f8d14ae13499a2a509e26efc27b9223bae9811c4c1549a46b6e0442c6fd1a"
+      }
+    ],
     "film": {
+      "name": "roadstar-demo.mp4",
       "status": 200,
+      "contentType": "video/mp4",
       "bytes": 17590568,
       "sha256": "54d7eb79775a0c0eb51f35da2a8cc2f2aba6768100f20a6e350256d6438dfe77",
       "durationSeconds": 240.096,
@@ -66,7 +98,7 @@
     "All four latest created revisions are ready and receive 100% traffic",
     "API reports PostgreSQL with Firebase authentication",
     "Public web returns RoadStar application shell",
-    "Hosted four-minute film is byte-identical to the verified tracked master",
+    "Hosted MP4, SRT, PDF and PPTX are byte-identical to their tracked masters",
     "Hosted recovery preserves rejected HOS evidence, dispatcher approval and separate driver acceptance"
   ],
   "limits": "Approved seven-day GCP preview. Isolated synthetic scenario. Hosted simulator controls remain intentionally unavailable because a simulator Cloud Run resource was not included in the approved cost estimate. The deployed web contains the 3D renderer and the hosted film shows verified local recording evidence. Physical Android and native iOS verification remain deferred."

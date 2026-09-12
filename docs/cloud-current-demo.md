@@ -13,7 +13,7 @@ Every revision passed a zero-traffic tagged health check before receiving 100% t
 
 ## Judge-facing checks
 
-The public API reports PostgreSQL and Firebase authentication. The public web shell returns HTTP 200. The hosted 240.096-second H.264/AAC film is byte-identical to the tracked verified master at SHA-256 `54d7eb79775a0c0eb51f35da2a8cc2f2aba6768100f20a6e350256d6438dfe77`.
+The public API reports PostgreSQL and Firebase authentication. The public web shell returns HTTP 200. The hosted MP4, SRT, PDF and editable PPTX are byte-identical to their tracked masters. The 240.096-second H.264/AAC film has SHA-256 `54d7eb79775a0c0eb51f35da2a8cc2f2aba6768100f20a6e350256d6438dfe77`.
 
 An isolated Firebase-authenticated hosted scenario records a delayed RS-1042, identifies RS-1043 at risk, ranks Morgan with T-102/V-102 as feasible, and retains Taylor's missing/stale HOS evidence as a rejection. A dispatcher approves the pending revision; a separate driver accepts the resulting offer. A simulator-role approval returns 403 and a new approval against the applied proposal returns 409 without another mutation. The original assignment is superseded and the replacement is accepted.
 
