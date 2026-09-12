@@ -1260,3 +1260,15 @@ h1,h2,h3,.brand,.metric>strong{font-family:Manrope,sans-serif}h1{font-weight:600
 .simulator-route { margin: 20px 0; padding-top: 16px; border-top: 1px solid var(--border); }
 .simulator-hash { overflow-wrap: anywhere; }
 @media (max-width: 600px) { .simulator-metrics { grid-template-columns: 1fr; } .simulator-actions button { flex: 1 1 140px; } }
+
+/* Source-reviewed axle loading follows the existing fleet review surface. */
+.axle-fields,.axle-groups { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr)); gap:14px; margin:16px 0; }
+.axle-fields label { display:grid; gap:6px; min-width:0; }
+.axle-fields input,.axle-fields select { width:100%; min-width:0; box-sizing:border-box; }
+.axle-editor { border:0; padding:0; min-width:0; }
+.axle-editor>label { display:grid; gap:6px; margin:14px 0; }
+.axle-editor>label.checkbox-label { display:flex; }
+.axle-groups article { padding:12px; border:1px solid var(--line,#d8d6cf); border-radius:8px; }
+.axle-history { margin-top:16px; padding-top:12px; border-top:1px solid var(--line,#d8d6cf); }
+.axle-history code,.axle-hash { display:block; overflow-wrap:anywhere; margin-bottom:12px; }
+.axle-results h3 { margin-top:18px; }

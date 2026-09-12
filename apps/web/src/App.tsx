@@ -3,6 +3,7 @@ import {SimulatorControls} from './SimulatorControls';
 import { VisitReconciliation } from './VisitReconciliation';
 import {DriverRouteReview} from './DriverRouteReview';
 import {ClosureReview} from './ClosureReview';
+import {AxleReview} from './AxleReview';
 import {HosReview} from './HosReview';
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
@@ -632,6 +633,7 @@ export function App() {
                 <>
                   <Fleet resources={state.resources} />
                   <HosReview state={state} session={session} send={send} online={online}/>
+                  {!isDriver && <AxleReview state={state} session={session} send={send} online={online}/>}
                   {!isDriver && (
                     <Maintenance
                       state={state}
