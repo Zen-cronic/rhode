@@ -1,4 +1,4 @@
-import {simulatorInventory,simulatorControl} from './simulator-controls.ts';
+import {simulatorInventory,simulatorControl,simulatorPresentation} from './simulator-controls.ts';
 import {hosReviewSchema} from '../../../packages/domain/src/hos-import.ts';
 import {createHash} from 'node:crypto';
 import {schemas} from '../../../packages/domain/src/commands.ts';
@@ -64,6 +64,7 @@ export function createApi(store:Store,options:{localDemo?:boolean;verifyToken?:(
   app.get<{Querystring:{assignmentId:string}}>('/api/visit-review',async(req,reply)=>{reply.header('Cache-Control','private, no-store');return store.visitReview(await auth(req),z.string().uuid().parse(req.query.assignmentId));});
   app.get<{Querystring:{visitId:string}}>('/api/visit-time-review',async(req,reply)=>{reply.header('Cache-Control','private, no-store');return store.visitTimeReview(await auth(req),z.string().uuid().parse(req.query.visitId));});
   app.get('/api/simulator',async(req,reply)=>{reply.header('Cache-Control','private, no-store');return simulatorInventory(store,await auth(req));});
+  app.get('/api/simulator/:runId/presentation',async(req,reply)=>{reply.header('Cache-Control','private, no-store');const {runId}=req.params as {runId:string};const q=req.query as {offset?:string;limit?:string;snapshot?:string};return simulatorPresentation(store,await auth(req),{runId,offset:q.offset,limit:q.limit,snapshot:q.snapshot});});
   app.get<{Querystring:{loadId:string;truckId:string;trailerId:string}}>('/api/axle-review',async(req,reply)=>{reply.header('Cache-Control','private, no-store');const q=z.object({loadId:z.string().min(1).max(128),truckId:z.string().min(1).max(128),trailerId:z.string().min(1).max(128)}).parse(req.query);return store.axleReview(await auth(req),q.loadId,q.truckId,q.trailerId);});
   app.get('/api/state',async req=>store.snapshot(await auth(req)));
   app.get<{Querystring:{cursor?:string}}>('/api/updates',async req=>store.updates(await auth(req),req.query.cursor??'0'));

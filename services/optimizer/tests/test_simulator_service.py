@@ -477,3 +477,82 @@ def test_each_road_event_changes_forecast_only_after_its_own_observation(monkeyp
     assert restored['replay'].paused and restored['replay'].conditions_hash()==r.conditions_hash()
     assert restored['road_slowdown_observed'] and restored['road_hold_observed']
     assert restored['delay_reports']==run['delay_reports']
+
+
+
+def recording_fixture(monkeypatch, seconds=5):
+    from datetime import datetime, timezone
+    from hashlib import sha256
+    run=install_run(monkeypatch)
+    run.update(run_id='run',api_origin='http://127.0.0.1:4010',emit_mode=True)
+    for event in sim.generate_samples(run,seconds):
+        conditions=event.pop('_conditions_hash');at_ms=event.pop('at_ms')
+        event.update(id=sha256(f'run:{conditions}:{at_ms}'.encode()).hexdigest(),assignmentId='assignment',at=datetime.fromtimestamp(at_ms/1000,timezone.utc).isoformat())
+        run['events'].append(event)
+    return run
+
+
+def test_presentation_pages_are_frozen_whitelisted_acknowledged_and_read_only(monkeypatch):
+    import copy
+    run=recording_fixture(monkeypatch)
+    run['events'][0]['internal_secret']='must not leak'
+    run['pending']={'events':[{'id':'unacknowledged'}],'sent':0}
+    before=copy.deepcopy(run)
+    first=sim.presentation_view(run,0,2)
+    assert first['total']==6 and first['next_offset']==2
+    assert len(first['events'])==2 and first['events'][0]['sample']['id']==run['events'][0]['id']
+    assert 'internal_secret' not in first['events'][0]['sample'] and 'pending' not in first
+    second=sim.presentation_view(run,2,1000,first['snapshot'])
+    assert second['next_offset'] is None and len(second['events'])==4
+    assert second['snapshot']==first['snapshot'] and run==before
+    assert first['routes'][0]['geometry']['coordinates']==run['replay'].coordinates
+    assert first['routes'][0]['source']=='synthetic-test-route'
+    first['routes'][0]['geometry']['coordinates'][0][0]=0
+    assert run==before
+    run['events']=run['events'][:-1]
+    with pytest.raises(sim.HTTPException,match='409'):
+        sim.presentation_view(run,2,1000,first['snapshot'])
+    run['events']=[];run['emit_mode']=None
+    assert sim.presentation_view(run)['total']==0
+    with pytest.raises(sim.HTTPException,match='409'):
+        sim.presentation_view(run,0,2,first['snapshot'])
+
+
+@pytest.mark.parametrize('offset,limit,snapshot',[(1,10,None),(-1,10,None),(0,0,None),(0,1001,None),(0,10,'invalid')])
+def test_presentation_rejects_unbounded_or_unpinned_pages(monkeypatch,offset,limit,snapshot):
+    run=recording_fixture(monkeypatch)
+    with pytest.raises(sim.HTTPException,match='400'):
+        sim.presentation_view(run,offset,limit,snapshot)
+
+
+def test_presentation_rejects_nonemitted_or_tampered_sources(monkeypatch):
+    run=recording_fixture(monkeypatch)
+    run['emit_mode']=False
+    with pytest.raises(sim.HTTPException,match='409'):
+        sim.presentation_view(run)
+    run['emit_mode']=True;run['events'][0]['id']='tampered'
+    with pytest.raises(sim.HTTPException,match='409'):
+        sim.presentation_view(run)
+
+
+def test_presentation_preserves_route_identity_at_adoption_boundary(monkeypatch):
+    from datetime import datetime, timezone
+    from hashlib import sha256
+    run=recording_fixture(monkeypatch)
+    previous=run['replay'];previous.paused=True
+    run['original_initial']=previous.initial_conditions()
+    pos=previous.sample()['position']
+    changed=sim.replace_remaining_route(previous,[[pos['lng'],pos['lat']],[-79.91,43.5]],[0,1])
+    run['route_transitions']=[{'at_seconds':5,'revision_id':'approved-route','revision':2,'snapshot':sim.replay_snapshot(changed.replay)}]
+    run['transition_cursor']=1;run['replay']=changed.replay;run['replay'].paused=False
+    for event in sim.generate_samples(run,2):
+        conditions=event.pop('_conditions_hash');at_ms=event.pop('at_ms')
+        event.update(id=sha256(f'run:{conditions}:{at_ms}'.encode()).hexdigest(),assignmentId='assignment',at=datetime.fromtimestamp(at_ms/1000,timezone.utc).isoformat())
+        run['events'].append(event)
+    page=sim.presentation_view(run)
+    assert len(page['routes'])==2
+    assert page['events'][5]['elapsed_seconds']==5
+    assert page['events'][5]['route_key']==page['routes'][0]['key']
+    assert page['events'][6]['route_key']==page['routes'][1]['key']
+    assert page['routes'][1]['revision_id']=='approved-route'
+    assert page['events'][6]['sample']['odometerKm']>=page['events'][5]['sample']['odometerKm']

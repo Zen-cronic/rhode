@@ -513,6 +513,64 @@ async def control_state(run_id: str):
         return control_view(get(run_id))
 
 
+PRESENTATION_SAMPLE_FIELDS = ('id', 'assignmentId', 'at', 'position', 'speedKph', 'odometerKm', 'duty', 'phase', 'accuracyM', 'provenance')
+
+
+def presentation_view(run, offset=0, limit=500, snapshot=None):
+    """Read-only recording pages. The cursor never advances operational time.
+
+    Route identity is recovered from the deterministic event ID, so an observation
+    at an adoption boundary keeps the geometry which actually generated it.
+    """
+    if not isinstance(offset, int) or not isinstance(limit, int) or offset < 0 or not 1 <= limit <= 1000:
+        raise HTTPException(400, 'Use offset >= 0 and a page limit between 1 and 1000')
+    if (snapshot is not None and not re.fullmatch(r'[a-f0-9]{64}', snapshot)) or (offset and snapshot is None):
+        raise HTTPException(400, 'Continuation pages require the recording snapshot fingerprint')
+    if run['emit_mode'] is False or (run['events'] and run['emit_mode'] is not True):
+        raise HTTPException(409, 'This run has no operationally acknowledged recording; un-emitted samples cannot be replay evidence')
+    initial = run.get('original_initial') or run['replay'].initial_conditions()
+    epochs = [(initial, None)] + [(t['snapshot']['initial'], t) for t in run.get('route_transitions', [])]
+    routes = []
+    for ordinal, (conditions, transition) in enumerate(epochs):
+        fingerprint = sha256(json.dumps(conditions, sort_keys=True).encode()).hexdigest()
+        routes.append({'key': fingerprint, 'ordinal': ordinal,
+                       'after_seconds': transition['at_seconds'] if transition else None,
+                       'revision_id': transition['revision_id'] if transition else None,
+                       'revision': transition['revision'] if transition else None,
+                       'source': conditions['route_evidence'],
+                       'geometry': {'type': 'LineString', 'coordinates': copy.deepcopy(conditions['coordinates'])},
+                       'stop_indices': list(conditions['stop_indices'])})
+    events = []
+    for event in run['events']:
+        at_ms = round(datetime.fromisoformat(event['at']).timestamp()*1000)
+        route_key = next((r['key'] for r in routes if sha256(f"{run['run_id']}:{r['key']}:{at_ms}".encode()).hexdigest() == event['id']), None)
+        if route_key is None or event['assignmentId'] != run['assignment_id'] or event['provenance'] != 'synthetic':
+            raise HTTPException(409, 'Recording source identity does not match the retained route and assignment; preserve for review')
+        events.append({'sample': {k: copy.deepcopy(event.get(k)) for k in PRESENTATION_SAMPLE_FIELDS},
+                       'route_key': route_key, 'elapsed_seconds': (at_ms-initial['start_time_ms'])/1000})
+    content = {'schema': 1, 'run_id': run['run_id'], 'assignment_id': run['assignment_id'],
+               'carrier_id': run['carrier_id'], 'api_origin': run['api_origin'],
+               'start_time_ms': initial['start_time_ms'], 'routes': routes, 'events': events}
+    fingerprint = sha256(json.dumps(content, sort_keys=True, allow_nan=False).encode()).hexdigest()
+    if snapshot is not None and snapshot != fingerprint:
+        raise HTTPException(409, 'Recording changed. Reload from the first page; do not combine recording snapshots')
+    if offset > len(events):
+        raise HTTPException(400, 'Offset is beyond this recording')
+    end = min(offset+limit, len(events))
+    return {k: v for k, v in content.items() if k != 'events'} | {
+        'snapshot': fingerprint, 'total': len(events), 'offset': offset,
+        'next_offset': end if end < len(events) else None, 'events': events[offset:end],
+        'provenance': 'synthetic', 'evidence': 'API-acknowledged observations; not certified GPS or billing timestamps',
+        'speed_semantics': 'Speed describes the preceding interval; phase and duty describe the observation instant',
+        'clock_semantics': 'Historical view cursor only; current HOS balances and billing are not historical values'}
+
+
+@app.get('/control/runs/{run_id}/presentation')
+async def control_presentation(run_id: str, offset: int = 0, limit: int = 500, snapshot: str | None = None):
+    async with lock:
+        return presentation_view(get(run_id), offset, limit, snapshot)
+
+
 def finish_control(run, data, fingerprint, error=None, clear_pending=True):
     if clear_pending: run.pop('control_pending', None)
     run['control_revision'] = run.get('control_revision', 0)+1
