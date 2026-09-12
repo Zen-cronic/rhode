@@ -44,6 +44,46 @@ presentation_cache: dict[str, dict] = {}
 
 
 PROGRESS_FIELDS = ('elapsed_seconds', '_distance', '_next_stop', '_wait', '_last_speed', '_initial_emitted', '_lengths')
+COMPARISON_INTERVENTION_FIELDS = frozenset({
+    'model_version',
+    'disruption_seconds', 'disruption_start_seconds',
+    'slowdown_seconds', 'slowdown_start_seconds', 'slowdown_factor',
+})
+
+
+def comparison_metadata(run):
+    """Derive a matched-comparison identity without changing the run.
+
+    Road holds and slowdowns are deliberate branch interventions. Everything else
+    in the original initial conditions remains part of the basis so a different
+    route, clock, seed, modeled speed, dwell, or stop layout cannot be presented
+    as a matched comparison. Model-version differences are excluded because v2
+    and v3 encode the presence of slowdown fields differently.
+    """
+    initial = run.get('original_initial') or run['replay'].initial_conditions()
+    basis = {key: copy.deepcopy(value) for key, value in initial.items()
+             if key not in COMPARISON_INTERVENTION_FIELDS}
+    hold_seconds = initial.get('disruption_seconds', 0)
+    slowdown_seconds = initial.get('slowdown_seconds', 0)
+    hold = ({'start_seconds': initial.get('disruption_start_seconds', 60),
+             'duration_seconds': hold_seconds} if hold_seconds else None)
+    slowdown = ({'start_seconds': initial.get('slowdown_start_seconds', 60),
+                 'duration_seconds': slowdown_seconds,
+                 'factor': initial.get('slowdown_factor', 0.35)} if slowdown_seconds else None)
+    if hold and slowdown:
+        kind = 'road_hold_and_slowdown'
+    elif hold:
+        kind = 'road_hold'
+    elif slowdown:
+        kind = 'road_slowdown'
+    else:
+        kind = 'baseline'
+    return {
+        'comparison_basis_hash': sha256(json.dumps(basis, sort_keys=True, allow_nan=False).encode()).hexdigest(),
+        'intervention_classification': kind,
+        'intervention': {'kind': kind, 'road_hold': hold, 'road_slowdown': slowdown},
+        'modeled_completion_ms': run['replay'].forecast_completion_ms(True, include_slowdown=True),
+    }
 
 
 def checkpoint_path(run_id):
@@ -491,6 +531,7 @@ def control_view(run):
             'control_revision': run.get('control_revision', 0), 'closure_block': run.get('closure_block'),
             'transitions': [{k:t[k] for k in ('revision_id','revision','at_seconds','adopted_at','route_fingerprint')} for t in run.get('route_transitions', [])],
             'restored': run.get('restored', False), 'provenance': 'synthetic'}
+    view.update(comparison_metadata(run))
     view['state_hash'] = sha256(json.dumps(view, sort_keys=True, allow_nan=False).encode()).hexdigest()
     intent = run.get('control_pending')
     view['pending_control'] = {'key':intent['key'], 'command':intent['command']} if intent else None
@@ -583,6 +624,7 @@ def _presentation_content(run):
     content = {'schema': 1, 'run_id': run['run_id'], 'assignment_id': run['assignment_id'],
                'carrier_id': run['carrier_id'], 'api_origin': run['api_origin'],
                'start_time_ms': initial['start_time_ms'], 'routes': routes, 'events': events}
+    content.update(comparison_metadata(run))
     fingerprint = sha256(json.dumps(content, sort_keys=True, allow_nan=False).encode()).hexdigest()
     presentation_cache[run['run_id']] = {'owner_id': id(run), 'content': content, 'fingerprint': fingerprint}
     return content, fingerprint

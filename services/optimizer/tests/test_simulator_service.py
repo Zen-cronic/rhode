@@ -516,16 +516,91 @@ def test_each_road_event_changes_forecast_only_after_its_own_observation(monkeyp
 
 
 
-def recording_fixture(monkeypatch, seconds=5):
+def recording_fixture(monkeypatch, seconds=5, replay_options=None):
     from datetime import datetime, timezone
     from hashlib import sha256
     run=install_run(monkeypatch)
     run.update(run_id='run',api_origin='http://127.0.0.1:4010',emit_mode=True)
+    if replay_options:
+        run['replay'] = Replay([[-79.9,43.5],[-79.91,43.5]], 1000,
+                               route_evidence='synthetic-test-route', **replay_options)
+        run['replay'].paused = False
     for event in sim.generate_samples(run,seconds):
         conditions=event.pop('_conditions_hash');at_ms=event.pop('at_ms')
         event.update(id=sha256(f'run:{conditions}:{at_ms}'.encode()).hexdigest(),assignmentId='assignment',at=datetime.fromtimestamp(at_ms/1000,timezone.utc).isoformat())
         run['events'].append(event)
     return run
+
+
+def comparison_run(replay, run_id='comparison'):
+    return {'run_id':run_id, 'api_origin':'http://127.0.0.1:4010', 'replay':replay,
+            'assignment_id':'assignment', 'carrier_id':'test', 'events':[],
+            'pending':None, 'emit_mode':None, 'closure_checks':False}
+
+
+def test_comparison_basis_matches_baseline_and_slowdown_and_classifies_interventions():
+    common = {'coordinates':[[-79.9,43.5],[-80.0,43.5]], 'start_time_ms':1000,
+              'seed':73, 'speed_kph':68, 'dock_wait_seconds':120,
+              'stop_indices':[0,1], 'stop_wait_seconds':[120,45],
+              'route_evidence':'synthetic-test-route'}
+    baseline_run = comparison_run(Replay(**common))
+    baseline_before = baseline_run['replay'].__dict__.copy()
+    baseline = sim.comparison_metadata(baseline_run)
+    slowdown = sim.comparison_metadata(comparison_run(Replay(
+        **common, slowdown_start_seconds=600, slowdown_seconds=1800, slowdown_factor=.1)))
+    hold = sim.comparison_metadata(comparison_run(Replay(
+        **common, disruption_start_seconds=300, disruption_seconds=90)))
+    combined = sim.comparison_metadata(comparison_run(Replay(
+        **common, disruption_start_seconds=300, disruption_seconds=90,
+        slowdown_start_seconds=600, slowdown_seconds=1800, slowdown_factor=.1)))
+    assert {item['comparison_basis_hash'] for item in (baseline, slowdown, hold, combined)} == {
+        baseline['comparison_basis_hash']}
+    assert baseline['intervention'] == {
+        'kind':'baseline', 'road_hold':None, 'road_slowdown':None}
+    assert slowdown['intervention'] == {
+        'kind':'road_slowdown', 'road_hold':None,
+        'road_slowdown':{'start_seconds':600, 'duration_seconds':1800, 'factor':.1}}
+    assert hold['intervention_classification'] == 'road_hold'
+    assert combined['intervention_classification'] == 'road_hold_and_slowdown'
+    assert slowdown['modeled_completion_ms'] > baseline['modeled_completion_ms']
+    assert baseline_run['replay'].__dict__ == baseline_before
+
+
+@pytest.mark.parametrize('change', [
+    {'coordinates':[[-79.9,43.5],[-80.01,43.5]]},
+    {'route_evidence':'valhalla-truck'},
+    {'start_time_ms':2000},
+    {'seed':74},
+    {'speed_kph':69},
+    {'dock_wait_seconds':121, 'stop_wait_seconds':[121,45]},
+    {'stop_indices':[0,2], 'coordinates':[[-79.9,43.5],[-79.95,43.5],[-80.0,43.5]],
+     'stop_wait_seconds':[120,45]},
+])
+def test_comparison_basis_refuses_changed_starting_conditions(change):
+    common = {'coordinates':[[-79.9,43.5],[-80.0,43.5]], 'start_time_ms':1000,
+              'seed':73, 'speed_kph':68, 'dock_wait_seconds':120,
+              'stop_indices':[0,1], 'stop_wait_seconds':[120,45],
+              'route_evidence':'synthetic-test-route'}
+    baseline = sim.comparison_metadata(comparison_run(Replay(**common)))['comparison_basis_hash']
+    changed = {**common, **change}
+    assert sim.comparison_metadata(comparison_run(Replay(**changed)))['comparison_basis_hash'] != baseline
+
+
+def test_comparison_metadata_is_consistent_across_control_and_presentation_and_read_only(monkeypatch):
+    import copy
+    run = recording_fixture(monkeypatch, replay_options={
+        'slowdown_start_seconds':2, 'slowdown_seconds':30, 'slowdown_factor':.2})
+    before = copy.deepcopy(run)
+    control = sim.control_view(run)
+    first = sim.presentation_view(run, 0, 2)
+    second = sim.presentation_view(run, 2, 1000, first['snapshot'])
+    keys = ('comparison_basis_hash', 'intervention_classification', 'intervention', 'modeled_completion_ms')
+    assert {key:control[key] for key in keys} == {key:first[key] for key in keys}
+    assert {key:first[key] for key in keys} == {key:second[key] for key in keys}
+    assert first['intervention']['kind'] == 'road_slowdown'
+    first['intervention']['road_slowdown']['duration_seconds'] = 1
+    assert sim.presentation_view(run)['intervention']['road_slowdown']['duration_seconds'] == 30
+    assert run == before
 
 
 def test_presentation_pages_are_frozen_whitelisted_acknowledged_and_read_only(monkeypatch):
