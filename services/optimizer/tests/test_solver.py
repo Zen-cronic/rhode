@@ -72,6 +72,11 @@ def test_reported_duty_includes_planned_wait_so_following_load_cannot_reuse_it()
     assert route['driving_minutes']==40
     # Start 0, travel 10, wait 90, pickup 15, travel 30, delivery 15.
     assert route['duty_minutes']==160
+    # Persisted pre-fix proposals must fail the existing approval hash check.
+    from hashlib import sha256
+    import json
+    legacy_hash=sha256(json.dumps(p.model_dump(mode='json'),sort_keys=True).encode()).hexdigest()
+    assert result['input_hash']!=legacy_hash
     # Waiting is on duty, never an inferred rest break or a fresh HOS budget.
     p.vehicles[0].duty_minutes=159
     assert solve(p)['routes']==[]

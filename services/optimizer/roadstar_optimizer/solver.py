@@ -118,7 +118,8 @@ def solve(problem: Problem):
     params.local_search_metaheuristic = routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH
     params.time_limit.seconds = problem.time_limit_seconds
     solution = routing.SolveWithParameters(params)
-    fingerprint = sha256(json.dumps(problem.model_dump(mode='json'), sort_keys=True).encode()).hexdigest()
+    # Approval must reject proposals computed before waiting counted as duty.
+    fingerprint = sha256(json.dumps({'policy': 'on-duty-wait-v2', 'problem': problem.model_dump(mode='json')}, sort_keys=True).encode()).hexdigest()
     if not solution:
         return {'status': 'no_solution_found', 'routes': [], 'infeasible_loads': [{'load_id': l.id, 'reason': 'No solution found within bounded search; infeasibility not proven'} for l in problem.loads], 'input_hash': fingerprint}
     routes = []
@@ -139,4 +140,4 @@ def solve(problem: Problem):
             before_release = compatible and all(problem.vehicles[j].available_at > load.pickup_window[1] for j in compatible)
             reason = ('Pickup closes before every compatible vehicle finishes its committed work.' if before_release else 'Unserved under supported time-window, capacity and declared duty limits; optimality not proven')
             rejected.append({'load_id': load.id, 'reason': reason})
-    return {'status': 'proposal', 'routes': routes, 'infeasible_loads': rejected, 'input_hash': fingerprint, 'routing_evidence': problem.routing_evidence, 'evidence_ref': problem.evidence_ref, 'assumptions': ['Declared HOS budgets, not certified ELD', 'No legal break/rest scheduling', 'Open routes; no forced depot return', 'No independent dispatch authority'], 'modeled': True}
+    return {'status': 'proposal', 'routes': routes, 'infeasible_loads': rejected, 'input_hash': fingerprint, 'routing_evidence': problem.routing_evidence, 'evidence_ref': problem.evidence_ref, 'assumptions': ['Declared HOS budgets, not certified ELD', 'Planned waiting counts as on-duty time', 'No legal break/rest scheduling', 'Open routes; no forced depot return', 'No independent dispatch authority'], 'modeled': True}
