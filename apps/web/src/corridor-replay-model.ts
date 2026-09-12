@@ -67,8 +67,11 @@ function validEvent(event: CorridorEvent, assignmentId: string, routeKeys: Set<s
     routeKeys.has(event.route_key) && finite(event.elapsed_seconds) && event.elapsed_seconds >= 0 &&
     finite(Date.parse(sample.at)) && finite(sample.position?.lat) && finite(sample.position?.lng) &&
     Math.abs(sample.position.lat) <= 90 && Math.abs(sample.position.lng) <= 180 &&
-    (sample.speedKph === null || finite(sample.speedKph)) &&
-    (sample.odometerKm === null || finite(sample.odometerKm)) && finite(sample.accuracyM)
+    typeof sample.duty === 'string' && sample.duty.length > 0 &&
+    typeof sample.phase === 'string' && sample.phase.length > 0 &&
+    (sample.speedKph === null || (finite(sample.speedKph) && sample.speedKph >= 0)) &&
+    (sample.odometerKm === null || (finite(sample.odometerKm) && sample.odometerKm >= 0)) &&
+    finite(sample.accuracyM) && sample.accuracyM >= 0
 }
 
 /**

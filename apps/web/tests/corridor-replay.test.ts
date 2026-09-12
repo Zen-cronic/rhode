@@ -31,6 +31,11 @@ test('recording pages reject stale, overlapping, foreign and malformed evidence'
     (value: CorridorPage) => { value.events[0].route_key = key('f') },
     (value: CorridorPage) => { value.events[0].sample.id = 'invalid' },
     (value: CorridorPage) => { value.next_offset = 3 },
+    (value: CorridorPage) => { value.events[0].sample.duty = '' },
+    (value: CorridorPage) => { value.events[0].sample.phase = 2 as unknown as string },
+    (value: CorridorPage) => { value.events[0].sample.speedKph = -1 },
+    (value: CorridorPage) => { value.events[0].sample.odometerKm = -1 },
+    (value: CorridorPage) => { value.events[0].sample.accuracyM = -1 },
   ]) {
     const next = structuredClone(page(2)); mutate(next)
     assert.throws(() => mergeCorridorPage(first, next))
