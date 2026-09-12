@@ -1,0 +1,9 @@
+{
+  "execution": "roadstar-seed-4hs4c",
+  "status": "completed",
+  "observedAt": "2026-09-11T21:48:06.993096Z",
+  "source": "Cloud Logging structured seed output",
+  "carrier": "dock-evidence-cloud-20260911",
+  "visitSessionColumn": 1,
+  "correctionTable": "visit_time_revisions"
+}

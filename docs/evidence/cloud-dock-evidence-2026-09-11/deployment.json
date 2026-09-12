@@ -1,0 +1,57 @@
+{
+  "verifiedAt": "2026-09-11T21:48:26.801609+00:00",
+  "services": {
+    "roadstar-api": {
+      "revision": "roadstar-api-00021-qwk",
+      "createdRevision": "roadstar-api-00021-qwk",
+      "traffic": [
+        {
+          "percent": 100,
+          "revisionName": "roadstar-api-00021-qwk"
+        }
+      ],
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/api@sha256:fcf4287c1710ab3f98c56f19ea1e9f6234757954adfd29384fa9fe0a10395954",
+      "url": "https://roadstar-api-xc67wudx5a-uc.a.run.app"
+    },
+    "roadstar-web": {
+      "revision": "roadstar-web-00034-nv7",
+      "createdRevision": "roadstar-web-00034-nv7",
+      "traffic": [
+        {
+          "percent": 100,
+          "revisionName": "roadstar-web-00034-nv7"
+        }
+      ],
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:da0a790b1efaaeedb2d84b27fcc77247f5e24c3a8cf169d4331668bf96c23cd8",
+      "url": "https://roadstar-web-xc67wudx5a-uc.a.run.app"
+    },
+    "roadstar-documents": {
+      "revision": "roadstar-documents-00011-rhf",
+      "createdRevision": "roadstar-documents-00011-rhf",
+      "traffic": [
+        {
+          "percent": 100,
+          "revisionName": "roadstar-documents-00011-rhf"
+        }
+      ],
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/api@sha256:fcf4287c1710ab3f98c56f19ea1e9f6234757954adfd29384fa9fe0a10395954",
+      "url": "https://roadstar-documents-xc67wudx5a-uc.a.run.app"
+    },
+    "roadstar-optimizer": {
+      "revision": "roadstar-optimizer-00007-lhb",
+      "createdRevision": "roadstar-optimizer-00007-lhb",
+      "traffic": [
+        {
+          "percent": 100,
+          "revisionName": "roadstar-optimizer-00007-lhb"
+        }
+      ],
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/optimizer@sha256:bb720d2246d69b208952ab039a7ccf94a1f30f3fa8c2d9dff20ab4c7862ba133",
+      "url": "https://roadstar-optimizer-xc67wudx5a-uc.a.run.app"
+    }
+  },
+  "project": "roadstar-2026-kzh",
+  "sourceCommit": "5620929",
+  "newResources": 0,
+  "notes": "Existing approved preview resources only; optimizer image unchanged. Document usage recorded separately."
+}

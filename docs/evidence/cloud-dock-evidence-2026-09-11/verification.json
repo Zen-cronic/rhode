@@ -1,0 +1,99 @@
+{
+  "verifiedAt": "2026-09-11T21:49:19.774Z",
+  "carrier": "dock-evidence-cloud-20260911",
+  "assignmentId": "0951a27f-37d8-4f33-b871-c78c7590713c",
+  "visitId": "02ec6df4-8a54-4af0-91b1-523407c2965a",
+  "sourceDocumentId": "882bd0d5-0130-4adb-8c85-31efd4d194d6",
+  "extraction": {
+    "kind": "other",
+    "model": "gemini-2.5-flash",
+    "fields": {
+      "notes": "Demonstration only - not a real shipment document. Source: synthetic facility desk attestation. GPS facility arrival/departure can differ from dock service times.",
+      "signedBy": null,
+      "billNumber": "RS-1042",
+      "observedDate": "September 13, 2026"
+    },
+    "filename": "synthetic-milton-dock-ticket.pdf",
+    "provenance": "synthetic",
+    "reviewStatus": "unreviewed",
+    "sourceSha256": "b0e22368a8f1de5ef8fec1ced90ee13558db42999ac796f4bf6e985f66ac7b88"
+  },
+  "sourceSha256": "b0e22368a8f1de5ef8fec1ced90ee13558db42999ac796f4bf6e985f66ac7b88",
+  "correction": {
+    "carrier_id": "dock-evidence-cloud-20260911",
+    "id": "77ee6c23-2920-4510-b10a-85bbcd6236a7",
+    "visit_id": "02ec6df4-8a54-4af0-91b1-523407c2965a",
+    "revision": 1,
+    "document_id": "882bd0d5-0130-4adb-8c85-31efd4d194d6",
+    "reviewed_by": "preview-dispatcher",
+    "recorded_at": "2026-09-11T21:49:17.997Z",
+    "fingerprint": "c4bb257cafbddf395f2e9fe00664a93bda7b1326b79df81f8f200d6b5dc02e7c",
+    "body": {
+      "reason": "The facility GPS observations include yard time before dock check-in and after release; the reviewed ticket supplies dock service times.",
+      "document": {
+        "id": "882bd0d5-0130-4adb-8c85-31efd4d194d6",
+        "sha256": "b0e22368a8f1de5ef8fec1ced90ee13558db42999ac796f4bf6e985f66ac7b88",
+        "version": 4,
+        "filename": "synthetic-milton-dock-ticket.pdf",
+        "media_type": "application/pdf"
+      },
+      "observed": {
+        "arrivalAt": "2026-09-13T12:30:00.000Z",
+        "departureAt": "2026-09-13T15:15:00.000Z",
+        "arrivalEvent": "arrival",
+        "departureEvent": "departure"
+      },
+      "arrivalAt": "2026-09-13T12:40:00.000Z",
+      "provenance": "document-reviewed",
+      "recordedAt": "2026-09-11T21:49:18.023Z",
+      "reviewedBy": "preview-dispatcher",
+      "sourceNote": "Page 1: the synthetic facility desk ticket identifies RS-1042 at Milton yard, check-in 12:40 UTC and release 15:10 UTC.",
+      "departureAt": "2026-09-13T15:10:00.000Z",
+      "previousRevisionId": null
+    }
+  },
+  "invoiceRevisions": [
+    {
+      "id": "4fc4d9e3-fcb2-42be-995d-d372d84d61d6",
+      "revision": 1,
+      "status": "draft",
+      "amountCents": 7500,
+      "precision": "observed_samples"
+    },
+    {
+      "id": "de7cd5b5-ab0f-4940-b4b5-4fda4f5e1b0e",
+      "revision": 2,
+      "status": "approved",
+      "amountCents": 7500,
+      "precision": "observed_samples"
+    },
+    {
+      "id": "6ccd6e06-b642-4787-90ff-e808eef96cbb",
+      "revision": 3,
+      "status": "draft",
+      "amountCents": 5000,
+      "precision": "reviewed_document_times"
+    },
+    {
+      "id": "261474bf-9586-401a-83bc-27de598397f4",
+      "revision": 4,
+      "status": "approved",
+      "amountCents": 5000,
+      "precision": "reviewed_document_times"
+    }
+  ],
+  "errors": [],
+  "checks": [
+    "Firebase-authenticated upload to Cloud Storage and source PDF download byte-for-byte",
+    "Vertex extraction completed before source version review",
+    "driver correction read and unrelated driver/source carrier access denied",
+    "document version change disables open correction review",
+    "dispatcher records document/GPS conflict with source note and reason",
+    "exact correction retry creates no extra revision",
+    "separate invoice approval preserves corrected precision",
+    "API tracking observations, visits, resources and prior $75 approval unchanged",
+    "new $50 approval retained with all four invoice revisions",
+    "desktop/narrow/offline history verified without overflow"
+  ],
+  "limits": "Deployed Firebase API, Cloud SQL migrations018/019, Cloud Storage, document worker and built web verified. Native billing UI remains pending; database raw rows were not directly compared in this hosted check. Document times are dispatcher-reviewed source claims, not certified physical timestamps. No payment or source rewriting."
+}
