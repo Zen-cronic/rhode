@@ -1,0 +1,78 @@
+{
+  "verifiedAt": "2026-09-12T21:08:55.469Z",
+  "carrier": "complete-replay-bb948ea3-83b9-4827-9ccd-f359be64a080",
+  "proposal": "20563b4b-0c64-4e49-8c2b-082ec00b64c5",
+  "sourceComparison": {
+    "current": {
+      "eligible": false,
+      "reasons": [
+        "Insufficient on-duty budget.",
+        "Resource reserved by RS-1042.",
+        "Driver cannot reach pickup after prior committed work under the current planning estimate."
+      ],
+      "deadheadKm": 0,
+      "note": "Truck-route travel times with declared work budgets. OSM restrictions and supplied dimensions require review; not certified ELD or legal clearance. Prior work: RS-1042: 8 min driving, 168 min on duty (remaining truck route from current GPS and completed stops). Full service allowance retained; future waiting assumed on duty.",
+      "axle": {
+        "required": false,
+        "eligible": true,
+        "reasons": [],
+        "note": "Synthetic declared axle clearance only; no physical loading assessment."
+      },
+      "timing": {
+        "evaluatedAt": "2026-09-13T12:30:01.000Z",
+        "availableAt": "2026-09-13T15:17:50.000Z",
+        "pickupArrivalAt": "2026-09-13T15:17:50.000Z",
+        "pickupReadyAt": "2026-09-13T15:17:50.000Z",
+        "pickupLateMinutes": 123,
+        "completionAt": "2026-09-13T17:41:50.000Z",
+        "travelMinutes": 99,
+        "serviceMinutes": 45
+      },
+      "routeFingerprint": "d7bd4dc0c691066de3381fb550b01eb6b7d3cc45563ceddc986f44ebadc06ebc",
+      "routingEvidence": "valhalla-truck"
+    },
+    "proposed": {
+      "eligible": true,
+      "reasons": [],
+      "deadheadKm": 0,
+      "note": "Truck-route travel times with declared work budgets. OSM restrictions and supplied dimensions require review; not certified ELD or legal clearance.",
+      "axle": {
+        "required": false,
+        "eligible": true,
+        "reasons": [],
+        "note": "Synthetic declared axle clearance only; no physical loading assessment."
+      },
+      "timing": {
+        "evaluatedAt": "2026-09-13T12:30:01.000Z",
+        "availableAt": "2026-09-13T12:30:01.000Z",
+        "pickupArrivalAt": "2026-09-13T12:30:01.000Z",
+        "pickupReadyAt": "2026-09-13T13:15:00.000Z",
+        "pickupLateMinutes": 0,
+        "completionAt": "2026-09-13T15:39:00.000Z",
+        "travelMinutes": 99,
+        "serviceMinutes": 45
+      },
+      "routeFingerprint": "a44a088e2471137e8db2cfc54e893e10b586cc8f92674f9bc747aefc3f7af48d",
+      "routingEvidence": "valhalla-truck"
+    },
+    "evaluatedAt": "2026-09-13T12:30:01.000Z"
+  },
+  "displayed": {
+    "pickupMinutesRecovered": 123,
+    "completionMinutesEarlier": 123,
+    "addedDeadheadKm": 0,
+    "financialImpact": "not calculated"
+  },
+  "checks": [
+    "Built artifact derives the displayed outcome from the retained current and proposed screening timestamps",
+    "Pickup lateness changes from123minutes to on time",
+    "Modeled completion moves123rounded minutes earlier",
+    "Replacement adds zero modeled deadhead in this scenario",
+    "Financial impact remains explicitly uncalculated because shipment revenue is absent",
+    "Desktop,390px and saved-offline receipt states render without horizontal overflow",
+    "Read-only verification sends no operational commands and leaves the carrier state byte-equivalent"
+  ],
+  "errors": [],
+  "writes": [],
+  "limits": "Synthetic same-window comparison with Valhalla modeled travel and service times. Rounded minute display is presentation only; exact timestamps remain in source evidence. No human task-time, revenue, margin, live ETA or collected-savings claim."
+}
