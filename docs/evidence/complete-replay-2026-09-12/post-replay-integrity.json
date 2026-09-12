@@ -1,0 +1,75 @@
+{
+  "verifiedAt": "2026-09-12T17:20:46.220Z",
+  "carrier": "complete-replay-bb948ea3-83b9-4827-9ccd-f359be64a080",
+  "tables": {
+    "telemetry": {
+      "count": 10201,
+      "sha256": "b11dfe96124a12da782327ddd81885eeb3d92381918ff90511e0115ab0e1f73d",
+      "unchanged": true
+    },
+    "stop_visits": {
+      "count": 2,
+      "sha256": "bacd1bdcde780eb5b4bf96b07204868979d40cd70d96bb5b25956759022cc617",
+      "unchanged": true
+    },
+    "invoice_revisions": {
+      "count": 2,
+      "sha256": "99faecd6e24ead960f658b66af0593e562bfdfb351ecaab17f42c7d2ba4c022f",
+      "unchanged": true
+    },
+    "assignments": {
+      "count": 3,
+      "sha256": "30eee7ad7c21c3ad82535815c4639fbe64b3aabc2a3a97bcc4f06a82ea7fdb95",
+      "unchanged": true
+    },
+    "reservations": {
+      "count": 9,
+      "sha256": "8a615cd68517f0d703d86926b2440de42f61a4fcd8ee87d4f805703e7477c3ae",
+      "unchanged": true
+    },
+    "disruptions": {
+      "count": 1,
+      "sha256": "32100fa0871e51fe67a88f7694ef8f8c84a335ddf1c5ea989bfcc2f2c515520a",
+      "unchanged": true
+    },
+    "approvals": {
+      "count": 1,
+      "sha256": "127e3098ae52e7cd9f0822c4f71f9b22ef93902c6ddebe137940685ca7301fa0",
+      "unchanged": true
+    },
+    "resources": {
+      "count": 9,
+      "sha256": "8b8780cc2282e640990917ab6dfc6ba63d4920463b4f5e65d6c2ef9d67e3c82f",
+      "unchanged": true
+    },
+    "loads": {
+      "count": 3,
+      "sha256": "65d0d6146fd21cb92087f1c1a963a3d5ccb0741732aa969204475d142f64dc10",
+      "unchanged": true
+    },
+    "scenarios": {
+      "count": 1,
+      "sha256": "05d9e5cbc4c510ba0eb552f4d6cdc8bc5029d54caa64ebbbcbad2132dbbb7017",
+      "unchanged": true
+    },
+    "duty_events": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "unchanged": true
+    },
+    "stop_completions": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "unchanged": true
+    }
+  },
+  "exactResult": {
+    "dwellMinutes": 165,
+    "billableMinutes": 45,
+    "amountCents": 7500,
+    "currency": "CAD",
+    "invoiceRevisions": 2,
+    "remainingOnDutyMinutes": 40
+  },
+  "scope": "Read-only post-replay check of the exact result assertions added to the reusable verifier while its replay process was already running. No additional run or operational mutation."
+}

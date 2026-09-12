@@ -1,0 +1,34 @@
+{
+  "verifiedAt": "2026-09-12T17:12:37.061Z",
+  "carrier": "complete-replay-bb948ea3-83b9-4827-9ccd-f359be64a080",
+  "approval": {
+    "proposalId": "20563b4b-0c64-4e49-8c2b-082ec00b64c5",
+    "assignment": {
+      "id": "0fd85894-5b10-44cf-859c-6be365041ddd",
+      "loadId": "RS-1043",
+      "driverId": "D-02",
+      "truckId": "T-102",
+      "trailerId": "V-102",
+      "startAt": "2026-09-13T13:15:00.000Z",
+      "endAt": "2026-09-13T16:00:00.000Z",
+      "status": "offered",
+      "version": 1,
+      "visitReviewRequired": false
+    },
+    "status": "approved"
+  },
+  "accepted": {
+    "id": "0fd85894-5b10-44cf-859c-6be365041ddd",
+    "loadId": "RS-1043",
+    "driverId": "D-02",
+    "truckId": "T-102",
+    "trailerId": "V-102",
+    "startAt": "2026-09-13T13:15:00.000Z",
+    "endAt": "2026-09-13T16:00:00.000Z",
+    "status": "accepted",
+    "version": 2,
+    "visitReviewRequired": false
+  },
+  "errors": [],
+  "scope": "Separate compiled-web dispatcher and 390px driver contexts. This is responsive driver proof, not native-device proof."
+}

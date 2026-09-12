@@ -1,0 +1,49 @@
+{
+  "verifiedAt": "2026-09-12T17:17:57.201Z",
+  "approved": {
+    "id": "e5c0869a-3973-4b79-8166-18971b601d9a",
+    "revision": 2,
+    "status": "approved",
+    "contract": {
+      "id": "demo-ftl",
+      "version": 1,
+      "currency": "CAD",
+      "carrier_id": "complete-replay-bb948ea3-83b9-4827-9ccd-f359be64a080",
+      "provenance": "synthetic scenario terms",
+      "free_minutes": 120,
+      "rate_cents_per_hour": 10000
+    },
+    "currency": "CAD",
+    "evidence": [
+      "0ecf3516cd819ca13d2da742bf6c46d454b3638cc5b5b9af6c307f16dd1501b2",
+      "539ac67fc02ef37f7e0defa12febf6a739f2838e95d712a153f336628eae1d5c"
+    ],
+    "rounding": "whole-minute floor, nearest cent",
+    "automatic": true,
+    "precision": "observed_samples",
+    "amountCents": 7500,
+    "visitPolicy": {
+      "id": "confidence-disk-split-v1",
+      "reentryRule": "A confidently outside observation closes the visit. A confident return starts a separate visit; no exit grace period.",
+      "boundaryRule": "Accuracy disk touching the fence holds the prior visit state; no inferred crossing time.",
+      "freeTimeScope": "each-observed-visit"
+    },
+    "dwellMinutes": 165,
+    "shipmentTerms": {
+      "mode": "FTL",
+      "loadId": "RS-1042",
+      "boundAt": "2026-09-12T17:11:20.532Z",
+      "boundBy": "synthetic-fixture"
+    },
+    "billableMinutes": 45,
+    "requiresEvidenceReview": false,
+    "review": {
+      "reviewedBy": "demo-dispatcher",
+      "recordedAt": "2026-09-12T17:17:56.924Z",
+      "note": "Reviewed the synthetic one-second arrival and departure samples, their reported 5 m accuracy, same London stop and configured 120-minute free-time allowance. This approves scenario billing evidence only.",
+      "acknowledgeObservedSamples": true,
+      "previousRevisionId": "5e56ec47-62ff-4e52-86f5-7362f696fd4d"
+    }
+  },
+  "errors": []
+}

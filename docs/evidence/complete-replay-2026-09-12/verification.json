@@ -1,0 +1,639 @@
+{
+  "verifiedAt": "2026-09-12T17:19:52.522Z",
+  "carrier": "complete-replay-bb948ea3-83b9-4827-9ccd-f359be64a080",
+  "runId": "fae9cd3a-c12e-4aab-b111-63bc6ffa66ae",
+  "conditionsHash": "2732cdec738b6fc9c1dea41d032f97c8293514dfa86bc2bd18307cdcdb29b054",
+  "eventHash": "abc688b8652682b33cbcf0b813c4ad285b8c3132a779cead246ecb4eb63007d2",
+  "events": 10201,
+  "elapsedSeconds": 10200,
+  "conditions": {
+    "model_version": "road-events-v2",
+    "coordinates": [
+      [
+        -81.200091,
+        42.990168
+      ],
+      [
+        -81.200526,
+        42.990042
+      ],
+      [
+        -81.200625,
+        42.990014
+      ],
+      [
+        -81.200458,
+        42.989654
+      ],
+      [
+        -81.200134,
+        42.98894
+      ],
+      [
+        -81.200065,
+        42.988787
+      ],
+      [
+        -81.200028,
+        42.988705
+      ],
+      [
+        -81.199912,
+        42.98845
+      ],
+      [
+        -81.19993,
+        42.988352
+      ],
+      [
+        -81.199828,
+        42.988128
+      ],
+      [
+        -81.199683,
+        42.98781
+      ],
+      [
+        -81.199001,
+        42.986385
+      ],
+      [
+        -81.198588,
+        42.985509
+      ],
+      [
+        -81.198398,
+        42.985084
+      ],
+      [
+        -81.198161,
+        42.984578
+      ],
+      [
+        -81.198106,
+        42.984459
+      ],
+      [
+        -81.197969,
+        42.984499
+      ],
+      [
+        -81.19787,
+        42.984527
+      ],
+      [
+        -81.197119,
+        42.984739
+      ],
+      [
+        -81.196888,
+        42.984804
+      ],
+      [
+        -81.196805,
+        42.984827
+      ],
+      [
+        -81.194778,
+        42.985388
+      ],
+      [
+        -81.194734,
+        42.985396
+      ],
+      [
+        -81.194469,
+        42.985447
+      ],
+      [
+        -81.194188,
+        42.985485
+      ],
+      [
+        -81.193882,
+        42.98551
+      ],
+      [
+        -81.193622,
+        42.985529
+      ],
+      [
+        -81.193364,
+        42.985548
+      ],
+      [
+        -81.193115,
+        42.985619
+      ],
+      [
+        -81.192979,
+        42.985638
+      ],
+      [
+        -81.192925,
+        42.985603
+      ],
+      [
+        -81.192859,
+        42.98558
+      ],
+      [
+        -81.192726,
+        42.985577
+      ],
+      [
+        -81.19261,
+        42.985624
+      ],
+      [
+        -81.192555,
+        42.985681
+      ],
+      [
+        -81.192533,
+        42.98575
+      ],
+      [
+        -81.19239,
+        42.985853
+      ],
+      [
+        -81.191744,
+        42.986133
+      ],
+      [
+        -81.191116,
+        42.9863
+      ],
+      [
+        -81.190856,
+        42.986397
+      ],
+      [
+        -81.190548,
+        42.986528
+      ],
+      [
+        -81.190172,
+        42.986691
+      ],
+      [
+        -81.189857,
+        42.986775
+      ],
+      [
+        -81.189801,
+        42.986789
+      ],
+      [
+        -81.188855,
+        42.98706
+      ],
+      [
+        -81.188084,
+        42.98728
+      ],
+      [
+        -81.187058,
+        42.987573
+      ],
+      [
+        -81.186954,
+        42.987603
+      ],
+      [
+        -81.186277,
+        42.987796
+      ],
+      [
+        -81.185686,
+        42.987966
+      ],
+      [
+        -81.185084,
+        42.988137
+      ],
+      [
+        -81.184963,
+        42.988172
+      ],
+      [
+        -81.184435,
+        42.988325
+      ],
+      [
+        -81.184403,
+        42.988335
+      ],
+      [
+        -81.18401,
+        42.988448
+      ],
+      [
+        -81.183398,
+        42.988618
+      ],
+      [
+        -81.182771,
+        42.98879
+      ],
+      [
+        -81.182443,
+        42.988884
+      ],
+      [
+        -81.182057,
+        42.988996
+      ],
+      [
+        -81.179471,
+        42.989715
+      ],
+      [
+        -81.178727,
+        42.989924
+      ],
+      [
+        -81.178623,
+        42.989952
+      ],
+      [
+        -81.178577,
+        42.989966
+      ],
+      [
+        -81.178417,
+        42.990009
+      ],
+      [
+        -81.178146,
+        42.990087
+      ],
+      [
+        -81.178046,
+        42.990115
+      ],
+      [
+        -81.177551,
+        42.990257
+      ],
+      [
+        -81.176344,
+        42.990597
+      ],
+      [
+        -81.176301,
+        42.990508
+      ],
+      [
+        -81.175855,
+        42.989615
+      ],
+      [
+        -81.175706,
+        42.989318
+      ],
+      [
+        -81.175338,
+        42.988569
+      ],
+      [
+        -81.175242,
+        42.988387
+      ],
+      [
+        -81.174999,
+        42.98794
+      ],
+      [
+        -81.174772,
+        42.98751
+      ],
+      [
+        -81.174674,
+        42.987324
+      ],
+      [
+        -81.175978,
+        42.986959
+      ]
+    ],
+    "start_time_ms": 1789302600000,
+    "seed": 42,
+    "speed_kph": 70,
+    "dock_wait_seconds": 9900,
+    "disruption_seconds": 0,
+    "disruption_start_seconds": 60,
+    "stop_indices": [
+      0,
+      76
+    ],
+    "stop_wait_seconds": [
+      9900,
+      0
+    ],
+    "route_evidence": "valhalla-truck"
+  },
+  "delay": [
+    {
+      "key": "fa05c2dc6e9f0b058209fd4dce23139509a82fa8adc1120f1bf5d43e060a1ea6",
+      "version": 2,
+      "end_ms": 1789312670000,
+      "body": {
+        "assignmentId": "9e48eb2c-6b7c-4495-ab7f-2c0acd3afd12",
+        "expectedEnd": "2026-09-13T15:17:50+00:00",
+        "observedAt": "2026-09-13T12:30:00+00:00",
+        "reason": "Simulator observed dock_wait; modeled completion uses seeded road speeds and configured stop dwell. Road disruption included: False. Conditions 2732cdec738b6fc9c1dea41d032f97c8293514dfa86bc2bd18307cdcdb29b054. Dispatcher review required."
+      },
+      "result": {
+        "id": "f7831bf7-7de6-4713-ac63-54f8c8e81c4d",
+        "assignmentId": "9e48eb2c-6b7c-4495-ab7f-2c0acd3afd12",
+        "expectedEnd": "2026-09-13T15:17:50+00:00",
+        "impactedLoads": [
+          {
+            "id": "a40a12c2-7065-4f41-b0a6-73143d3d5d2d",
+            "load_id": "RS-1043",
+            "start_at": "2026-09-13T13:15:00.000Z",
+            "end_at": "2026-09-13T16:00:00.000Z"
+          }
+        ],
+        "provenance": "synthetic",
+        "status": "awaiting_recovery",
+        "note": "Observed delay retained; planned reservations remain visible until a feasible recovery is approved."
+      }
+    }
+  ],
+  "comparison": {
+    "current": {
+      "eligible": false,
+      "reasons": [
+        "Insufficient on-duty budget.",
+        "Resource reserved by RS-1042.",
+        "Driver cannot reach pickup after prior committed work under the current planning estimate."
+      ],
+      "deadheadKm": 0,
+      "note": "Truck-route travel times with declared work budgets. OSM restrictions and supplied dimensions require review; not certified ELD or legal clearance. Prior work: RS-1042: 8 min driving, 168 min on duty (remaining truck route from current GPS and completed stops). Full service allowance retained; future waiting assumed on duty.",
+      "axle": {
+        "required": false,
+        "eligible": true,
+        "reasons": [],
+        "note": "Synthetic declared axle clearance only; no physical loading assessment."
+      },
+      "timing": {
+        "evaluatedAt": "2026-09-13T12:30:01.000Z",
+        "availableAt": "2026-09-13T15:17:50.000Z",
+        "pickupArrivalAt": "2026-09-13T15:17:50.000Z",
+        "pickupReadyAt": "2026-09-13T15:17:50.000Z",
+        "pickupLateMinutes": 123,
+        "completionAt": "2026-09-13T17:41:50.000Z",
+        "travelMinutes": 99,
+        "serviceMinutes": 45
+      },
+      "routeFingerprint": "d7bd4dc0c691066de3381fb550b01eb6b7d3cc45563ceddc986f44ebadc06ebc",
+      "routingEvidence": "valhalla-truck"
+    },
+    "proposed": {
+      "eligible": true,
+      "reasons": [],
+      "deadheadKm": 0,
+      "note": "Truck-route travel times with declared work budgets. OSM restrictions and supplied dimensions require review; not certified ELD or legal clearance.",
+      "axle": {
+        "required": false,
+        "eligible": true,
+        "reasons": [],
+        "note": "Synthetic declared axle clearance only; no physical loading assessment."
+      },
+      "timing": {
+        "evaluatedAt": "2026-09-13T12:30:01.000Z",
+        "availableAt": "2026-09-13T12:30:01.000Z",
+        "pickupArrivalAt": "2026-09-13T12:30:01.000Z",
+        "pickupReadyAt": "2026-09-13T13:15:00.000Z",
+        "pickupLateMinutes": 0,
+        "completionAt": "2026-09-13T15:39:00.000Z",
+        "travelMinutes": 99,
+        "serviceMinutes": 45
+      },
+      "routeFingerprint": "a44a088e2471137e8db2cfc54e893e10b586cc8f92674f9bc747aefc3f7af48d",
+      "routingEvidence": "valhalla-truck"
+    },
+    "evaluatedAt": "2026-09-13T12:30:01.000Z"
+  },
+  "acceptedRecovery": {
+    "id": "0fd85894-5b10-44cf-859c-6be365041ddd",
+    "loadId": "RS-1043",
+    "driverId": "D-02",
+    "truckId": "T-102",
+    "trailerId": "V-102",
+    "startAt": "2026-09-13T13:15:00.000Z",
+    "endAt": "2026-09-13T16:00:00.000Z",
+    "status": "accepted",
+    "version": 2,
+    "visitReviewRequired": false
+  },
+  "finalDutyEvidence": [
+    {
+      "id": "D-02",
+      "duty": "on_duty",
+      "name": "Morgan Singh · demo",
+      "budget": {
+        "drivingMinutes": 360,
+        "onDutyMinutes": 220,
+        "cycleMinutes": 550,
+        "shiftMinutes": 520
+      },
+      "position": {
+        "id": "london-dock",
+        "lat": 42.987,
+        "lng": -81.176,
+        "name": "London distribution dock · demo location",
+        "radiusM": 180
+      },
+      "budgetAsOf": "2026-09-13T15:20:00.000Z",
+      "provenance": "synthetic",
+      "kind": "driver",
+      "version": 1,
+      "hosEvidence": {
+        "status": "modeled",
+        "profile": "declared-budget-history",
+        "basisAt": "2026-09-13T12:00:00.000Z",
+        "shiftDeadline": "2026-09-14T00:00:00.000Z",
+        "observations": 0,
+        "drivingMinutes": 0,
+        "onDutyMinutes": 200,
+        "elapsedMinutes": 200,
+        "certifiedELD": false,
+        "note": "Dated duty intervals consume declared initial budgets. No automatic rest/day/cycle reset or certified ELD claim."
+      }
+    },
+    {
+      "id": "D-01",
+      "duty": "on_duty",
+      "name": "Alex Chen · demo",
+      "budget": {
+        "drivingMinutes": 417,
+        "onDutyMinutes": 40,
+        "cycleMinutes": 700,
+        "shiftMinutes": 340
+      },
+      "position": {
+        "lat": 42.986959,
+        "lng": -81.175978
+      },
+      "budgetAsOf": "2026-09-13T15:20:00.000Z",
+      "provenance": "synthetic",
+      "kind": "driver",
+      "version": 10203,
+      "hosEvidence": {
+        "status": "modeled",
+        "profile": "declared-budget-history",
+        "basisAt": "2026-09-13T12:00:00.000Z",
+        "shiftDeadline": "2026-09-13T21:00:00.000Z",
+        "observations": 10201,
+        "drivingMinutes": 2.8333333333333335,
+        "onDutyMinutes": 200,
+        "elapsedMinutes": 200,
+        "certifiedELD": false,
+        "note": "Dated duty intervals consume declared initial budgets. No automatic rest/day/cycle reset or certified ELD claim."
+      }
+    }
+  ],
+  "visits": [
+    {
+      "carrier_id": "complete-replay-bb948ea3-83b9-4827-9ccd-f359be64a080",
+      "id": "15e41167-7986-4386-8fd9-e64e8b83a7e8",
+      "assignment_id": "9e48eb2c-6b7c-4495-ab7f-2c0acd3afd12",
+      "load_id": "RS-1042",
+      "stop_id": "london-dock",
+      "arrival": "2026-09-13T15:17:37.000Z",
+      "departure": null,
+      "arrival_event": "7316778351ae393297052c8cadcb20aca7f46c9989934d52caffc3cbf2453573",
+      "departure_event": null,
+      "precision": "observed_samples",
+      "superseded_by": null,
+      "session_policy": "confidence-disk-split-v1"
+    },
+    {
+      "carrier_id": "complete-replay-bb948ea3-83b9-4827-9ccd-f359be64a080",
+      "id": "2100bc07-0984-4243-928b-479ddd9959b6",
+      "assignment_id": "9e48eb2c-6b7c-4495-ab7f-2c0acd3afd12",
+      "load_id": "RS-1042",
+      "stop_id": "london-local-yard",
+      "arrival": "2026-09-13T12:30:00.000Z",
+      "departure": "2026-09-13T15:15:09.000Z",
+      "arrival_event": "0ecf3516cd819ca13d2da742bf6c46d454b3638cc5b5b9af6c307f16dd1501b2",
+      "departure_event": "539ac67fc02ef37f7e0defa12febf6a739f2838e95d712a153f336628eae1d5c",
+      "precision": "observed_samples",
+      "superseded_by": null,
+      "session_policy": "confidence-disk-split-v1"
+    }
+  ],
+  "invoices": [
+    {
+      "carrier_id": "complete-replay-bb948ea3-83b9-4827-9ccd-f359be64a080",
+      "id": "5e56ec47-62ff-4e52-86f5-7362f696fd4d",
+      "visit_id": "2100bc07-0984-4243-928b-479ddd9959b6",
+      "revision": 1,
+      "contract_id": "demo-ftl",
+      "contract_version": 1,
+      "status": "draft",
+      "body": {
+        "contract": {
+          "id": "demo-ftl",
+          "version": 1,
+          "currency": "CAD",
+          "carrier_id": "complete-replay-bb948ea3-83b9-4827-9ccd-f359be64a080",
+          "provenance": "synthetic scenario terms",
+          "free_minutes": 120,
+          "rate_cents_per_hour": 10000
+        },
+        "currency": "CAD",
+        "evidence": [
+          "0ecf3516cd819ca13d2da742bf6c46d454b3638cc5b5b9af6c307f16dd1501b2",
+          "539ac67fc02ef37f7e0defa12febf6a739f2838e95d712a153f336628eae1d5c"
+        ],
+        "rounding": "whole-minute floor, nearest cent",
+        "automatic": true,
+        "precision": "observed_samples",
+        "amountCents": 7500,
+        "visitPolicy": {
+          "id": "confidence-disk-split-v1",
+          "reentryRule": "A confidently outside observation closes the visit. A confident return starts a separate visit; no exit grace period.",
+          "boundaryRule": "Accuracy disk touching the fence holds the prior visit state; no inferred crossing time.",
+          "freeTimeScope": "each-observed-visit"
+        },
+        "dwellMinutes": 165,
+        "shipmentTerms": {
+          "mode": "FTL",
+          "loadId": "RS-1042",
+          "boundAt": "2026-09-12T17:11:20.532Z",
+          "boundBy": "synthetic-fixture"
+        },
+        "billableMinutes": 45,
+        "requiresEvidenceReview": true
+      },
+      "approved_by": null
+    },
+    {
+      "carrier_id": "complete-replay-bb948ea3-83b9-4827-9ccd-f359be64a080",
+      "id": "e5c0869a-3973-4b79-8166-18971b601d9a",
+      "visit_id": "2100bc07-0984-4243-928b-479ddd9959b6",
+      "revision": 2,
+      "contract_id": "demo-ftl",
+      "contract_version": 1,
+      "status": "approved",
+      "body": {
+        "review": {
+          "note": "Reviewed the synthetic one-second arrival and departure samples, their reported 5 m accuracy, same London stop and configured 120-minute free-time allowance. This approves scenario billing evidence only.",
+          "recordedAt": "2026-09-12T17:17:56.924Z",
+          "reviewedBy": "demo-dispatcher",
+          "previousRevisionId": "5e56ec47-62ff-4e52-86f5-7362f696fd4d",
+          "acknowledgeObservedSamples": true
+        },
+        "contract": {
+          "id": "demo-ftl",
+          "version": 1,
+          "currency": "CAD",
+          "carrier_id": "complete-replay-bb948ea3-83b9-4827-9ccd-f359be64a080",
+          "provenance": "synthetic scenario terms",
+          "free_minutes": 120,
+          "rate_cents_per_hour": 10000
+        },
+        "currency": "CAD",
+        "evidence": [
+          "0ecf3516cd819ca13d2da742bf6c46d454b3638cc5b5b9af6c307f16dd1501b2",
+          "539ac67fc02ef37f7e0defa12febf6a739f2838e95d712a153f336628eae1d5c"
+        ],
+        "rounding": "whole-minute floor, nearest cent",
+        "automatic": true,
+        "precision": "observed_samples",
+        "amountCents": 7500,
+        "visitPolicy": {
+          "id": "confidence-disk-split-v1",
+          "reentryRule": "A confidently outside observation closes the visit. A confident return starts a separate visit; no exit grace period.",
+          "boundaryRule": "Accuracy disk touching the fence holds the prior visit state; no inferred crossing time.",
+          "freeTimeScope": "each-observed-visit"
+        },
+        "dwellMinutes": 165,
+        "shipmentTerms": {
+          "mode": "FTL",
+          "loadId": "RS-1042",
+          "boundAt": "2026-09-12T17:11:20.532Z",
+          "boundBy": "synthetic-fixture"
+        },
+        "billableMinutes": 45,
+        "requiresEvidenceReview": false
+      },
+      "approved_by": "demo-dispatcher"
+    }
+  ],
+  "checks": [
+    "Independent simulator sends every one-second observation through operational HTTP API",
+    "Delay identifies next offered load without assigning it",
+    "Dispatcher approval and independent driver acceptance required before continuation",
+    "Full dock wait closes with same-stop observation evidence and configured two-hour free time",
+    "Dispatcher separately reviews the same-stop samples and approves billing before replay",
+    "Reset replay reproduces exact complete event list hash and initial conditions",
+    "Telemetry, visits, invoice revisions, assignments, reservations, disruptions and approvals byte-equivalent after replay"
+  ],
+  "limits": "Synthetic London local trip with actual Valhalla truck geometry and explicitly authored 165-minute dwell. Same-run reset validates deduplication, not an independent counterfactual savings experiment. Final destination visit remains open pending departure evidence; a stop-completion command does not establish billing time. No native or cloud control claim."
+}
