@@ -1288,6 +1288,8 @@ h1,h2,h3,.brand,.metric>strong{font-family:Manrope,sans-serif}h1{font-weight:600
 .recovery-outcome-metrics strong { font-size:18px; line-height:1.25; color:#fff0df; }
 .recovery-outcome-metrics small { font-size:11px; line-height:1.45; color:#bfc7b8; }
 .recovery-outcome>p { margin:0; padding-top:12px; border-top:1px solid #454c42; font-size:11px; line-height:1.55; color:#bfc7b8; }
+.recovery-candidates { margin-top:14px; border-top:1px solid #454c42; padding-top:10px; }.recovery-candidates>summary { cursor:pointer; min-height:34px; font-size:12px; color:#d0d7c7; }.recovery-candidates>div { display:grid; grid-template-columns:1.2fr .8fr; gap:4px 12px; padding:10px 0; border-top:1px solid #3e453c; }.recovery-candidates>div>strong { font-size:13px; }.recovery-candidates>div>span { font:11px 'IBM Plex Mono',monospace; text-align:right; }.recovery-candidates>div>small { grid-column:1/-1; font-size:11px; line-height:1.45; color:#bec7b7; }.recovery-candidates .is-feasible>strong { color:#fff0df; }.recovery-candidates .is-rejected>strong { color:#c8b7af; }
+.delay-recommend { flex-basis:100%; display:flex; align-items:center; justify-content:space-between; gap:16px; }.delay-recommend p { margin:0; }.delay-recommend button { flex:none; }
 @media (max-width:620px) {
   .recovery-outcome { padding:14px; margin-top:15px; }
   .recovery-outcome-heading { display:block; }
@@ -1297,4 +1299,5 @@ h1,h2,h3,.brand,.metric>strong{font-family:Manrope,sans-serif}h1{font-weight:600
   .recovery-outcome-metrics>div:last-child { border-bottom:0; }
   .recovery-outcome-metrics strong { font-size:17px; }
   .recovery-outcome>p { font-size:12px; }
+  .recovery-candidates>div { grid-template-columns:1fr; }.recovery-candidates>div>span { text-align:left; }.recovery-candidates>div>small { grid-column:1; }.delay-recommend { align-items:stretch; flex-direction:column; }.delay-recommend button { width:100%; }
 }

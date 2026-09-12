@@ -34,6 +34,7 @@ export type Proposal = {
     reason: string;
     proof: Screening;
     comparison?:{current?:Screening;currentUnavailable?:string;proposed:Screening;evaluatedAt?:string};
+    candidates?:{driverId:string;truckId:string;trailerId:string;eligible:boolean;reasons:string[];deadheadKm?:number;timing?:Screening['timing']}[];
     assumptions: string[];
   };
 };

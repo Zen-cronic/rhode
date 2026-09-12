@@ -53,7 +53,7 @@ const date = (value: string) =>
     dateStyle: "medium",
     timeStyle: "short",
   });
-const label = (value: string) => value === "review-hos" ? "Duty history review" : value.replaceAll("_", " ");
+const label = (value: string) => value === "review-hos" ? "Duty history review" : value === "recommend" ? "Recovery recommendation" : value.replaceAll("_", " ");
 function BrandMark() {
   return <svg className="brand-mark" viewBox="0 0 36 40" fill="none" aria-hidden="true"><path d="M7 35V8h10c8 0 11 4 11 9 0 6-5 9-12 9H7" stroke="currentColor" strokeWidth="5"/><path d="m17 26 12 10M16 9v14" stroke="#E65C32" strokeWidth="5"/><path d="M16 3v3M16 30v7" stroke="#E65C32" strokeWidth="2"/></svg>;
 }
@@ -1087,6 +1087,7 @@ function Recovery({
         </div>
         <p>Shipment revenue is not recorded in this scenario, so financial impact is not calculated. Detention billing remains a separate evidence-reviewed workflow.</p>
       </section>}
+      {!!p.body.candidates?.length&&<details className="recovery-candidates"><summary>{p.body.candidates.filter(candidate=>candidate.eligible).length} feasible · {p.body.candidates.filter(candidate=>!candidate.eligible).length} rejected alternative{p.body.candidates.length===2?'':'s'}</summary>{p.body.candidates.map((candidate,index)=><div key={`${candidate.driverId}-${candidate.truckId}-${candidate.trailerId}`} className={candidate.eligible?'is-feasible':'is-rejected'}><strong>#{index+1} · {name(candidate.driverId)}</strong><span>{candidate.truckId} · {candidate.trailerId}</span><small>{candidate.eligible?`${candidate.timing?.pickupLateMinutes??'—'} min pickup lateness · ${candidate.deadheadKm??'—'} km deadhead`:candidate.reasons.join(' ')||'Rejected by current constraints.'}</small></div>)}</details>}
       {p.status === "pending" ? <div className="decision-action">
         <p>{old ? "Replaces the current assignment." : "Creates a new driver offer."} Driver acceptance is still required.</p>
         <button className="primary" disabled={disabled || stale} onClick={onApprove}>Review & approve →</button>
@@ -1424,10 +1425,7 @@ function DelayPanel({
                 </span>
               </div>
               {affected.map((a) => (
-                <p key={a.id} className="fine">
-                  {a.loadId} begins {time(a.startAt)} ET. Rehearse with a
-                  different available driver, truck and trailer.
-                </p>
+                <div key={a.id} className="delay-recommend"><p className="fine">{a.loadId} begins {time(a.startAt)} ET. Ask RoadStar to rank alternate resources using current route, duty and reservation evidence.</p><button disabled={disabled||busy||state.proposals.some(proposal=>proposal.load_id===a.loadId&&proposal.status==='pending')} onClick={async()=>{const load=state.loads.find(load=>load.id===a.loadId);if(!load)return;setBusy(true);setError('');const ok=await send('recommend',{loadId:a.loadId,reason:`Rank alternatives after ${trip?.loadId??'the prior trip'} dock delay.`},load.version);setBusy(false);if(!ok)setError('No ranked recommendation was created. Review Activity for current constraint evidence.');}}>{state.proposals.some(proposal=>proposal.load_id===a.loadId&&proposal.status==='pending')?'Recommendation ready':'Rank recovery options'}</button></div>
               ))}
             </div>
           );
