@@ -1,0 +1,17 @@
+{
+  "mobileTests": 50,
+  "typecheck": "passed",
+  "apkSha256": "b2574c57c06271de36d4b5006ba964753126354e7f86f6f82faa53dd61b18bb7",
+  "abis": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "iosHermes": "index-2b981ee23172f80278655f8b438ad88c.hbc",
+  "nativeIos": "not tested; export only",
+  "physicalDevices": "deferred by operator",
+  "seedExecution": "roadstar-seed-gb4rv",
+  "restartedPids": [
+    15301,
+    16439
+  ]
+}
