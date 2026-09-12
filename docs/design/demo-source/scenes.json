@@ -17,14 +17,14 @@
     "id": "delay",
     "targetSeconds": 30,
     "narration": "Here, Alex is delayed on the first trip. Recording the expected departure exposes the next assignment at risk. The original commitment stays visible while we prepare a recovery. We select Morgan with a different truck and trailer. RoadStar checks availability, equipment, declared duty budgets, and truck-route travel time. The route comes from Valhalla using Ontario road data and the supplied vehicle dimensions. Missing evidence or an infeasible choice stays visible.",
-    "screen": "Actual synthetic dock delay, affected load and replacement selection",
+    "screen": "Verified 3D dock/corridor evidence and server-ranked replacement result",
     "rubric": "Industry application / Technical execution"
   },
   {
     "id": "approval",
     "targetSeconds": 28,
     "narration": "The recovery review shows the existing assignment, the proposed replacement, and the evidence used to make the comparison. The dispatcher approves this revision. At that moment, the server checks the current versions and availability again. If the driver or resource evidence changed, approval returns a conflict. A successful approval updates assignments, reservations, and the driver offer in one database transaction. Repeated commands retain their original idempotency key.",
-    "screen": "Actual server-approved recovery review",
+    "screen": "Verified recovery outcome, rejected HOS candidate and consequential approval review",
     "rubric": "Technical execution / Innovation"
   },
   {

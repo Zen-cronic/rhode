@@ -10,6 +10,8 @@ Capture inputs are full app viewports after authentication, with no altered UI v
 
 The ten segment durations remain unchanged, so the existing narration and sentence-level captions can be reused. Captions are approximately aligned within each beat; human listening and live presentation rehearsal remain final operator checks. Physical background-location and native iOS verification are explicitly disclosed as pending.
 
+`scripts/assemble-current-demo.mjs` is the bounded September12 visual-alignment pass. It preserves the accepted four-minute film and audio, replacing only0:36–1:34 with verified dock3D, corridor replay, ranked recovery, rejected-candidate and approval captures. It writes a candidate under `/tmp`; promote only after inspecting the representative frames and running `scripts/verify-current-demo.mjs`.
+
 The refined native composition uses the verified 26.30-second, 1080×2400 recording. `native_shots` in `assemble.py` records four source intervals and complete-card crops (Today, settled map, queue, Today); it omits the scroll transition and preserves every displayed value and map attribution. A replacement recording requires remeasuring these bounds and intervals. `native-composition.json` records the source and edits. Set `ROADSTAR_ONLY_SCENE=driver` for a focused render before full assembly.
 
 Native detail crops receive a consistent 12-pixel ivory frame before placement on the film canvas. The frame does not alter or mask application content.
