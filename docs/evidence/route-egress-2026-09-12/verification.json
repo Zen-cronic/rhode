@@ -1,0 +1,119 @@
+{
+  "verifiedAt": "2026-09-12T20:51:26.504Z",
+  "carrier": "route-egress-9ca8d267-a6fa-4ae3-95c3-10976a7dc188",
+  "assignmentId": "ad8f3d94-2441-4e19-ae3a-53c1af21b168",
+  "runId": "ab4f0c10-7e04-4da3-92c9-5d06a2f03e7c",
+  "conditionsHash": "5f8ba47481ae66f7cf7869f2877e11fbe39e71c2f5420cf58c37de5d487f8d06",
+  "eventHash": "ec44ba2a74ca526c6cc15a38530c6ac608558247caee755996ad4d9b9008c724",
+  "eventCount": 7801,
+  "elapsedSeconds": 7800,
+  "route": {
+    "locationIndices": [
+      0,
+      76,
+      101
+    ],
+    "serviceStopIndices": [
+      0,
+      76
+    ],
+    "egress": true,
+    "coordinates": 102
+  },
+  "visit": {
+    "id": "d3c1fc04-8dce-47d4-b92d-6b3ff394bb74",
+    "stopId": "london-dock",
+    "arrival": "2026-09-13T12:32:47.000Z",
+    "departure": "2026-09-13T14:34:16.000Z",
+    "arrivalEvent": "b0b08f4b00ef047017b4d573f6bc6c9fbbc3b256ab829503087ef8155ab9f8e3",
+    "departureEvent": "6a35be46bc7413ce0fe9d0a0e872b06bfe87d869685dd1fa64a13d404229c752",
+    "sessionPolicy": "confidence-disk-split-v1"
+  },
+  "invoice": {
+    "id": "634d0af4-9379-4168-9bd0-a988044c514e",
+    "revision": 1,
+    "status": "draft",
+    "contractId": "demo-ftl",
+    "contractVersion": 1,
+    "body": {
+      "contract": {
+        "id": "demo-ftl",
+        "version": 1,
+        "currency": "CAD",
+        "carrier_id": "route-egress-9ca8d267-a6fa-4ae3-95c3-10976a7dc188",
+        "provenance": "synthetic scenario terms",
+        "free_minutes": 120,
+        "rate_cents_per_hour": 10000
+      },
+      "currency": "CAD",
+      "evidence": [
+        "b0b08f4b00ef047017b4d573f6bc6c9fbbc3b256ab829503087ef8155ab9f8e3",
+        "6a35be46bc7413ce0fe9d0a0e872b06bfe87d869685dd1fa64a13d404229c752"
+      ],
+      "rounding": "whole-minute floor, nearest cent",
+      "automatic": true,
+      "precision": "observed_samples",
+      "amountCents": 167,
+      "visitPolicy": {
+        "id": "confidence-disk-split-v1",
+        "reentryRule": "A confidently outside observation closes the visit. A confident return starts a separate visit; no exit grace period.",
+        "boundaryRule": "Accuracy disk touching the fence holds the prior visit state; no inferred crossing time.",
+        "freeTimeScope": "each-observed-visit"
+      },
+      "dwellMinutes": 121,
+      "shipmentTerms": {
+        "mode": "FTL",
+        "loadId": "RS-1042",
+        "boundAt": "2026-09-12T20:48:05.435Z",
+        "boundBy": "synthetic-fixture"
+      },
+      "billableMinutes": 1,
+      "requiresEvidenceReview": true
+    }
+  },
+  "assignment": {
+    "id": "ad8f3d94-2441-4e19-ae3a-53c1af21b168",
+    "loadId": "RS-1042",
+    "driverId": "D-01",
+    "truckId": "T-101",
+    "trailerId": "V-101",
+    "startAt": "2026-09-13T12:30:00.000Z",
+    "endAt": "2026-09-13T16:00:00.000Z",
+    "status": "accepted",
+    "version": 2,
+    "visitReviewRequired": false
+  },
+  "checks": [
+    "Driver accepted the assignment before simulator movement",
+    "Valhalla route retains a road egress after the final service location",
+    "Final service dwell remains on-duty and road movement resumes only after dwell",
+    "A confident outside telemetry observation closes the same destination visit",
+    "The automatic draft is linked to exact arrival/departure event IDs and bound FTL terms",
+    "No stop-completion action is used as a geofence or billing timestamp",
+    "Every acknowledged simulator event exists once in operational telemetry",
+    "Same-run reset reproduces every source event while all compared operational records and the detention draft remain byte-equivalent"
+  ],
+  "limits": "Synthetic London route and seeded road speeds. Geofence timestamps are received source observations, not certified physical dock times. Draft is not approved or collected revenue. Responsive driver rendering is verified separately; this script exercises the real driver API identity. Same-run replay proves idempotent consumption, not an independent counterfactual.",
+  "replay": {
+    "verifiedAt": "2026-09-12T20:59:17.397Z",
+    "eventHash": "ec44ba2a74ca526c6cc15a38530c6ac608558247caee755996ad4d9b9008c724",
+    "events": 7801,
+    "elapsedSeconds": 7800,
+    "operationalHash": "7b02425a07430fb83d17db760685a028adb25af197d9d10ec3b495bd3e7abe00",
+    "tables": [
+      "telemetry",
+      "stop_visits",
+      "invoice_revisions",
+      "assignments",
+      "reservations",
+      "disruptions",
+      "approvals",
+      "resources",
+      "loads",
+      "scenarios",
+      "duty_events",
+      "stop_completions",
+      "events"
+    ]
+  }
+}
