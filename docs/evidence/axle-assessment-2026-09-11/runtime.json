@@ -1,0 +1,552 @@
+{
+  "verifiedAt": "2026-09-12T01:40:16.645Z",
+  "staleReview": {
+    "loadId": "RS-1042",
+    "truckId": "T-101",
+    "trailerId": "V-101",
+    "history": [
+      {
+        "carrier_id": "axle-d7c59602-2819-4c54-a369-a173e364ab78",
+        "id": "18d777ac-07d1-4201-8684-11e3c1926230",
+        "load_id": "RS-1042",
+        "truck_id": "T-101",
+        "trailer_id": "V-101",
+        "revision": 3,
+        "document_id": "fbba871b-d6d6-4451-8567-3a804af4c169",
+        "reviewed_by": "demo-dispatcher",
+        "recorded_at": "2026-09-12T01:37:35.927Z",
+        "body": {
+          "input": {
+            "loadId": "RS-1042",
+            "reason": "Synthetic reviewed cargo placement before dispatch.",
+            "truckId": "T-101",
+            "trailerId": "V-101",
+            "documentId": "fbba871b-d6d6-4451-8567-3a804af4c169",
+            "sourceNote": "Synthetic scale tare, configuration limits and loading diagram.",
+            "configuration": {
+              "emptyKg": {
+                "drive": 5000,
+                "steer": 5000,
+                "trailer": 4000
+              },
+              "limitsKg": {
+                "drive": 18000,
+                "steer": 6500,
+                "trailer": 14000
+              },
+              "driveAxles": 2,
+              "grossLimitKg": 40000,
+              "trailerAxles": 2,
+              "trailerSpanM": 10,
+              "equalizedGroups": true,
+              "tractorWheelbaseM": 4,
+              "fifthWheelFromSteerM": 3.8
+            },
+            "cargoCgFromKingpinM": 5,
+            "expectedLoadVersion": 1,
+            "expectedTrailerVersion": 1,
+            "acknowledgeModeledLoads": true,
+            "expectedDocumentVersion": 3
+          },
+          "result": {
+            "note": "Static, equalized three-group model using configured limits; not scale measurements, individual axle certification or an Ontario legal-clearance calculation.",
+            "groups": [
+              {
+                "id": "steer",
+                "cargoKg": 362.87389600000006,
+                "emptyKg": 5000,
+                "limitKg": 6500,
+                "loadedKg": 5362.873896,
+                "withinLimit": true
+              },
+              {
+                "id": "drive",
+                "cargoKg": 6894.604024,
+                "emptyKg": 5000,
+                "limitKg": 18000,
+                "loadedKg": 11894.604024,
+                "withinLimit": true
+              },
+              {
+                "id": "trailer",
+                "cargoKg": 7257.47792,
+                "emptyKg": 4000,
+                "limitKg": 14000,
+                "loadedKg": 11257.477920000001,
+                "withinLimit": true
+              }
+            ],
+            "policy": "static-three-group-v1",
+            "grossKg": 28514.955840000002,
+            "reasons": [],
+            "eligible": true,
+            "payloadKg": 14514.95584,
+            "emptyGrossKg": 14000,
+            "grossLimitKg": 40000,
+            "kingpinCargoKg": 7257.47792,
+            "grossWithinLimit": true,
+            "maximumModeledAxleKg": 5947.302012
+          },
+          "document": {
+            "id": "fbba871b-d6d6-4451-8567-3a804af4c169",
+            "sha256": "e26bd5491f026d0202b3954387304491df1083bf187d4b92905293aa6428a761",
+            "version": 3
+          },
+          "provenance": "synthetic",
+          "loadFingerprint": "d57e306cb23decc5f5b03b750f2e74d851d4ebdb35f3e39e7d972528ed33c638",
+          "configurationHash": "16259c6564b8b8383c36d552b998b8565a037cc1d4ef2e493751310b95bfc1da",
+          "vehicleFingerprint": "41d8a39c6930c59be78bc1b93a74600519d9343816f2fd41888a30438e469209"
+        }
+      },
+      {
+        "carrier_id": "axle-d7c59602-2819-4c54-a369-a173e364ab78",
+        "id": "431a54e5-a351-4cdf-9a68-771b3b6a5159",
+        "load_id": "RS-1042",
+        "truck_id": "T-101",
+        "trailer_id": "V-101",
+        "revision": 2,
+        "document_id": "fbba871b-d6d6-4451-8567-3a804af4c169",
+        "reviewed_by": "demo-dispatcher",
+        "recorded_at": "2026-09-12T01:37:28.194Z",
+        "body": {
+          "input": {
+            "loadId": "RS-1042",
+            "reason": "Synthetic reviewed cargo placement before dispatch.",
+            "truckId": "T-101",
+            "trailerId": "V-101",
+            "documentId": "fbba871b-d6d6-4451-8567-3a804af4c169",
+            "sourceNote": "Synthetic scale tare, configuration limits and loading diagram.",
+            "configuration": {
+              "emptyKg": {
+                "drive": 5000,
+                "steer": 5000,
+                "trailer": 4000
+              },
+              "limitsKg": {
+                "drive": 18000,
+                "steer": 6500,
+                "trailer": 14000
+              },
+              "driveAxles": 2,
+              "grossLimitKg": 40000,
+              "trailerAxles": 2,
+              "trailerSpanM": 10,
+              "equalizedGroups": true,
+              "tractorWheelbaseM": 4,
+              "fifthWheelFromSteerM": 3.8
+            },
+            "cargoCgFromKingpinM": 5,
+            "expectedLoadVersion": 1,
+            "expectedTrailerVersion": 1,
+            "acknowledgeModeledLoads": true,
+            "expectedDocumentVersion": 2
+          },
+          "result": {
+            "note": "Static, equalized three-group model using configured limits; not scale measurements, individual axle certification or an Ontario legal-clearance calculation.",
+            "groups": [
+              {
+                "id": "steer",
+                "cargoKg": 362.87389600000006,
+                "emptyKg": 5000,
+                "limitKg": 6500,
+                "loadedKg": 5362.873896,
+                "withinLimit": true
+              },
+              {
+                "id": "drive",
+                "cargoKg": 6894.604024,
+                "emptyKg": 5000,
+                "limitKg": 18000,
+                "loadedKg": 11894.604024,
+                "withinLimit": true
+              },
+              {
+                "id": "trailer",
+                "cargoKg": 7257.47792,
+                "emptyKg": 4000,
+                "limitKg": 14000,
+                "loadedKg": 11257.477920000001,
+                "withinLimit": true
+              }
+            ],
+            "policy": "static-three-group-v1",
+            "grossKg": 28514.955840000002,
+            "reasons": [],
+            "eligible": true,
+            "payloadKg": 14514.95584,
+            "emptyGrossKg": 14000,
+            "grossLimitKg": 40000,
+            "kingpinCargoKg": 7257.47792,
+            "grossWithinLimit": true,
+            "maximumModeledAxleKg": 5947.302012
+          },
+          "document": {
+            "id": "fbba871b-d6d6-4451-8567-3a804af4c169",
+            "sha256": "e26bd5491f026d0202b3954387304491df1083bf187d4b92905293aa6428a761",
+            "version": 2
+          },
+          "provenance": "synthetic",
+          "loadFingerprint": "d57e306cb23decc5f5b03b750f2e74d851d4ebdb35f3e39e7d972528ed33c638",
+          "configurationHash": "16259c6564b8b8383c36d552b998b8565a037cc1d4ef2e493751310b95bfc1da",
+          "vehicleFingerprint": "41d8a39c6930c59be78bc1b93a74600519d9343816f2fd41888a30438e469209"
+        }
+      },
+      {
+        "carrier_id": "axle-d7c59602-2819-4c54-a369-a173e364ab78",
+        "id": "9abd4778-f47e-4881-99b5-8414909693a0",
+        "load_id": "RS-1042",
+        "truck_id": "T-101",
+        "trailer_id": "V-101",
+        "revision": 1,
+        "document_id": "fbba871b-d6d6-4451-8567-3a804af4c169",
+        "reviewed_by": "demo-dispatcher",
+        "recorded_at": "2026-09-12T01:37:24.839Z",
+        "body": {
+          "input": {
+            "loadId": "RS-1042",
+            "reason": "Synthetic reviewed cargo placement before dispatch.",
+            "truckId": "T-101",
+            "trailerId": "V-101",
+            "documentId": "fbba871b-d6d6-4451-8567-3a804af4c169",
+            "sourceNote": "Synthetic scale tare, configuration limits and loading diagram.",
+            "configuration": {
+              "emptyKg": {
+                "drive": 5000,
+                "steer": 5000,
+                "trailer": 4000
+              },
+              "limitsKg": {
+                "drive": 18000,
+                "steer": 6500,
+                "trailer": 14000
+              },
+              "driveAxles": 2,
+              "grossLimitKg": 40000,
+              "trailerAxles": 2,
+              "trailerSpanM": 10,
+              "equalizedGroups": true,
+              "tractorWheelbaseM": 4,
+              "fifthWheelFromSteerM": 3.8
+            },
+            "cargoCgFromKingpinM": 8,
+            "expectedLoadVersion": 1,
+            "expectedTrailerVersion": 1,
+            "acknowledgeModeledLoads": true,
+            "expectedDocumentVersion": 2
+          },
+          "result": {
+            "note": "Static, equalized three-group model using configured limits; not scale measurements, individual axle certification or an Ontario legal-clearance calculation.",
+            "groups": [
+              {
+                "id": "steer",
+                "cargoKg": 145.14955839999993,
+                "emptyKg": 5000,
+                "limitKg": 6500,
+                "loadedKg": 5145.1495584,
+                "withinLimit": true
+              },
+              {
+                "id": "drive",
+                "cargoKg": 2757.8416096000005,
+                "emptyKg": 5000,
+                "limitKg": 18000,
+                "loadedKg": 7757.8416096,
+                "withinLimit": true
+              },
+              {
+                "id": "trailer",
+                "cargoKg": 11611.964672,
+                "emptyKg": 4000,
+                "limitKg": 14000,
+                "loadedKg": 15611.964672,
+                "withinLimit": false
+              }
+            ],
+            "policy": "static-three-group-v1",
+            "grossKg": 28514.955840000002,
+            "reasons": [
+              "Configured trailer axle-group limit exceeded (15612.0 kg / 14000.0 kg)."
+            ],
+            "eligible": false,
+            "payloadKg": 14514.95584,
+            "emptyGrossKg": 14000,
+            "grossLimitKg": 40000,
+            "kingpinCargoKg": 2902.9911680000005,
+            "grossWithinLimit": true,
+            "maximumModeledAxleKg": 7805.982336
+          },
+          "document": {
+            "id": "fbba871b-d6d6-4451-8567-3a804af4c169",
+            "sha256": "e26bd5491f026d0202b3954387304491df1083bf187d4b92905293aa6428a761",
+            "version": 2
+          },
+          "provenance": "synthetic",
+          "loadFingerprint": "d57e306cb23decc5f5b03b750f2e74d851d4ebdb35f3e39e7d972528ed33c638",
+          "configurationHash": "16259c6564b8b8383c36d552b998b8565a037cc1d4ef2e493751310b95bfc1da",
+          "vehicleFingerprint": "41d8a39c6930c59be78bc1b93a74600519d9343816f2fd41888a30438e469209"
+        }
+      }
+    ],
+    "proof": {
+      "required": true,
+      "eligible": false,
+      "reasons": [
+        "Axle loading source, payload or vehicle configuration changed; review again."
+      ],
+      "assessmentId": "18d777ac-07d1-4201-8684-11e3c1926230"
+    }
+  },
+  "acceptedDriverReview": {
+    "loadId": "RS-1042",
+    "truckId": "T-101",
+    "trailerId": "V-101",
+    "history": [
+      {
+        "carrier_id": "axle-275679ed-c3e4-4a22-8379-1a9c94629e3a",
+        "id": "f1aa9805-836c-4045-9d14-73f8fc98533c",
+        "load_id": "RS-1042",
+        "truck_id": "T-101",
+        "trailer_id": "V-101",
+        "revision": 2,
+        "document_id": "7136af33-cf87-43d2-9a22-96ab883847cf",
+        "reviewed_by": "demo-dispatcher",
+        "recorded_at": "2026-09-12T01:37:49.816Z",
+        "body": {
+          "input": {
+            "loadId": "RS-1042",
+            "reason": "Synthetic reviewed cargo placement before dispatch.",
+            "truckId": "T-101",
+            "trailerId": "V-101",
+            "documentId": "7136af33-cf87-43d2-9a22-96ab883847cf",
+            "sourceNote": "Synthetic scale tare, configuration limits and loading diagram.",
+            "configuration": {
+              "emptyKg": {
+                "drive": 5000,
+                "steer": 5000,
+                "trailer": 4000
+              },
+              "limitsKg": {
+                "drive": 18000,
+                "steer": 6500,
+                "trailer": 12000
+              },
+              "driveAxles": 2,
+              "grossLimitKg": 40000,
+              "trailerAxles": 2,
+              "trailerSpanM": 10,
+              "equalizedGroups": true,
+              "tractorWheelbaseM": 4,
+              "fifthWheelFromSteerM": 3.8
+            },
+            "cargoCgFromKingpinM": 8,
+            "expectedLoadVersion": 1,
+            "expectedTrailerVersion": 1,
+            "acknowledgeModeledLoads": true,
+            "expectedDocumentVersion": 2
+          },
+          "result": {
+            "note": "Static, equalized three-group model using configured limits; not scale measurements, individual axle certification or an Ontario legal-clearance calculation.",
+            "groups": [
+              {
+                "id": "steer",
+                "cargoKg": 45.35923700000001,
+                "emptyKg": 5000,
+                "limitKg": 6500,
+                "loadedKg": 5045.359237,
+                "withinLimit": true
+              },
+              {
+                "id": "drive",
+                "cargoKg": 861.8255030000001,
+                "emptyKg": 5000,
+                "limitKg": 18000,
+                "loadedKg": 5861.825503,
+                "withinLimit": true
+              },
+              {
+                "id": "trailer",
+                "cargoKg": 3628.73896,
+                "emptyKg": 4000,
+                "limitKg": 12000,
+                "loadedKg": 7628.738960000001,
+                "withinLimit": true
+              }
+            ],
+            "policy": "static-three-group-v1",
+            "grossKg": 18535.9237,
+            "reasons": [],
+            "eligible": true,
+            "payloadKg": 4535.9237,
+            "emptyGrossKg": 14000,
+            "grossLimitKg": 40000,
+            "kingpinCargoKg": 907.1847400000001,
+            "grossWithinLimit": true,
+            "maximumModeledAxleKg": 5045.359237
+          },
+          "document": {
+            "id": "7136af33-cf87-43d2-9a22-96ab883847cf",
+            "sha256": "e26bd5491f026d0202b3954387304491df1083bf187d4b92905293aa6428a761",
+            "version": 2
+          },
+          "provenance": "synthetic",
+          "loadFingerprint": "9d9e23c0798f5eda0fa4b9c5f4ef05c2da1571059ea8c225d3f1897cb2e1bbd0",
+          "configurationHash": "6bf046976d867995f299a2f5b2856fcfa6dd51a0b0f33dbd25caa37a65973deb",
+          "vehicleFingerprint": "41d8a39c6930c59be78bc1b93a74600519d9343816f2fd41888a30438e469209"
+        }
+      },
+      {
+        "carrier_id": "axle-275679ed-c3e4-4a22-8379-1a9c94629e3a",
+        "id": "973282dc-dc44-4d33-8cfa-ee1005d25a57",
+        "load_id": "RS-1042",
+        "truck_id": "T-101",
+        "trailer_id": "V-101",
+        "revision": 1,
+        "document_id": "7136af33-cf87-43d2-9a22-96ab883847cf",
+        "reviewed_by": "demo-dispatcher",
+        "recorded_at": "2026-09-12T01:37:46.450Z",
+        "body": {
+          "input": {
+            "loadId": "RS-1042",
+            "reason": "Synthetic reviewed cargo placement before dispatch.",
+            "truckId": "T-101",
+            "trailerId": "V-101",
+            "documentId": "7136af33-cf87-43d2-9a22-96ab883847cf",
+            "sourceNote": "Synthetic scale tare, configuration limits and loading diagram.",
+            "configuration": {
+              "emptyKg": {
+                "drive": 5000,
+                "steer": 5000,
+                "trailer": 4000
+              },
+              "limitsKg": {
+                "drive": 18000,
+                "steer": 6500,
+                "trailer": 10500
+              },
+              "driveAxles": 2,
+              "grossLimitKg": 40000,
+              "trailerAxles": 2,
+              "trailerSpanM": 10,
+              "equalizedGroups": true,
+              "tractorWheelbaseM": 4,
+              "fifthWheelFromSteerM": 3.8
+            },
+            "cargoCgFromKingpinM": 8,
+            "expectedLoadVersion": 1,
+            "expectedTrailerVersion": 1,
+            "acknowledgeModeledLoads": true,
+            "expectedDocumentVersion": 2
+          },
+          "result": {
+            "note": "Static, equalized three-group model using configured limits; not scale measurements, individual axle certification or an Ontario legal-clearance calculation.",
+            "groups": [
+              {
+                "id": "steer",
+                "cargoKg": 45.35923700000001,
+                "emptyKg": 5000,
+                "limitKg": 6500,
+                "loadedKg": 5045.359237,
+                "withinLimit": true
+              },
+              {
+                "id": "drive",
+                "cargoKg": 861.8255030000001,
+                "emptyKg": 5000,
+                "limitKg": 18000,
+                "loadedKg": 5861.825503,
+                "withinLimit": true
+              },
+              {
+                "id": "trailer",
+                "cargoKg": 3628.73896,
+                "emptyKg": 4000,
+                "limitKg": 10500,
+                "loadedKg": 7628.738960000001,
+                "withinLimit": true
+              }
+            ],
+            "policy": "static-three-group-v1",
+            "grossKg": 18535.9237,
+            "reasons": [],
+            "eligible": true,
+            "payloadKg": 4535.9237,
+            "emptyGrossKg": 14000,
+            "grossLimitKg": 40000,
+            "kingpinCargoKg": 907.1847400000001,
+            "grossWithinLimit": true,
+            "maximumModeledAxleKg": 5045.359237
+          },
+          "document": {
+            "id": "7136af33-cf87-43d2-9a22-96ab883847cf",
+            "sha256": "e26bd5491f026d0202b3954387304491df1083bf187d4b92905293aa6428a761",
+            "version": 2
+          },
+          "provenance": "synthetic",
+          "loadFingerprint": "9d9e23c0798f5eda0fa4b9c5f4ef05c2da1571059ea8c225d3f1897cb2e1bbd0",
+          "configurationHash": "fca9c1c8c163b91e93906ef09cfd5b84ee63b9b095fc5227553ecdc1db2990ec",
+          "vehicleFingerprint": "41d8a39c6930c59be78bc1b93a74600519d9343816f2fd41888a30438e469209"
+        }
+      }
+    ],
+    "proof": {
+      "required": true,
+      "eligible": true,
+      "reasons": [],
+      "assessmentId": "f1aa9805-836c-4045-9d14-73f8fc98533c",
+      "revision": 2,
+      "result": {
+        "policy": "static-three-group-v1",
+        "eligible": true,
+        "reasons": [],
+        "payloadKg": 4535.9237,
+        "emptyGrossKg": 14000,
+        "grossKg": 18535.9237,
+        "grossLimitKg": 40000,
+        "grossWithinLimit": true,
+        "groups": [
+          {
+            "id": "steer",
+            "emptyKg": 5000,
+            "cargoKg": 45.35923700000001,
+            "loadedKg": 5045.359237,
+            "limitKg": 6500,
+            "withinLimit": true
+          },
+          {
+            "id": "drive",
+            "emptyKg": 5000,
+            "cargoKg": 861.8255030000001,
+            "loadedKg": 5861.825503,
+            "limitKg": 18000,
+            "withinLimit": true
+          },
+          {
+            "id": "trailer",
+            "emptyKg": 4000,
+            "cargoKg": 3628.73896,
+            "loadedKg": 7628.738960000001,
+            "limitKg": 12000,
+            "withinLimit": true
+          }
+        ],
+        "kingpinCargoKg": 907.1847400000001,
+        "maximumModeledAxleKg": 5045.359237,
+        "note": "Static, equalized three-group model using configured limits; not scale measurements, individual axle certification or an Ontario legal-clearance calculation."
+      },
+      "configurationHash": "6bf046976d867995f299a2f5b2856fcfa6dd51a0b0f33dbd25caa37a65973deb",
+      "demandsG": [
+        45360,
+        861826,
+        3628739
+      ],
+      "capacitiesG": [
+        1500000,
+        13000000,
+        8000000
+      ],
+      "grossPayloadLb": 57320
+    }
+  },
+  "wrongDriverStatus": 403,
+  "localPreviewStatus": 200
+}
