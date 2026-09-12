@@ -1,0 +1,25 @@
+.dock-scene {
+  width: 100%;
+  height: 420px;
+  overflow: hidden;
+  position: relative;
+  isolation: isolate;
+  background: #e9e7df;
+  border: 1px solid #d6d7cf;
+  border-radius: 12px;
+}
+
+.dock-scene > div,
+.dock-scene canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.dock-scene canvas {
+  display: block;
+  touch-action: pan-y;
+}
+
+@media (max-width: 640px) {
+  .dock-scene { height: 320px; }
+}
