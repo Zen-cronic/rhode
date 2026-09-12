@@ -5,6 +5,7 @@ import os
 import json
 import re
 import copy
+import math
 from contextvars import ContextVar
 import fcntl
 from pathlib import Path
@@ -39,6 +40,7 @@ async def lifespan(_):
 app = FastAPI(title='RoadStar independent simulator', lifespan=lifespan)
 runs: dict[str, dict] = {}
 lock = asyncio.Lock()
+presentation_cache: dict[str, dict] = {}
 
 
 PROGRESS_FIELDS = ('elapsed_seconds', '_distance', '_next_stop', '_wait', '_last_speed', '_initial_emitted', '_lengths')
@@ -51,6 +53,7 @@ def checkpoint_path(run_id):
 
 
 def save_run(run):
+    presentation_cache.pop(run.get('run_id', ''), None)
     replay = run['replay']
     # Credentials, clients and in-flight flags are never serialized. Cached forecasts
     # are recomputed; pending command bodies, versions and receipts are retained.
@@ -516,18 +519,22 @@ async def control_state(run_id: str):
 PRESENTATION_SAMPLE_FIELDS = ('id', 'assignmentId', 'at', 'position', 'speedKph', 'odometerKm', 'duty', 'phase', 'accuracyM', 'provenance')
 
 
-def presentation_view(run, offset=0, limit=500, snapshot=None):
-    """Read-only recording pages. The cursor never advances operational time.
+def _presentation_number(value, *, nullable=False):
+    return (nullable and value is None) or (
+        isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value) and value >= 0
+    )
 
-    Route identity is recovered from the deterministic event ID, so an observation
-    at an adoption boundary keeps the geometry which actually generated it.
-    """
-    if not isinstance(offset, int) or not isinstance(limit, int) or offset < 0 or not 1 <= limit <= 1000:
-        raise HTTPException(400, 'Use offset >= 0 and a page limit between 1 and 1000')
-    if (snapshot is not None and not re.fullmatch(r'[a-f0-9]{64}', snapshot)) or (offset and snapshot is None):
-        raise HTTPException(400, 'Continuation pages require the recording snapshot fingerprint')
-    if run['emit_mode'] is False or (run['events'] and run['emit_mode'] is not True):
-        raise HTTPException(409, 'This run has no operationally acknowledged recording; un-emitted samples cannot be replay evidence')
+
+def _presentation_coordinate(value, maximum):
+    return (isinstance(value, (int, float)) and not isinstance(value, bool) and
+            math.isfinite(value) and abs(value) <= maximum)
+
+
+def _presentation_content(run):
+    """Validate and freeze one acknowledged source recording for subsequent page reads."""
+    cached = presentation_cache.get(run['run_id'])
+    if cached and cached['owner_id'] == id(run):
+        return cached['content'], cached['fingerprint']
     initial = run.get('original_initial') or run['replay'].initial_conditions()
     epochs = [(initial, None)] + [(t['snapshot']['initial'], t) for t in run.get('route_transitions', [])]
     routes = []
@@ -542,24 +549,58 @@ def presentation_view(run, offset=0, limit=500, snapshot=None):
                        'stop_indices': list(conditions['stop_indices'])})
     events = []
     for event in run['events']:
-        at_ms = round(datetime.fromisoformat(event['at']).timestamp()*1000)
+        try:
+            observed_at = datetime.fromisoformat(event['at']) if isinstance(event.get('at'), str) else None
+            if observed_at is None or observed_at.utcoffset() is None:
+                raise ValueError('Observation timestamps require an explicit offset')
+            at_ms = round(observed_at.timestamp()*1000)
+        except (TypeError, ValueError, OverflowError):
+            raise HTTPException(409, 'Recording contains an invalid source timestamp; preserve for review')
         route_key = next((r['key'] for r in routes if sha256(f"{run['run_id']}:{r['key']}:{at_ms}".encode()).hexdigest() == event['id']), None)
         if route_key is None or event['assignmentId'] != run['assignment_id'] or event['provenance'] != 'synthetic':
             raise HTTPException(409, 'Recording source identity does not match the retained route and assignment; preserve for review')
+        position = event.get('position')
+        if (not isinstance(position, dict) or not _presentation_coordinate(position.get('lat'), 90) or
+                not _presentation_coordinate(position.get('lng'), 180) or
+                not isinstance(event.get('duty'), str) or not event['duty'] or
+                not isinstance(event.get('phase'), str) or not event['phase'] or
+                not _presentation_number(event.get('speedKph'), nullable=True) or
+                not _presentation_number(event.get('odometerKm'), nullable=True) or
+                not _presentation_number(event.get('accuracyM'))):
+            raise HTTPException(409, 'Recording contains invalid displayed source fields; preserve for review')
         events.append({'sample': {k: copy.deepcopy(event.get(k)) for k in PRESENTATION_SAMPLE_FIELDS},
                        'route_key': route_key, 'elapsed_seconds': (at_ms-initial['start_time_ms'])/1000})
     content = {'schema': 1, 'run_id': run['run_id'], 'assignment_id': run['assignment_id'],
                'carrier_id': run['carrier_id'], 'api_origin': run['api_origin'],
                'start_time_ms': initial['start_time_ms'], 'routes': routes, 'events': events}
     fingerprint = sha256(json.dumps(content, sort_keys=True, allow_nan=False).encode()).hexdigest()
+    presentation_cache[run['run_id']] = {'owner_id': id(run), 'content': content, 'fingerprint': fingerprint}
+    return content, fingerprint
+
+
+def presentation_view(run, offset=0, limit=500, snapshot=None):
+    """Read-only recording pages. The cursor never advances operational time.
+
+    Route identity is recovered from the deterministic event ID, so an observation
+    at an adoption boundary keeps the geometry which actually generated it. The
+    validated frozen source is cached; page bounds limit subsequent request work.
+    """
+    if not isinstance(offset, int) or not isinstance(limit, int) or offset < 0 or not 1 <= limit <= 1000:
+        raise HTTPException(400, 'Use offset >= 0 and a page limit between 1 and 1000')
+    if (snapshot is not None and not re.fullmatch(r'[a-f0-9]{64}', snapshot)) or (offset and snapshot is None):
+        raise HTTPException(400, 'Continuation pages require the recording snapshot fingerprint')
+    if run['emit_mode'] is False or (run['events'] and run['emit_mode'] is not True):
+        raise HTTPException(409, 'This run has no operationally acknowledged recording; un-emitted samples cannot be replay evidence')
+    content, fingerprint = _presentation_content(run)
     if snapshot is not None and snapshot != fingerprint:
         raise HTTPException(409, 'Recording changed. Reload from the first page; do not combine recording snapshots')
+    events = content['events']
     if offset > len(events):
         raise HTTPException(400, 'Offset is beyond this recording')
     end = min(offset+limit, len(events))
-    return {k: v for k, v in content.items() if k != 'events'} | {
+    return {k: copy.deepcopy(v) for k, v in content.items() if k != 'events'} | {
         'snapshot': fingerprint, 'total': len(events), 'offset': offset,
-        'next_offset': end if end < len(events) else None, 'events': events[offset:end],
+        'next_offset': end if end < len(events) else None, 'events': copy.deepcopy(events[offset:end]),
         'provenance': 'synthetic', 'evidence': 'API-acknowledged observations; not certified GPS or billing timestamps',
         'speed_semantics': 'Speed describes the preceding interval; phase and duty describe the observation instant',
         'clock_semantics': 'Historical view cursor only; current HOS balances and billing are not historical values'}

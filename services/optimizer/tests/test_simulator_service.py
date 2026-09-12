@@ -505,14 +505,18 @@ def test_presentation_pages_are_frozen_whitelisted_acknowledged_and_read_only(mo
     second=sim.presentation_view(run,2,1000,first['snapshot'])
     assert second['next_offset'] is None and len(second['events'])==4
     assert second['snapshot']==first['snapshot'] and run==before
+    assert sim.presentation_cache['run']['content']['events'] is not second['events']
     assert first['routes'][0]['geometry']['coordinates']==run['replay'].coordinates
     assert first['routes'][0]['source']=='synthetic-test-route'
     first['routes'][0]['geometry']['coordinates'][0][0]=0
     assert run==before
+    assert sim.presentation_view(run)['routes'][0]['geometry']['coordinates'][0][0]!=0
     run['events']=run['events'][:-1]
+    sim.presentation_cache.pop('run',None)
     with pytest.raises(sim.HTTPException,match='409'):
         sim.presentation_view(run,2,1000,first['snapshot'])
     run['events']=[];run['emit_mode']=None
+    sim.presentation_cache.pop('run',None)
     assert sim.presentation_view(run)['total']==0
     with pytest.raises(sim.HTTPException,match='409'):
         sim.presentation_view(run,0,2,first['snapshot'])
@@ -530,6 +534,25 @@ def test_presentation_rejects_nonemitted_or_tampered_sources(monkeypatch):
     run['emit_mode']=False
     with pytest.raises(sim.HTTPException,match='409'):
         sim.presentation_view(run)
+
+
+@pytest.mark.parametrize('field,value',[
+    ('duty',''),('phase',7),('speedKph',-1),('odometerKm',-1),('accuracyM',-1),
+])
+def test_presentation_rejects_invalid_displayed_source_fields(monkeypatch,field,value):
+    run=recording_fixture(monkeypatch)
+    run['events'][0][field]=value
+    sim.presentation_cache.pop('run',None)
+    with pytest.raises(sim.HTTPException,match='invalid displayed source fields'):
+        sim.presentation_view(run)
+
+
+def test_saving_a_run_invalidates_its_presentation_cache(monkeypatch):
+    run=recording_fixture(monkeypatch)
+    sim.presentation_view(run)
+    assert 'run' in sim.presentation_cache
+    sim.save_run(run)
+    assert 'run' not in sim.presentation_cache
     run['emit_mode']=True;run['events'][0]['id']='tampered'
     with pytest.raises(sim.HTTPException,match='409'):
         sim.presentation_view(run)
