@@ -90,6 +90,7 @@ def solve(problem: Problem):
         callback = routing.RegisterUnaryTransitCallback(lambda a, d=demands: d[manager.IndexToNode(a)])
         routing.AddDimensionWithVehicleCapacity(callback, 0, capacities, True, name)
     rejected = []
+    compatible_by_load = {}
     for i, load in enumerate(problem.loads):
         p, d = manager.NodeToIndex(count + 2*i), manager.NodeToIndex(count + 2*i + 1)
         routing.AddPickupAndDelivery(p, d)
@@ -101,6 +102,7 @@ def solve(problem: Problem):
         routing.AddDisjunction([p], 1000000)
         routing.AddDisjunction([d], 1000000)
         allowed = [j for j, v in enumerate(problem.vehicles) if v.available_at < v.shift_minutes and v.equipment == load.equipment and v.capacity_lb >= load.weight_lb and v.pallet_capacity >= load.pallets and not v.maintenance_hold and 0 <= (problem.now - v.evidence_at).total_seconds() <= 900]
+        compatible_by_load[load.id] = allowed
         # SetValues includes -1 so optional incompatible shipments can be dropped.
         routing.VehicleVar(p).SetValues([-1] + allowed)
         routing.VehicleVar(d).SetValues([-1] + allowed)
@@ -129,9 +131,12 @@ def solve(problem: Problem):
                 stops.append({'load_id': problem.loads[i].id, 'stop': 'pickup' if side == 0 else 'delivery', 'minute': solution.Value(time.CumulVar(index))})
             index = solution.Value(routing.NextVar(index))
         if stops:
-            routes.append({'vehicle_id': v.id, 'stops': stops, 'driving_minutes': solution.Value(routing.GetDimensionOrDie('Drive').CumulVar(index)), 'duty_minutes': solution.Value(routing.GetDimensionOrDie('Duty').CumulVar(index))})
+            routes.append({'vehicle_id': v.id, 'stops': stops, 'driving_minutes': solution.Value(routing.GetDimensionOrDie('Drive').CumulVar(index)), 'duty_minutes': solution.Value(time.CumulVar(index)) - v.available_at})
     for i, load in enumerate(problem.loads):
         p = manager.NodeToIndex(count+2*i)
         if solution.Value(routing.NextVar(p)) == p and not any(x['load_id'] == load.id for x in rejected):
-            rejected.append({'load_id': load.id, 'reason': 'Unserved under supported time-window, capacity and declared duty limits; optimality not proven'})
+            compatible = compatible_by_load[load.id]
+            before_release = compatible and all(problem.vehicles[j].available_at > load.pickup_window[1] for j in compatible)
+            reason = ('Pickup closes before every compatible vehicle finishes its committed work.' if before_release else 'Unserved under supported time-window, capacity and declared duty limits; optimality not proven')
+            rejected.append({'load_id': load.id, 'reason': reason})
     return {'status': 'proposal', 'routes': routes, 'infeasible_loads': rejected, 'input_hash': fingerprint, 'routing_evidence': problem.routing_evidence, 'evidence_ref': problem.evidence_ref, 'assumptions': ['Declared HOS budgets, not certified ELD', 'No legal break/rest scheduling', 'Open routes; no forced depot return', 'No independent dispatch authority'], 'modeled': True}

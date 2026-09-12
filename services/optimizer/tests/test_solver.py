@@ -44,3 +44,34 @@ def test_later_availability_cannot_restart_the_absolute_shift_window():
     assert len(solve(p)['routes'])==1
     p.vehicles[0].available_at=200
     assert solve(p)['routes']==[]  # Exhausted vehicle remains an unused optional vehicle.
+
+
+def test_return_pickup_before_committed_release_explains_rejection_and_selects_alternative():
+    p=problem()
+    p.vehicles[0].available_at=120
+    p.loads[0].pickup_window=(100,100)
+    alternate=p.loads[0].model_copy(update={'id':'RETURN-LATER','pickup_window':(150,150),'delivery_window':(150,300)})
+    p.loads.append(alternate)
+    # Closest pickup takes zero minutes, but its appointment already closed.
+    p.matrices=[[[0,0,30,10,40,0],[0,0,30,10,40,0],[30,30,0,20,0,0],[10,10,20,0,30,0],[40,40,0,30,0,0],[0,0,0,0,0,0]]]
+    result=solve(Problem.model_validate(p.model_dump()))
+    assert [s['load_id'] for s in result['routes'][0]['stops']]==['RETURN-LATER','RETURN-LATER']
+    assert result['infeasible_loads']==[{'load_id':'L1','reason':'Pickup closes before every compatible vehicle finishes its committed work.'}]
+    # Release the vehicle earlier; now the closest return can serve.
+    p.vehicles[0].available_at=90
+    result=solve(p)
+    assert any(s['load_id']=='L1' for r in result['routes'] for s in r['stops'])
+    assert not any('every compatible' in r['reason'] for r in result['infeasible_loads'])
+
+
+def test_reported_duty_includes_planned_wait_so_following_load_cannot_reuse_it():
+    p=problem()
+    p.loads[0].pickup_window=(100,100)
+    result=solve(p)
+    route=result['routes'][0]
+    assert route['driving_minutes']==40
+    # Start 0, travel 10, wait 90, pickup 15, travel 30, delivery 15.
+    assert route['duty_minutes']==160
+    # Waiting is on duty, never an inferred rest break or a fresh HOS budget.
+    p.vehicles[0].duty_minutes=159
+    assert solve(p)['routes']==[]
