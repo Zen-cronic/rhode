@@ -1,0 +1,13 @@
+{
+  "verifiedAt": "2026-09-12T22:32:23.025Z",
+  "webBase": "https://roadstar-web-739889188415.us-central1.run.app",
+  "carrier": "ranked-recovery-cloud-8ea0cc51-fe31-46ee-ae92-80463dcf5891",
+  "revision": "roadstar-web-00058-juc",
+  "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:82b8125846782bec8ba11ecc4773a360a8b96169912928c684ed6b0f4137e80f",
+  "checks": [
+    "Firebase dispatcher opened the retained hosted ranked-recovery record",
+    "Hosted receipt reports one request, two combinations, one feasible, one rejected and one retained reason",
+    "Desktop and 390px hosted receipts render without page errors or horizontal overflow"
+  ],
+  "limits": "Read-only verification of the existing synthetic ranked-recovery record. No new recommendation, approval or driver command was issued."
+}
