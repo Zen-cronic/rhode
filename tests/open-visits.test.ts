@@ -4,7 +4,7 @@ import {randomUUID} from 'node:crypto';
 import {pool,migrate} from '../services/api/src/db.ts';
 import {Store} from '../services/api/src/store.ts';
 import {milton} from '../services/api/src/fixtures.ts';
-import {driverHeadroom} from '../apps/web/src/driver-headroom.ts';
+import {driverHeadroom} from '../packages/domain/src/open-visit.ts';
 const db=pool(process.env.TEST_DATABASE_URL),store=new Store(db),cmd=(expectedVersion=1)=>({key:randomUUID(),expectedVersion});
 before(()=>migrate(db));after(()=>db.end());
 test('open estimates use fresh inside evidence and configured free time without creating billing records',async()=>{

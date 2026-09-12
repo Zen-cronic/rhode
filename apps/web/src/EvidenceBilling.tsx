@@ -1,4 +1,4 @@
-import {driverHeadroom} from './driver-headroom';
+import {driverHeadroom} from '../../../packages/domain/src/open-visit';
 import { useState } from "react";
 import { Modal } from "./ReviewDialog";
 import type { Invoice, State, Visit, SendCommand } from "./api";
