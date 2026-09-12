@@ -1,0 +1,205 @@
+{
+  "verifiedAt": "2026-09-12T19:56:37.513Z",
+  "runId": "fae9cd3a-c12e-4aab-b111-63bc6ffa66ae",
+  "snapshot": "b18be8d445e16cbb70105bd60458fd2b2d766542ac50d3a3558adfe8b87d298b",
+  "pages": 11,
+  "samples": 10201,
+  "eventHash": "a04ffd9199686cbe7170ec08fa358ad41406cf7e893cfeff3c07b4fd411a4491",
+  "routeCoordinates": 77,
+  "pageMilliseconds": [
+    313,
+    164,
+    202,
+    157,
+    158,
+    207,
+    160,
+    156,
+    187,
+    154,
+    127
+  ],
+  "recordSets": {
+    "approvals": {
+      "count": 1,
+      "hash": "203f3dcf743eb16173c8c92796c0fc31edc1b8da6b56c2135e497c16e4c7f8b2"
+    },
+    "assignments": {
+      "count": 3,
+      "hash": "63c1f5f095c3631cb27c715c277dcc1d0abbb5cb4bb03a4d38d9bce2de143282"
+    },
+    "axle_assessments": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "commands": {
+      "count": 20260,
+      "hash": "61626d5a6356e7258b666ccaa85016a7ddc2345b2bee0c2beaf07f03daa1987c"
+    },
+    "contracts": {
+      "count": 1,
+      "hash": "5b5af3829d222787c56a4c32d644b9b35f1e103bcbdb0c53fb4ca06ffaf6f908"
+    },
+    "disruptions": {
+      "count": 1,
+      "hash": "9b48e4995864a7ae40454e28f5dd37373da14a948cba51e57b4c816077f2d1a9"
+    },
+    "document_revisions": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "documents": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "duty_events": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "events": {
+      "count": 20260,
+      "hash": "c90cd9c3d753a0caa568678d3ea5b953dd9929328634de864d2826f98251621f"
+    },
+    "facility_notes": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "hos_bases": {
+      "count": 2,
+      "hash": "0e80a334f76d4fd57c4df8e73446d96786498b7308248df25062de9f5133a474"
+    },
+    "hos_profiles": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "invoice_revisions": {
+      "count": 2,
+      "hash": "ffc3a22336581c762584903dee0611c0fce063ee48da9c2574dd87b8186f4610"
+    },
+    "jobs": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "load_contracts": {
+      "count": 3,
+      "hash": "20520f5d08cacb35f47a1f932d0d191445bcb190d1d029304f3d70989b912082"
+    },
+    "loads": {
+      "count": 3,
+      "hash": "f37bb2d992a29c73a41fb21df871e2fd5413a6bb79972a7e3440e79657e195b7"
+    },
+    "maintenance_holds": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "manifests": {
+      "count": 3,
+      "hash": "cdf563f5d7675821dae33eb008b41ca3830b93bb0cb934c3cc935fb68e400f72"
+    },
+    "memberships": {
+      "count": 4,
+      "hash": "918be1864b4065450eedcdeb0904a56490247a3b295077ce713c9b23ba36289b"
+    },
+    "outbox": {
+      "count": 3,
+      "hash": "65bf05a70f6b7c84360d89353b4c8854946dc15bd42dc547a31f0ecabbd8f62c"
+    },
+    "plan_approvals": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "planning_runs": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "proposals": {
+      "count": 1,
+      "hash": "9035febf531c779e890b1a4ec5dcea018ff2f496af5e0e08fa9d88cd75f8a4b1"
+    },
+    "push_tokens": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "reservations": {
+      "count": 9,
+      "hash": "21fff4f2483d37a72eb75507670bc0e20330623a9934404cdec7a4d2d0fbaa81"
+    },
+    "resources": {
+      "count": 9,
+      "hash": "dc5fc36ccb816c9ac36cbf779e84bbee2237945f1c2cfab34b71712922c8d242"
+    },
+    "road_closures": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "route_evidence": {
+      "count": 3,
+      "hash": "f542b4d364e9e38b125032b9032b6bfe193e58643177d2ff0cbf50b75bfee8d9"
+    },
+    "route_receipts": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "route_revisions": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "scenarios": {
+      "count": 1,
+      "hash": "e9c7056e58ddfb5207d368cc1bfdb745e5fa20fecbe3ecfa924d6d8499f24a70"
+    },
+    "source_imports": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "source_rows": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "stop_completions": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "stop_visits": {
+      "count": 2,
+      "hash": "9155ae8fc2fa2c39f25206c5f733557d4300a9ee694d6930c9e6baa4f1f74456"
+    },
+    "stops": {
+      "count": 6,
+      "hash": "3409e20a726cb9ea04c3a26fe4bc581a6f1eb2a0e59c0a6cc47a5e4e5e93d6a3"
+    },
+    "telemetry": {
+      "count": 10201,
+      "hash": "55f96d7199022ac21a3696f358a8142eb6f8c62e641b493f0490c7e0d491260f"
+    },
+    "trip_groups": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "trip_members": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "visit_reconciliations": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "visit_time_revisions": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "work_sessions": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "checkpointCount": 11,
+  "checks": [
+    "All 10201 acknowledged samples exactly match preserved source fields in order",
+    "Real Valhalla geometry and event route keys preserved",
+    "Private/no-store response omits internal checkpoint metadata",
+    "Driver and other-carrier reads refused; unpinned and stale pages refused",
+    "All carrier record sets and all simulator checkpoint files unchanged; run remains paused"
+  ],
+  "limits": "Read-only local presentation feed, not a corridor renderer or hosted simulator. Sequential page latency is not a 131-driver load test. Historical duty is an observation, not a reconstructed HOS balance or authoritative detention time."
+}
