@@ -1,0 +1,60 @@
+{
+  "verifiedAt": "2026-09-12T18:15:01.063Z",
+  "source": "9d95ff0",
+  "services": [
+    {
+      "service": "roadstar-api",
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/api@sha256:8823fef404482561f43f277c47ebc3e0acf95884ad339983e2d107eac8d14247",
+      "revision": "roadstar-api-00032-kiy",
+      "traffic": [
+        {
+          "percent": 100,
+          "revisionName": "roadstar-api-00032-kiy"
+        }
+      ],
+      "url": "https://roadstar-api-xc67wudx5a-uc.a.run.app",
+      "ready": "True"
+    },
+    {
+      "service": "roadstar-documents",
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/api@sha256:8823fef404482561f43f277c47ebc3e0acf95884ad339983e2d107eac8d14247",
+      "revision": "roadstar-documents-00017-tol",
+      "traffic": [
+        {
+          "percent": 100,
+          "revisionName": "roadstar-documents-00017-tol"
+        }
+      ],
+      "url": "https://roadstar-documents-xc67wudx5a-uc.a.run.app",
+      "ready": "True"
+    },
+    {
+      "service": "roadstar-optimizer",
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/optimizer@sha256:4ba05d7ca07b73b345fc5444e1ec1886c3af604a9b25e744eec5346a31f9cf78",
+      "revision": "roadstar-optimizer-00013-gas",
+      "traffic": [
+        {
+          "percent": 100,
+          "revisionName": "roadstar-optimizer-00013-gas"
+        }
+      ],
+      "url": "https://roadstar-optimizer-xc67wudx5a-uc.a.run.app",
+      "ready": "True"
+    },
+    {
+      "service": "roadstar-web",
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:ca743f963a30795ecc9d03e7776ba3d6725928c1541392a358ba6a72205148d0",
+      "revision": "roadstar-web-00050-yuy",
+      "traffic": [
+        {
+          "percent": 100,
+          "revisionName": "roadstar-web-00050-yuy"
+        }
+      ],
+      "url": "https://roadstar-web-xc67wudx5a-uc.a.run.app",
+      "ready": "True"
+    }
+  ],
+  "gate": "Every exact rollout-check revision returned HTTP200 before traffic switch; logs retained locally in /tmp/roadstar-cloud-dock-deploy.log",
+  "scope": "Existing preview resources and seed job; no new persistent resources"
+}
