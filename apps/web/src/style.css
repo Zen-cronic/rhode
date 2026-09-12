@@ -1272,3 +1272,6 @@ h1,h2,h3,.brand,.metric>strong{font-family:Manrope,sans-serif}h1{font-weight:600
 .axle-history { margin-top:16px; padding-top:12px; border-top:1px solid var(--line,#d8d6cf); }
 .axle-history code,.axle-hash { display:block; overflow-wrap:anywhere; margin-bottom:12px; }
 .axle-results h3 { margin-top:18px; }
+
+.evidence-row:has(.open-visit-estimate) { flex-wrap: wrap; }
+.open-visit-estimate { flex: 1 1 100%; order: 1; min-width: 0; overflow-wrap: anywhere; margin-bottom: 0; }

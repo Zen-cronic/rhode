@@ -1,3 +1,4 @@
+import {driverHeadroom} from './driver-headroom';
 import {VisitTimeCorrection} from './VisitTimeCorrection';
 import {SimulatorControls} from './SimulatorControls';
 import { VisitReconciliation } from './VisitReconciliation';
@@ -1223,8 +1224,8 @@ function Fleet({ resources }: { resources: Resource[] }) {
       ),
       column.accessor(
         (r) =>
-          r.budget ? `${r.budget.drivingMinutes} min driving` : "Not available",
-        { id: "budget", header: "Driving headroom" },
+          r.kind === "driver" ? driverHeadroom(r.budget) : "—",
+        { id: "budget", header: "Driving eligibility" },
       ),
       column.accessor("provenance", {
         header: "Source",

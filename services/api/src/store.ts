@@ -1,3 +1,4 @@
+import {openVisitExposure} from './open-visits.ts';
 import {reviewAxles,axleProof} from './axles.ts';
 import {visitTimeReview,correctVisitTimes} from './visit-time-review.ts';
 import {latestVisitTime,validateVisitTime,visitTimeConflicts} from './visit-time-evidence.ts';
@@ -517,7 +518,8 @@ export class Store {
       (SELECT coalesce(jsonb_agg(t),'[]') FROM manifests t WHERE carrier_id=$1 AND ($2::text IS NULL OR assignment_id IN (SELECT id FROM own_assignments))) AS manifests`,[a.carrierId,own?a.driverId:null])).rows[0] as {cursor:string;assignments:Row[];loads:Row[];resources:Row[];scenarios:Row[];proposals:Row[];visits:Row[];invoices:Row[];maintenanceHolds:Row[];planningRuns:Row[];disruptions:Row[];documents:Row[];facilityNotes:Row[];workSessions:Row[];dutyEvents:Row[];stopCompletions:Row[];tripGroups:Row[];manifests:Row[]};
     const resources=r.resources.map((v:Row)=>({...v.body,kind:v.kind,version:v.version}));
     const drivers=await withDutyHistory(c,a.carrierId,resources.filter(v=>v.kind==='driver'));
-    const result={...r,capabilities:{cachedDutyTelemetry:true,emulatorTracking:emulatorVerification(a)},actor:{role:a.role,driverId:a.driverId,carrierId:a.carrierId},serverTime:new Date().toISOString(),loads:r.loads.map((l:Row)=>({...l.body,version:l.version,status:l.status})),assignments:r.assignments.map(assignment),resources:resources.map(v=>v.kind==='driver'?drivers.find(d=>d.id===v.id)!:v)};
+    const openVisitEstimates=own?[]:await openVisitExposure(c,a.carrierId,r.visits.filter(v=>!v.departure).map(v=>v.id));
+    const result={...r,openVisitEstimates,capabilities:{cachedDutyTelemetry:true,emulatorTracking:emulatorVerification(a)},actor:{role:a.role,driverId:a.driverId,carrierId:a.carrierId},serverTime:new Date().toISOString(),loads:r.loads.map((l:Row)=>({...l.body,version:l.version,status:l.status})),assignments:r.assignments.map(assignment),resources:resources.map(v=>v.kind==='driver'?drivers.find(d=>d.id===v.id)!:v)};
     await c.query('COMMIT');return result;
     }catch(error){await c.query('ROLLBACK');throw error;}finally{c.release();}
   }

@@ -159,6 +159,7 @@ export type State = {
   resources: Resource[];
   proposals: Proposal[];
   visits: Visit[];
+  openVisitEstimates?: {visitId:string;assignmentId:string;driverId:string;status:"estimate"|"held";reason:string;asOf:string|null;evidenceAt:string|null;evidenceAgeSeconds:number|null;arrivalEvent:string;evidenceId:string|null;dwellMinutes?:number;billableMinutes?:number;amountCents?:number;currency?:string;contract?:{id:string;version:number;freeMinutes:number;rateCentsPerHour:number}}[];
   invoices: Invoice[];
   documents?: ShipmentDocument[];
   facilityNotes?: FacilityNote[];

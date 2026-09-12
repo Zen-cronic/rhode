@@ -1,3 +1,4 @@
+import {driverHeadroom} from './driver-headroom';
 import { useState } from "react";
 import { Modal } from "./ReviewDialog";
 import type { Invoice, State, Visit, SendCommand } from "./api";
@@ -55,6 +56,7 @@ export function EvidenceBilling({
               </p>
             </div>
             <p className="fine">{visit.session_policy==='confidence-disk-split-v1'?'Separate visit · confident exit ends this visit':'Visit policy not recorded'}</p>
+            {!visit.departure&&<OpenVisitEstimate visit={visit} state={state}/>}
             <button onClick={() => onVisit(visit)}>Review stop evidence</button>
           </div>
         ))
@@ -274,4 +276,11 @@ function InvoiceApproval({
       </p>
     </Modal>
   );
+}
+
+function OpenVisitEstimate({visit,state}:{visit:Visit;state:State}){
+ const estimate=state.openVisitEstimates?.find(e=>e.visitId===visit.id);
+ if(!estimate)return null;
+ const driver=state.resources.find(r=>r.id===estimate.driverId),headroom=driverHeadroom(driver?.budget);
+ return <div className="open-visit-estimate notice"><strong>{headroom}</strong><p>{driver?.name??estimate.driverId} · on-duty waiting consumes HOS headroom. Review an eligible driver for further work.</p>{estimate.status==='estimate'?<><h4>Provisional detention · {new Intl.NumberFormat('en-CA',{style:'currency',currency:estimate.currency!}).format(estimate.amountCents!/100)}</h4><p>{estimate.dwellMinutes} observed minutes · {estimate.billableMinutes} beyond the {estimate.contract?.freeMinutes}-minute allowance.</p><p className="fine">{estimate.contract?.id} v{estimate.contract?.version} · {new Intl.NumberFormat('en-CA',{style:'currency',currency:estimate.currency!}).format(estimate.contract!.rateCentsPerHour/100)} per hour</p></>:<strong>Detention estimate held</strong>}<p>{estimate.reason}</p>{estimate.evidenceAt&&<p className="fine">Evidence through {date(estimate.evidenceAt)} · {estimate.evidenceAgeSeconds} seconds old at the snapshot. No invoice has been created from this estimate.</p>}<details><summary>Open-visit source evidence</summary><p className="fine">Arrival: {estimate.arrivalEvent}</p><p className="fine">Latest: {estimate.evidenceId??'Unavailable'}</p></details></div>;
 }
