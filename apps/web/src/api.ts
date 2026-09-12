@@ -124,8 +124,8 @@ export type MaintenanceHold = {
 };
 export type PlanningVehicle = { driverId: string; truckId: string; trailerId: string };
 export type PlanningRun = {
-  id: string; version: number; status: string; created_at?: string;
-  input: { now: string; vehicles: (PlanningVehicle & { id: string })[]; versions: {id:string;kind:string;version:number}[] };
+  id: string; version: number; status: string; recorded_at?: string;
+  input: { now: string; vehicles: (PlanningVehicle & { id: string; available_at?: number })[]; versions: {id:string;kind:string;version:number}[] };
   result: { routes: {vehicle_id:string; stops:{load_id:string;stop:"pickup"|"delivery";minute:number}[]; driving_minutes:number; duty_minutes:number}[]; infeasible_loads:{load_id?:string;vehicle_id?:string;reason:string}[]; input_hash?:string; routing_evidence?:string; assumptions?:string[] };
 };
 export type TripGroupStop = {assignmentId:string;loadId:string;stop:"pickup"|"delivery";stopId:string;point:{id:string;name:string;lat:number;lng:number};minute:number};
