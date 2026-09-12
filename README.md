@@ -4,6 +4,14 @@ Carrier dispatch and driver execution for Southern Ontario. Rehearse a dock dela
 
 [Authenticated cloud preview](https://roadstar-web-739889188415.us-central1.run.app). Public demonstration data is synthetic. Preview credentials are provided separately; private organizer workbook rows are never included in the cloud demonstration.
 
+## Judge access
+
+The fastest review path is the [four-minute recording](https://roadstar-web-739889188415.us-central1.run.app/demo/roadstar-demo.mp4), followed by the authenticated cloud preview. The repository is intentionally private. Before judging, invite the organizer's GitHub account as a read-only collaborator and deliver the preview dispatcher credentials through the organizer's private channel. Do not put passwords or Firebase tokens in Devpost, this repository or the recording.
+
+Once signed in, open **Recovery**, select **RS-1042 dock delay**, and compare the ranked plans for the next at-risk load. The chosen plan uses D-02 / T-102 / V-102; the alternate is visibly rejected because its HOS evidence is missing or stale. Approve the recovery, then switch to the provided driver identity to accept the replacement trip. **Simulation** shows the synchronized Southern Ontario corridor and 3D dock rehearsal; **Tracking** and **Billing** expose the retained breadcrumbs, speed/odometer history, geofence visit and detention evidence.
+
+If the cloud preview is unavailable, the recording, [presentation PDF](https://roadstar-web-739889188415.us-central1.run.app/demo/roadstar-pitch.pdf) and local preview below preserve the same synthetic recovery narrative. The hosted simulator controls are intentionally disabled; the recorded and local rehearsal use the independent simulator service.
+
 ## Local preview
 
 Requires Node24+, Docker and PostgreSQL16/PostGIS. From this repository:
@@ -67,6 +75,8 @@ The approved seven-day GCP preview has stop tasks scheduled for September17,2026
 ## Demonstration
 
 [Four-minute recording](https://roadstar-web-739889188415.us-central1.run.app/demo/roadstar-demo.mp4) · [Presentation PDF](https://roadstar-web-739889188415.us-central1.run.app/demo/roadstar-pitch.pdf) · [Editable deck](https://roadstar-web-739889188415.us-central1.run.app/demo/roadstar-pitch.pptx). These are hosted on the seven-day preview. The ten-field submission draft remains local, with the private repository URL recorded; judge access, live portal checks and video-host acceptance remain unverified.
+
+The video is 240.096 seconds, 1920×1080, 24 fps, H.264/AAC. SHA-256: `54d7eb79775a0c0eb51f35da2a8cc2f2aba6768100f20a6e350256d6438dfe77`.
 
 
 ## Precision transport redesign
