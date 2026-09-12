@@ -1,0 +1,61 @@
+{
+  "verifiedAt": "2026-09-12T22:56:38.618Z",
+  "carrier": "route-egress-9ca8d267-a6fa-4ae3-95c3-10976a7dc188",
+  "assignmentId": "ad8f3d94-2441-4e19-ae3a-53c1af21b168",
+  "runId": "ab4f0c10-7e04-4da3-92c9-5d06a2f03e7c",
+  "loadId": "RS-1042",
+  "driverId": "D-01",
+  "assignmentStatus": "accepted",
+  "route": {
+    "locationIndices": [
+      0,
+      76,
+      101
+    ],
+    "serviceStopIndices": [
+      0,
+      76
+    ],
+    "egress": true,
+    "coordinates": 102
+  },
+  "telemetry": {
+    "samples": 7801,
+    "uniqueSamples": 7801,
+    "minSpeedKph": 0,
+    "maxSpeedKph": 68.60000000000016,
+    "startOdometerKm": 0,
+    "endOdometerKm": 4.436257357504853
+  },
+  "visit": {
+    "id": "d3c1fc04-8dce-47d4-b92d-6b3ff394bb74",
+    "stopId": "london-dock",
+    "arrival": "2026-09-13T12:32:47.000Z",
+    "departure": "2026-09-13T14:34:16.000Z",
+    "arrivalEvent": "b0b08f4b00ef047017b4d573f6bc6c9fbbc3b256ab829503087ef8155ab9f8e3",
+    "departureEvent": "6a35be46bc7413ce0fe9d0a0e872b06bfe87d869685dd1fa64a13d404229c752",
+    "sessionPolicy": "confidence-disk-split-v1"
+  },
+  "invoice": {
+    "id": "634d0af4-9379-4168-9bd0-a988044c514e",
+    "status": "draft",
+    "amountCents": 167,
+    "currency": "CAD",
+    "dwellMinutes": 121,
+    "billableMinutes": 1,
+    "evidence": [
+      "b0b08f4b00ef047017b4d573f6bc6c9fbbc3b256ab829503087ef8155ab9f8e3",
+      "6a35be46bc7413ce0fe9d0a0e872b06bfe87d869685dd1fa64a13d404229c752"
+    ]
+  },
+  "pageErrors": [],
+  "checks": [
+    "The same accepted assignment appears in the 390px driver manifest and dispatcher state",
+    "Dispatcher tracking shows retained mileage plus a Google Maps breadcrumb trail with recorded speed and odometer samples",
+    "The same assignment has one completed London visit linked to exact arrival and departure source observations",
+    "The evidence ledger shows the resulting one-minute CAD 1.67 detention draft after the 120-minute allowance",
+    "All 7,801 acknowledged telemetry IDs exist exactly once in PostgreSQL",
+    "Both browser contexts completed without page errors and the narrow driver view has no horizontal overflow"
+  ],
+  "limits": "Local built responsive web, API and PostgreSQL over a retained synthetic London route. Google Maps renders the recorded breadcrumb page; Valhalla routing and deterministic replay were verified by the linked route-egress receipt. The accepted assignment and completed facility visit are distinct from stop-completion. This is responsive driver evidence, not native-device verification, certified ELD proof, an exact physical boundary crossing or an approved invoice."
+}
