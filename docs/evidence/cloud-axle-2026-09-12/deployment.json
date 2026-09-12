@@ -1,0 +1,50 @@
+{
+  "at": "2026-09-12T16:47:10.912Z",
+  "sourceCommit": "d1e9749572c9f778a43e058ea383292d13be67b6",
+  "services": [
+    {
+      "service": "roadstar-api",
+      "revision": "roadstar-api-00030-xek",
+      "percent": 100,
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/api@sha256:8f0337facd0cbbc643a25507360b464a696bb4ebeaa7d33b7cc4c00a3cc3bdc5",
+      "url": "https://roadstar-api-xc67wudx5a-uc.a.run.app"
+    },
+    {
+      "service": "roadstar-optimizer",
+      "revision": "roadstar-optimizer-00011-vog",
+      "percent": 100,
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/optimizer@sha256:6e4834d337a1bdd0ced5724f394255200af84d9bbd856ee0bdd204919c2efe45",
+      "url": "https://roadstar-optimizer-xc67wudx5a-uc.a.run.app"
+    },
+    {
+      "service": "roadstar-web",
+      "revision": "roadstar-web-00048-fop",
+      "percent": 100,
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:9cebb937b438a3b4ec93821804ed07b49f99a44890689529d52ebd3bb2885aed",
+      "url": "https://roadstar-web-xc67wudx5a-uc.a.run.app"
+    },
+    {
+      "service": "roadstar-documents",
+      "revision": "roadstar-documents-00015-kov",
+      "percent": 100,
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/api@sha256:8f0337facd0cbbc643a25507360b464a696bb4ebeaa7d33b7cc4c00a3cc3bdc5",
+      "url": "https://roadstar-documents-xc67wudx5a-uc.a.run.app"
+    }
+  ],
+  "seedJobExecution": "roadstar-seed-q8g2c",
+  "seed": {
+    "carrier": "axle-cloud-20260912",
+    "migration": [
+      {
+        "name": "020_axle_assessments.sql",
+        "sha256": "6bd5fb56d6ff7cfff7653629c77fa3f1f96c2c8ef4328f283e086f146391db80"
+      }
+    ],
+    "source": "synthetic fixtures only"
+  },
+  "checks": [
+    "Authenticated tagged health probes passed before traffic switch",
+    "Temporary rollout tags removed",
+    "Existing preview services updated; no new persistent resources"
+  ]
+}

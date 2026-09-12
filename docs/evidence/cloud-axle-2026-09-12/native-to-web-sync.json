@@ -1,0 +1,8 @@
+{
+  "offeredAt": "2026-09-12T16:55:46.070Z",
+  "acceptedAt": "2026-09-12T16:56:40.589Z",
+  "carrier": "axle-cloud-20260912",
+  "assignmentId": "f191a124-ff53-4541-b540-7bf705423dad",
+  "errors": [],
+  "method": "Independent foreground browser observed offered then accepted without reload; native confirmation occurred between these observations. Interval is not an isolated synchronization-latency benchmark."
+}

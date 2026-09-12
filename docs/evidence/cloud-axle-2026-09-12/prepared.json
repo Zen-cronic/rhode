@@ -1,0 +1,168 @@
+{
+  "at": "2026-09-12T16:46:10.111Z",
+  "carrier": "axle-cloud-20260912",
+  "sourceSha256": "4b5717c3c3625532ac198493fec2747ae84f21215389e37abd33aa9532a6d503",
+  "bad": {
+    "id": "a5d1f8fd-1a4a-4adc-bc75-8d687c55882f",
+    "revision": 1,
+    "loadId": "RS-1042",
+    "truckId": "T-101",
+    "trailerId": "V-101",
+    "truckVersion": 2,
+    "body": {
+      "input": {
+        "loadId": "RS-1042",
+        "truckId": "T-101",
+        "trailerId": "V-101",
+        "documentId": "1e155c62-3959-4e29-8019-aa4c757d4281",
+        "expectedDocumentVersion": 3,
+        "expectedLoadVersion": 1,
+        "expectedTrailerVersion": 1,
+        "configuration": {
+          "tractorWheelbaseM": 4,
+          "fifthWheelFromSteerM": 3.8,
+          "trailerSpanM": 10,
+          "emptyKg": {
+            "steer": 5000,
+            "drive": 5000,
+            "trailer": 4000
+          },
+          "limitsKg": {
+            "steer": 6500,
+            "drive": 18000,
+            "trailer": 14000
+          },
+          "grossLimitKg": 40000,
+          "driveAxles": 2,
+          "trailerAxles": 2,
+          "equalizedGroups": true
+        },
+        "cargoCgFromKingpinM": 8,
+        "reason": "Retain gross-pass and trailer-group-fail placement A before separate recovery review.",
+        "sourceNote": "Page 1 synthetic coupled masses, equalized groups and geometry checked.",
+        "acknowledgeModeledLoads": true
+      },
+      "result": {
+        "policy": "static-three-group-v1",
+        "eligible": false,
+        "reasons": [
+          "Configured trailer axle-group limit exceeded (15612.0 kg / 14000.0 kg)."
+        ],
+        "payloadKg": 14514.95584,
+        "emptyGrossKg": 14000,
+        "grossKg": 28514.955840000002,
+        "grossLimitKg": 40000,
+        "grossWithinLimit": true,
+        "groups": [
+          {
+            "id": "steer",
+            "emptyKg": 5000,
+            "cargoKg": 145.14955839999993,
+            "loadedKg": 5145.1495584,
+            "limitKg": 6500,
+            "withinLimit": true
+          },
+          {
+            "id": "drive",
+            "emptyKg": 5000,
+            "cargoKg": 2757.8416096000005,
+            "loadedKg": 7757.8416096,
+            "limitKg": 18000,
+            "withinLimit": true
+          },
+          {
+            "id": "trailer",
+            "emptyKg": 4000,
+            "cargoKg": 11611.964672,
+            "loadedKg": 15611.964672,
+            "limitKg": 14000,
+            "withinLimit": false
+          }
+        ],
+        "kingpinCargoKg": 2902.9911680000005,
+        "maximumModeledAxleKg": 7805.982336,
+        "note": "Static, equalized three-group model using configured limits; not scale measurements, individual axle certification or an Ontario legal-clearance calculation."
+      },
+      "document": {
+        "id": "1e155c62-3959-4e29-8019-aa4c757d4281",
+        "version": 3,
+        "sha256": "4b5717c3c3625532ac198493fec2747ae84f21215389e37abd33aa9532a6d503"
+      },
+      "loadFingerprint": "d57e306cb23decc5f5b03b750f2e74d851d4ebdb35f3e39e7d972528ed33c638",
+      "vehicleFingerprint": "41d8a39c6930c59be78bc1b93a74600519d9343816f2fd41888a30438e469209",
+      "configurationHash": "16259c6564b8b8383c36d552b998b8565a037cc1d4ef2e493751310b95bfc1da",
+      "provenance": "synthetic"
+    },
+    "note": "Assessment recorded; dispatch remains a separate command. Failed assessments block the vehicle/load combination."
+  },
+  "badDispatch": {
+    "error": {
+      "code": "INELIGIBLE",
+      "message": "Configured trailer axle-group limit exceeded (15612.0 kg / 14000.0 kg).",
+      "requestId": "req-4i"
+    }
+  },
+  "badPlan": {
+    "id": "b064418e-02b3-468e-90df-38e21b352523",
+    "version": 1,
+    "status": "proposal",
+    "result": {
+      "status": "proposal",
+      "routes": [],
+      "infeasible_loads": [
+        {
+          "load_id": "RS-1042",
+          "reason": "T-101: Configured trailer axle-group limit exceeded (15612.0 kg / 14000.0 kg)."
+        }
+      ],
+      "input_hash": "0b0f7219bd8b63d96289859db36075461b29671bd72a3c5f9bc12de142100856",
+      "routing_evidence": "valhalla-truck",
+      "evidence_ref": "b064418e-02b3-468e-90df-38e21b352523",
+      "assumptions": [
+        "Declared HOS budgets, not certified ELD",
+        "Planned waiting counts as on-duty time",
+        "No legal break/rest scheduling",
+        "Open routes; no forced depot return",
+        "No independent dispatch authority",
+        "Pickup appointment fixed at supplied start; delivery must finish by supplied end",
+        "26-pallet synthetic trailer allowance; verify before live use",
+        "Optimization is a proposal; route execution still requires dispatcher approval",
+        "Unassessed synthetic pairings use declared axle-clearance flags; physical axle loading remains unverified."
+      ],
+      "modeled": true,
+      "dataset": "ontario-260909.osm.pbf-sha256-b853e364f7af75ed5b6cb5ebbd6e41735b7209eb59aa3acfe5598349389ca8d9",
+      "vehicle_profiles": [
+        {
+          "height": 4.1,
+          "width": 2.6,
+          "length": 23,
+          "weight": 40,
+          "axle_load": 9,
+          "hazmat": false,
+          "evidence": "synthetic-scenario"
+        }
+      ],
+      "candidate_rejections": [
+        {
+          "load_id": "RS-1042",
+          "vehicle_id": "T-101",
+          "reason": "Configured trailer axle-group limit exceeded (15612.0 kg / 14000.0 kg)."
+        }
+      ]
+    }
+  },
+  "extraction": {
+    "kind": "other",
+    "model": "gemini-2.5-flash",
+    "fields": {
+      "notes": "Illustrative inputs only. This is not a scale ticket, manufacturer rating, legal clearance or evidence from a real carrier.",
+      "signedBy": null,
+      "billNumber": "RS-1042",
+      "observedDate": "September 11, 2026"
+    },
+    "filename": "synthetic-loading-sheet.pdf",
+    "provenance": "synthetic",
+    "reviewStatus": "unreviewed",
+    "sourceSha256": "4b5717c3c3625532ac198493fec2747ae84f21215389e37abd33aa9532a6d503"
+  }
+}

@@ -1,0 +1,220 @@
+{
+  "at": "2026-09-12T16:55:44.133Z",
+  "previousAssignment": {
+    "id": "0521925f-87d2-45e2-9043-75c113e78c28",
+    "loadId": "RS-1042",
+    "driverId": "D-01",
+    "truckId": "T-101",
+    "trailerId": "V-101",
+    "startAt": "2026-09-13T12:00:00.000Z",
+    "endAt": "2026-09-13T15:08:00.000Z",
+    "status": "rejected",
+    "version": 2,
+    "visitReviewRequired": false
+  },
+  "plan": {
+    "id": "9443a699-0687-40f3-84ba-43b0572e5cb6",
+    "version": 1,
+    "status": "proposal",
+    "result": {
+      "status": "proposal",
+      "routes": [
+        {
+          "vehicle_id": "T-101",
+          "stops": [
+            {
+              "load_id": "RS-1042",
+              "stop": "pickup",
+              "minute": 30
+            },
+            {
+              "load_id": "RS-1042",
+              "stop": "delivery",
+              "minute": 158
+            }
+          ],
+          "driving_minutes": 98,
+          "duty_minutes": 188
+        }
+      ],
+      "infeasible_loads": [],
+      "input_hash": "8dd3c668f34857eb1a3883de50d6ebcd69144ef38f4b6f89a4815254b20a7079",
+      "routing_evidence": "valhalla-truck",
+      "evidence_ref": "9443a699-0687-40f3-84ba-43b0572e5cb6",
+      "assumptions": [
+        "Declared HOS budgets, not certified ELD",
+        "Planned waiting counts as on-duty time",
+        "No legal break/rest scheduling",
+        "Open routes; no forced depot return",
+        "No independent dispatch authority",
+        "Pickup appointment fixed at supplied start; delivery must finish by supplied end",
+        "26-pallet synthetic trailer allowance; verify before live use",
+        "Optimization is a proposal; route execution still requires dispatcher approval"
+      ],
+      "modeled": true,
+      "dataset": "ontario-260909.osm.pbf-sha256-b853e364f7af75ed5b6cb5ebbd6e41735b7209eb59aa3acfe5598349389ca8d9",
+      "vehicle_profiles": [
+        {
+          "height": 4.1,
+          "width": 2.6,
+          "length": 23,
+          "weight": 40,
+          "axle_load": 9,
+          "hazmat": false,
+          "evidence": "synthetic-scenario"
+        }
+      ],
+      "candidate_rejections": []
+    }
+  },
+  "approval": {
+    "planId": "9443a699-0687-40f3-84ba-43b0572e5cb6",
+    "status": "approved",
+    "version": 2,
+    "groups": [
+      {
+        "axleAssessments": [
+          {
+            "loadId": "RS-1042",
+            "required": true,
+            "eligible": true,
+            "reasons": [],
+            "assessmentId": "257f9758-6423-4387-853f-b986195fbb0e",
+            "revision": 3,
+            "result": {
+              "policy": "static-three-group-v1",
+              "eligible": true,
+              "reasons": [],
+              "payloadKg": 14514.95584,
+              "emptyGrossKg": 14000,
+              "grossKg": 28514.955840000002,
+              "grossLimitKg": 40000,
+              "grossWithinLimit": true,
+              "groups": [
+                {
+                  "id": "steer",
+                  "emptyKg": 5000,
+                  "cargoKg": 362.87389600000006,
+                  "loadedKg": 5362.873896,
+                  "limitKg": 6500,
+                  "withinLimit": true
+                },
+                {
+                  "id": "drive",
+                  "emptyKg": 5000,
+                  "cargoKg": 6894.604024,
+                  "loadedKg": 11894.604024,
+                  "limitKg": 18000,
+                  "withinLimit": true
+                },
+                {
+                  "id": "trailer",
+                  "emptyKg": 4000,
+                  "cargoKg": 7257.47792,
+                  "loadedKg": 11257.477920000001,
+                  "limitKg": 14000,
+                  "withinLimit": true
+                }
+              ],
+              "kingpinCargoKg": 7257.47792,
+              "maximumModeledAxleKg": 5947.302012,
+              "note": "Static, equalized three-group model using configured limits; not scale measurements, individual axle certification or an Ontario legal-clearance calculation."
+            },
+            "configurationHash": "16259c6564b8b8383c36d552b998b8565a037cc1d4ef2e493751310b95bfc1da",
+            "demandsG": [
+              362874,
+              6894605,
+              7257478
+            ],
+            "capacitiesG": [
+              1500000,
+              13000000,
+              10000000
+            ],
+            "grossPayloadLb": 57320,
+            "weightLb": 32000
+          }
+        ],
+        "groupId": "b5d25392-5eef-4158-afc2-5745d2f55f04",
+        "planningRunId": "9443a699-0687-40f3-84ba-43b0572e5cb6",
+        "driverId": "D-01",
+        "truckId": "T-101",
+        "trailerId": "V-101",
+        "startAt": "2026-09-13T12:00:00.000Z",
+        "endAt": "2026-09-13T15:08:00.000Z",
+        "stops": [
+          {
+            "assignmentId": "f191a124-ff53-4541-b540-7bf705423dad",
+            "loadId": "RS-1042",
+            "stop": "pickup",
+            "stopId": "milton-yard",
+            "point": {
+              "id": "milton-yard",
+              "lat": 43.5183,
+              "lng": -79.8774,
+              "name": "Milton terminal · demo location",
+              "radiusM": 200
+            },
+            "minute": 30,
+            "customer": "Demo customer · regional grocery",
+            "weightLb": 32000,
+            "pallets": 20,
+            "mode": "FTL"
+          },
+          {
+            "assignmentId": "f191a124-ff53-4541-b540-7bf705423dad",
+            "loadId": "RS-1042",
+            "stop": "delivery",
+            "stopId": "london-dock",
+            "point": {
+              "id": "london-dock",
+              "lat": 42.987,
+              "lng": -81.176,
+              "name": "London distribution dock · demo location",
+              "radiusM": 180
+            },
+            "minute": 158,
+            "customer": "Demo customer · regional grocery",
+            "weightLb": 32000,
+            "pallets": 20,
+            "mode": "FTL"
+          }
+        ],
+        "drivingMinutes": 98,
+        "dutyMinutes": 188,
+        "routingEvidence": "valhalla-truck",
+        "inputHash": "8dd3c668f34857eb1a3883de50d6ebcd69144ef38f4b6f89a4815254b20a7079",
+        "resourceVersions": [
+          {
+            "id": "D-01",
+            "version": 1
+          },
+          {
+            "id": "T-101",
+            "version": 4
+          },
+          {
+            "id": "V-101",
+            "version": 1
+          }
+        ],
+        "assumptions": [
+          "Declared HOS budgets, not certified ELD",
+          "Planned waiting counts as on-duty time",
+          "No legal break/rest scheduling",
+          "Open routes; no forced depot return",
+          "No independent dispatch authority",
+          "Pickup appointment fixed at supplied start; delivery must finish by supplied end",
+          "26-pallet synthetic trailer allowance; verify before live use",
+          "Optimization is a proposal; route execution still requires dispatcher approval"
+        ],
+        "provenance": "synthetic"
+      }
+    ]
+  },
+  "nativeStaleOffer": {
+    "code": "STALE_PLAN",
+    "evidence": "stale-native-offer.png",
+    "explanation": "Fresh assessment updates truck evidence; the driver must receive a new dispatcher-approved manifest."
+  }
+}

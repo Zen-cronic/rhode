@@ -1,0 +1,394 @@
+{
+  "at": "2026-09-12T16:47:15.340Z",
+  "carrier": "axle-cloud-20260912",
+  "good": {
+    "id": "cd2d1e9b-3907-48cc-8e11-99272b558dab",
+    "revision": 2,
+    "loadId": "RS-1042",
+    "truckId": "T-101",
+    "trailerId": "V-101",
+    "truckVersion": 3,
+    "body": {
+      "input": {
+        "loadId": "RS-1042",
+        "truckId": "T-101",
+        "trailerId": "V-101",
+        "documentId": "1e155c62-3959-4e29-8019-aa4c757d4281",
+        "expectedDocumentVersion": 4,
+        "expectedLoadVersion": 1,
+        "expectedTrailerVersion": 1,
+        "configuration": {
+          "tractorWheelbaseM": 4,
+          "fifthWheelFromSteerM": 3.8,
+          "trailerSpanM": 10,
+          "emptyKg": {
+            "steer": 5000,
+            "drive": 5000,
+            "trailer": 4000
+          },
+          "limitsKg": {
+            "steer": 6500,
+            "drive": 18000,
+            "trailer": 14000
+          },
+          "grossLimitKg": 40000,
+          "driveAxles": 2,
+          "trailerAxles": 2,
+          "equalizedGroups": true
+        },
+        "cargoCgFromKingpinM": 5,
+        "reason": "Hosted dispatcher review of modeled repositioning before separate dispatch approval.",
+        "sourceNote": "Page 1: synthetic weights and geometry reviewed; same cargo and configured limits with placement B.",
+        "acknowledgeModeledLoads": true
+      },
+      "result": {
+        "policy": "static-three-group-v1",
+        "eligible": true,
+        "reasons": [],
+        "payloadKg": 14514.95584,
+        "emptyGrossKg": 14000,
+        "grossKg": 28514.955840000002,
+        "grossLimitKg": 40000,
+        "grossWithinLimit": true,
+        "groups": [
+          {
+            "id": "steer",
+            "emptyKg": 5000,
+            "cargoKg": 362.87389600000006,
+            "loadedKg": 5362.873896,
+            "limitKg": 6500,
+            "withinLimit": true
+          },
+          {
+            "id": "drive",
+            "emptyKg": 5000,
+            "cargoKg": 6894.604024,
+            "loadedKg": 11894.604024,
+            "limitKg": 18000,
+            "withinLimit": true
+          },
+          {
+            "id": "trailer",
+            "emptyKg": 4000,
+            "cargoKg": 7257.47792,
+            "loadedKg": 11257.477920000001,
+            "limitKg": 14000,
+            "withinLimit": true
+          }
+        ],
+        "kingpinCargoKg": 7257.47792,
+        "maximumModeledAxleKg": 5947.302012,
+        "note": "Static, equalized three-group model using configured limits; not scale measurements, individual axle certification or an Ontario legal-clearance calculation."
+      },
+      "document": {
+        "id": "1e155c62-3959-4e29-8019-aa4c757d4281",
+        "version": 4,
+        "sha256": "4b5717c3c3625532ac198493fec2747ae84f21215389e37abd33aa9532a6d503"
+      },
+      "loadFingerprint": "d57e306cb23decc5f5b03b750f2e74d851d4ebdb35f3e39e7d972528ed33c638",
+      "vehicleFingerprint": "41d8a39c6930c59be78bc1b93a74600519d9343816f2fd41888a30438e469209",
+      "configurationHash": "16259c6564b8b8383c36d552b998b8565a037cc1d4ef2e493751310b95bfc1da",
+      "provenance": "synthetic"
+    },
+    "note": "Assessment recorded; dispatch remains a separate command. Failed assessments block the vehicle/load combination."
+  },
+  "plan": {
+    "id": "4e43bade-66cf-44b6-96a3-bc14e0a9045f",
+    "version": 1,
+    "status": "proposal",
+    "result": {
+      "status": "proposal",
+      "routes": [
+        {
+          "vehicle_id": "T-101",
+          "stops": [
+            {
+              "load_id": "RS-1042",
+              "stop": "pickup",
+              "minute": 30
+            },
+            {
+              "load_id": "RS-1042",
+              "stop": "delivery",
+              "minute": 158
+            }
+          ],
+          "driving_minutes": 98,
+          "duty_minutes": 188
+        }
+      ],
+      "infeasible_loads": [],
+      "input_hash": "6dabc0da13e62e19262f8e1bac4aedcfda77b155d6e84db68192d3c4703f2741",
+      "routing_evidence": "valhalla-truck",
+      "evidence_ref": "4e43bade-66cf-44b6-96a3-bc14e0a9045f",
+      "assumptions": [
+        "Declared HOS budgets, not certified ELD",
+        "Planned waiting counts as on-duty time",
+        "No legal break/rest scheduling",
+        "Open routes; no forced depot return",
+        "No independent dispatch authority",
+        "Pickup appointment fixed at supplied start; delivery must finish by supplied end",
+        "26-pallet synthetic trailer allowance; verify before live use",
+        "Optimization is a proposal; route execution still requires dispatcher approval"
+      ],
+      "modeled": true,
+      "dataset": "ontario-260909.osm.pbf-sha256-b853e364f7af75ed5b6cb5ebbd6e41735b7209eb59aa3acfe5598349389ca8d9",
+      "vehicle_profiles": [
+        {
+          "height": 4.1,
+          "width": 2.6,
+          "length": 23,
+          "weight": 40,
+          "axle_load": 9,
+          "hazmat": false,
+          "evidence": "synthetic-scenario"
+        }
+      ],
+      "candidate_rejections": []
+    }
+  },
+  "approved": {
+    "planId": "4e43bade-66cf-44b6-96a3-bc14e0a9045f",
+    "status": "approved",
+    "version": 2,
+    "groups": [
+      {
+        "axleAssessments": [
+          {
+            "loadId": "RS-1042",
+            "required": true,
+            "eligible": true,
+            "reasons": [],
+            "assessmentId": "cd2d1e9b-3907-48cc-8e11-99272b558dab",
+            "revision": 2,
+            "result": {
+              "policy": "static-three-group-v1",
+              "eligible": true,
+              "reasons": [],
+              "payloadKg": 14514.95584,
+              "emptyGrossKg": 14000,
+              "grossKg": 28514.955840000002,
+              "grossLimitKg": 40000,
+              "grossWithinLimit": true,
+              "groups": [
+                {
+                  "id": "steer",
+                  "emptyKg": 5000,
+                  "cargoKg": 362.87389600000006,
+                  "loadedKg": 5362.873896,
+                  "limitKg": 6500,
+                  "withinLimit": true
+                },
+                {
+                  "id": "drive",
+                  "emptyKg": 5000,
+                  "cargoKg": 6894.604024,
+                  "loadedKg": 11894.604024,
+                  "limitKg": 18000,
+                  "withinLimit": true
+                },
+                {
+                  "id": "trailer",
+                  "emptyKg": 4000,
+                  "cargoKg": 7257.47792,
+                  "loadedKg": 11257.477920000001,
+                  "limitKg": 14000,
+                  "withinLimit": true
+                }
+              ],
+              "kingpinCargoKg": 7257.47792,
+              "maximumModeledAxleKg": 5947.302012,
+              "note": "Static, equalized three-group model using configured limits; not scale measurements, individual axle certification or an Ontario legal-clearance calculation."
+            },
+            "configurationHash": "16259c6564b8b8383c36d552b998b8565a037cc1d4ef2e493751310b95bfc1da",
+            "demandsG": [
+              362874,
+              6894605,
+              7257478
+            ],
+            "capacitiesG": [
+              1500000,
+              13000000,
+              10000000
+            ],
+            "grossPayloadLb": 57320,
+            "weightLb": 32000
+          }
+        ],
+        "groupId": "ce586323-0059-47b0-80d9-abc2cd236e1a",
+        "planningRunId": "4e43bade-66cf-44b6-96a3-bc14e0a9045f",
+        "driverId": "D-01",
+        "truckId": "T-101",
+        "trailerId": "V-101",
+        "startAt": "2026-09-13T12:00:00.000Z",
+        "endAt": "2026-09-13T15:08:00.000Z",
+        "stops": [
+          {
+            "assignmentId": "0521925f-87d2-45e2-9043-75c113e78c28",
+            "loadId": "RS-1042",
+            "stop": "pickup",
+            "stopId": "milton-yard",
+            "point": {
+              "id": "milton-yard",
+              "lat": 43.5183,
+              "lng": -79.8774,
+              "name": "Milton terminal · demo location",
+              "radiusM": 200
+            },
+            "minute": 30,
+            "customer": "Demo customer · regional grocery",
+            "weightLb": 32000,
+            "pallets": 20,
+            "mode": "FTL"
+          },
+          {
+            "assignmentId": "0521925f-87d2-45e2-9043-75c113e78c28",
+            "loadId": "RS-1042",
+            "stop": "delivery",
+            "stopId": "london-dock",
+            "point": {
+              "id": "london-dock",
+              "lat": 42.987,
+              "lng": -81.176,
+              "name": "London distribution dock · demo location",
+              "radiusM": 180
+            },
+            "minute": 158,
+            "customer": "Demo customer · regional grocery",
+            "weightLb": 32000,
+            "pallets": 20,
+            "mode": "FTL"
+          }
+        ],
+        "drivingMinutes": 98,
+        "dutyMinutes": 188,
+        "routingEvidence": "valhalla-truck",
+        "inputHash": "6dabc0da13e62e19262f8e1bac4aedcfda77b155d6e84db68192d3c4703f2741",
+        "resourceVersions": [
+          {
+            "id": "D-01",
+            "version": 1
+          },
+          {
+            "id": "T-101",
+            "version": 3
+          },
+          {
+            "id": "V-101",
+            "version": 1
+          }
+        ],
+        "assumptions": [
+          "Declared HOS budgets, not certified ELD",
+          "Planned waiting counts as on-duty time",
+          "No legal break/rest scheduling",
+          "Open routes; no forced depot return",
+          "No independent dispatch authority",
+          "Pickup appointment fixed at supplied start; delivery must finish by supplied end",
+          "26-pallet synthetic trailer allowance; verify before live use",
+          "Optimization is a proposal; route execution still requires dispatcher approval"
+        ],
+        "provenance": "synthetic"
+      }
+    ]
+  },
+  "staleAccept": {
+    "error": {
+      "code": "AXLE_INELIGIBLE",
+      "message": "Axle loading source, payload or vehicle configuration changed; review again.",
+      "requestId": "req-6e"
+    }
+  },
+  "fresh": {
+    "id": "257f9758-6423-4387-853f-b986195fbb0e",
+    "revision": 3,
+    "loadId": "RS-1042",
+    "truckId": "T-101",
+    "trailerId": "V-101",
+    "truckVersion": 4,
+    "body": {
+      "input": {
+        "loadId": "RS-1042",
+        "truckId": "T-101",
+        "trailerId": "V-101",
+        "documentId": "1e155c62-3959-4e29-8019-aa4c757d4281",
+        "expectedDocumentVersion": 5,
+        "expectedLoadVersion": 2,
+        "expectedTrailerVersion": 1,
+        "configuration": {
+          "tractorWheelbaseM": 4,
+          "fifthWheelFromSteerM": 3.8,
+          "trailerSpanM": 10,
+          "emptyKg": {
+            "steer": 5000,
+            "drive": 5000,
+            "trailer": 4000
+          },
+          "limitsKg": {
+            "steer": 6500,
+            "drive": 18000,
+            "trailer": 14000
+          },
+          "grossLimitKg": 40000,
+          "driveAxles": 2,
+          "trailerAxles": 2,
+          "equalizedGroups": true
+        },
+        "cargoCgFromKingpinM": 5,
+        "reason": "Recheck the current source before native driver acceptance of the offered manifest.",
+        "sourceNote": "Page 1: synthetic weights and geometry reviewed; same cargo and configured limits with placement B.",
+        "acknowledgeModeledLoads": true
+      },
+      "result": {
+        "policy": "static-three-group-v1",
+        "eligible": true,
+        "reasons": [],
+        "payloadKg": 14514.95584,
+        "emptyGrossKg": 14000,
+        "grossKg": 28514.955840000002,
+        "grossLimitKg": 40000,
+        "grossWithinLimit": true,
+        "groups": [
+          {
+            "id": "steer",
+            "emptyKg": 5000,
+            "cargoKg": 362.87389600000006,
+            "loadedKg": 5362.873896,
+            "limitKg": 6500,
+            "withinLimit": true
+          },
+          {
+            "id": "drive",
+            "emptyKg": 5000,
+            "cargoKg": 6894.604024,
+            "loadedKg": 11894.604024,
+            "limitKg": 18000,
+            "withinLimit": true
+          },
+          {
+            "id": "trailer",
+            "emptyKg": 4000,
+            "cargoKg": 7257.47792,
+            "loadedKg": 11257.477920000001,
+            "limitKg": 14000,
+            "withinLimit": true
+          }
+        ],
+        "kingpinCargoKg": 7257.47792,
+        "maximumModeledAxleKg": 5947.302012,
+        "note": "Static, equalized three-group model using configured limits; not scale measurements, individual axle certification or an Ontario legal-clearance calculation."
+      },
+      "document": {
+        "id": "1e155c62-3959-4e29-8019-aa4c757d4281",
+        "version": 5,
+        "sha256": "4b5717c3c3625532ac198493fec2747ae84f21215389e37abd33aa9532a6d503"
+      },
+      "loadFingerprint": "d57e306cb23decc5f5b03b750f2e74d851d4ebdb35f3e39e7d972528ed33c638",
+      "vehicleFingerprint": "41d8a39c6930c59be78bc1b93a74600519d9343816f2fd41888a30438e469209",
+      "configurationHash": "16259c6564b8b8383c36d552b998b8565a037cc1d4ef2e493751310b95bfc1da",
+      "provenance": "synthetic"
+    },
+    "note": "Assessment recorded; dispatch remains a separate command. Failed assessments block the vehicle/load combination."
+  },
+  "webErrors": []
+}
