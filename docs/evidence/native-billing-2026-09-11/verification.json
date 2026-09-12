@@ -1,0 +1,44 @@
+{
+  "verifiedAt": "2026-09-12T00:55:01.227058+00:00",
+  "sourceCommit": "3619ed9",
+  "finalApkSha256": "e1bbffaf4131b4c05ffbe92384071e802a79cce6018e2780a575c27331283ab2",
+  "finalApkBytes": 66672144,
+  "device": "emulator-5556 / Android API35",
+  "nativeTests": {
+    "passed": 40,
+    "skipped": 0,
+    "durationMs": 490.301368
+  },
+  "buildSeconds": {
+    "functional": 67,
+    "finalReconnectPolish": 37
+  },
+  "checks": [
+    "Authenticated source SHA256 verified and actual PDF viewed locally",
+    "Native revision5 dialog refused after draft6 arrived",
+    "Review note, history and pending revision6 command survived offline force-stop/restart",
+    "Reconnect created exactly one approved revision7 for5000CADcents",
+    "Seven invoice revisions and original correction retained",
+    "API tracking observations, visits and resources unchanged",
+    "Hosted web synchronized native approval",
+    "Final APK installed and offline warning clears after reconnect",
+    "Final APK and second reconnect create no additional invoice revisions"
+  ],
+  "limits": [
+    "Physical Android and native iOS deferred",
+    "Native correction creation and late-GPS reconciliation controls still web-only",
+    "Functional queue/source/stale checks preceded one-line resolved-message polish; final APK read/reconnect state independently verified",
+    "Pending UI text is retained in offline-control-state.json; it was below screenshot viewport"
+  ],
+  "newCloudResources": 0,
+  "modelCalls": 0,
+  "restoredPreview": {
+    "carrier": "native-current-20260911",
+    "driver": "D-02",
+    "truck": "T-102",
+    "load": "RS-1043",
+    "status": "accepted",
+    "airplaneMode": false,
+    "dispatcherBillingHiddenInDriverMode": true
+  }
+}

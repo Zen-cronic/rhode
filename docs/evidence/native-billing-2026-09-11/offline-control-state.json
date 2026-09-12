@@ -1,0 +1,83 @@
+{
+  "source": "Last UIAutomator dump captured during offline verification before reconnect",
+  "pending": [
+    {
+      "index": "32",
+      "text": "Billing approval pending. The saved command remains here until the server confirms it.",
+      "resource-id": "",
+      "class": "android.widget.TextView",
+      "package": "com.roadstar.carrier",
+      "content-desc": "",
+      "checkable": "false",
+      "checked": "false",
+      "clickable": "false",
+      "enabled": "true",
+      "focusable": "false",
+      "focused": "false",
+      "scrollable": "false",
+      "long-clickable": "false",
+      "password": "false",
+      "selected": "false",
+      "bounds": "[105,2262][975,2161]"
+    }
+  ],
+  "controls": [
+    {
+      "index": "27",
+      "text": "Reviewed original GPS uncertainty, the synthetic dock ticket times, same-stop identity and the configured detention terms.",
+      "resource-id": "",
+      "class": "android.widget.EditText",
+      "package": "com.roadstar.carrier",
+      "content-desc": "Billing evidence review note",
+      "checkable": "false",
+      "checked": "false",
+      "clickable": "true",
+      "enabled": "true",
+      "focusable": "true",
+      "focused": "false",
+      "scrollable": "false",
+      "long-clickable": "true",
+      "password": "false",
+      "selected": "false",
+      "bounds": "[105,1382][975,1646]"
+    },
+    {
+      "index": "28",
+      "text": "",
+      "resource-id": "",
+      "class": "android.widget.Switch",
+      "package": "com.roadstar.carrier",
+      "content-desc": "Confirm billing evidence review",
+      "checkable": "true",
+      "checked": "false",
+      "clickable": "true",
+      "enabled": "false",
+      "focusable": "true",
+      "focused": "false",
+      "scrollable": "false",
+      "long-clickable": "false",
+      "password": "false",
+      "selected": "false",
+      "bounds": "[106,1762][228,1833]"
+    },
+    {
+      "index": "31",
+      "text": "",
+      "resource-id": "",
+      "class": "android.widget.Button",
+      "package": "com.roadstar.carrier",
+      "content-desc": "Review billing approval",
+      "checkable": "false",
+      "checked": "false",
+      "clickable": "true",
+      "enabled": "false",
+      "focusable": "true",
+      "focused": "false",
+      "scrollable": "false",
+      "long-clickable": "false",
+      "password": "false",
+      "selected": "false",
+      "bounds": "[106,2099][976,2161]"
+    }
+  ]
+}

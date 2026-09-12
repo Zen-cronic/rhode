@@ -1,0 +1,436 @@
+{
+  "at": "2026-09-12T00:45:08.718Z",
+  "carrier": "dock-evidence-cloud-20260911",
+  "visitId": "02ec6df4-8a54-4af0-91b1-523407c2965a",
+  "documents": [
+    {
+      "id": "882bd0d5-0130-4adb-8c85-31efd4d194d6",
+      "version": 4,
+      "sha256": "b0e22368a8f1de5ef8fec1ced90ee13558db42999ac796f4bf6e985f66ac7b88",
+      "media_type": "application/pdf",
+      "filename": "synthetic-milton-dock-ticket.pdf"
+    }
+  ],
+  "corrections": [
+    {
+      "carrier_id": "dock-evidence-cloud-20260911",
+      "id": "77ee6c23-2920-4510-b10a-85bbcd6236a7",
+      "visit_id": "02ec6df4-8a54-4af0-91b1-523407c2965a",
+      "revision": 1,
+      "document_id": "882bd0d5-0130-4adb-8c85-31efd4d194d6",
+      "reviewed_by": "preview-dispatcher",
+      "recorded_at": "2026-09-11T21:49:17.997Z",
+      "fingerprint": "c4bb257cafbddf395f2e9fe00664a93bda7b1326b79df81f8f200d6b5dc02e7c",
+      "body": {
+        "reason": "The facility GPS observations include yard time before dock check-in and after release; the reviewed ticket supplies dock service times.",
+        "document": {
+          "id": "882bd0d5-0130-4adb-8c85-31efd4d194d6",
+          "sha256": "b0e22368a8f1de5ef8fec1ced90ee13558db42999ac796f4bf6e985f66ac7b88",
+          "version": 4,
+          "filename": "synthetic-milton-dock-ticket.pdf",
+          "media_type": "application/pdf"
+        },
+        "observed": {
+          "arrivalAt": "2026-09-13T12:30:00.000Z",
+          "departureAt": "2026-09-13T15:15:00.000Z",
+          "arrivalEvent": "arrival",
+          "departureEvent": "departure"
+        },
+        "arrivalAt": "2026-09-13T12:40:00.000Z",
+        "provenance": "document-reviewed",
+        "recordedAt": "2026-09-11T21:49:18.023Z",
+        "reviewedBy": "preview-dispatcher",
+        "sourceNote": "Page 1: the synthetic facility desk ticket identifies RS-1042 at Milton yard, check-in 12:40 UTC and release 15:10 UTC.",
+        "departureAt": "2026-09-13T15:10:00.000Z",
+        "previousRevisionId": null
+      }
+    }
+  ],
+  "invoices": [
+    {
+      "carrier_id": "dock-evidence-cloud-20260911",
+      "id": "4fc4d9e3-fcb2-42be-995d-d372d84d61d6",
+      "visit_id": "02ec6df4-8a54-4af0-91b1-523407c2965a",
+      "revision": 1,
+      "contract_id": "demo-ftl",
+      "contract_version": 1,
+      "status": "draft",
+      "body": {
+        "contract": {
+          "id": "demo-ftl",
+          "version": 1,
+          "currency": "CAD",
+          "carrier_id": "dock-evidence-cloud-20260911",
+          "provenance": "synthetic scenario terms",
+          "free_minutes": 120,
+          "rate_cents_per_hour": 10000
+        },
+        "currency": "CAD",
+        "evidence": [
+          "arrival",
+          "departure"
+        ],
+        "rounding": "whole-minute floor, nearest cent",
+        "automatic": true,
+        "precision": "observed_samples",
+        "amountCents": 7500,
+        "visitPolicy": {
+          "id": "confidence-disk-split-v1",
+          "reentryRule": "A confidently outside observation closes the visit. A confident return starts a separate visit; no exit grace period.",
+          "boundaryRule": "Accuracy disk touching the fence holds the prior visit state; no inferred crossing time.",
+          "freeTimeScope": "each-observed-visit"
+        },
+        "dwellMinutes": 165,
+        "shipmentTerms": {
+          "mode": "FTL",
+          "loadId": "RS-1042",
+          "boundAt": "2026-09-11T21:48:06.859Z",
+          "boundBy": "synthetic-fixture"
+        },
+        "billableMinutes": 45,
+        "requiresEvidenceReview": true
+      },
+      "approved_by": null
+    },
+    {
+      "carrier_id": "dock-evidence-cloud-20260911",
+      "id": "de7cd5b5-ab0f-4940-b4b5-4fda4f5e1b0e",
+      "visit_id": "02ec6df4-8a54-4af0-91b1-523407c2965a",
+      "revision": 2,
+      "contract_id": "demo-ftl",
+      "contract_version": 1,
+      "status": "approved",
+      "body": {
+        "review": {
+          "note": "Synthetic baseline review of the original GPS samples and configured same-stop contract terms.",
+          "recordedAt": "2026-09-11T21:48:42.869Z",
+          "reviewedBy": "preview-dispatcher",
+          "previousRevisionId": "4fc4d9e3-fcb2-42be-995d-d372d84d61d6",
+          "acknowledgeObservedSamples": true
+        },
+        "contract": {
+          "id": "demo-ftl",
+          "version": 1,
+          "currency": "CAD",
+          "carrier_id": "dock-evidence-cloud-20260911",
+          "provenance": "synthetic scenario terms",
+          "free_minutes": 120,
+          "rate_cents_per_hour": 10000
+        },
+        "currency": "CAD",
+        "evidence": [
+          "arrival",
+          "departure"
+        ],
+        "rounding": "whole-minute floor, nearest cent",
+        "automatic": true,
+        "precision": "observed_samples",
+        "amountCents": 7500,
+        "visitPolicy": {
+          "id": "confidence-disk-split-v1",
+          "reentryRule": "A confidently outside observation closes the visit. A confident return starts a separate visit; no exit grace period.",
+          "boundaryRule": "Accuracy disk touching the fence holds the prior visit state; no inferred crossing time.",
+          "freeTimeScope": "each-observed-visit"
+        },
+        "dwellMinutes": 165,
+        "shipmentTerms": {
+          "mode": "FTL",
+          "loadId": "RS-1042",
+          "boundAt": "2026-09-11T21:48:06.859Z",
+          "boundBy": "synthetic-fixture"
+        },
+        "billableMinutes": 45,
+        "requiresEvidenceReview": false
+      },
+      "approved_by": "preview-dispatcher"
+    },
+    {
+      "carrier_id": "dock-evidence-cloud-20260911",
+      "id": "6ccd6e06-b642-4787-90ff-e808eef96cbb",
+      "visit_id": "02ec6df4-8a54-4af0-91b1-523407c2965a",
+      "revision": 3,
+      "contract_id": "demo-ftl",
+      "contract_version": 1,
+      "status": "draft",
+      "body": {
+        "contract": {
+          "id": "demo-ftl",
+          "version": 1,
+          "currency": "CAD",
+          "carrier_id": "dock-evidence-cloud-20260911",
+          "provenance": "synthetic scenario terms",
+          "free_minutes": 120,
+          "rate_cents_per_hour": 10000
+        },
+        "currency": "CAD",
+        "evidence": [
+          "arrival",
+          "departure"
+        ],
+        "rounding": "whole-minute floor, nearest cent",
+        "automatic": false,
+        "precision": "reviewed_document_times",
+        "amountCents": 5000,
+        "visitPolicy": {
+          "id": "confidence-disk-split-v1",
+          "reentryRule": "A confidently outside observation closes the visit. A confident return starts a separate visit; no exit grace period.",
+          "boundaryRule": "Accuracy disk touching the fence holds the prior visit state; no inferred crossing time.",
+          "freeTimeScope": "each-observed-visit"
+        },
+        "dwellMinutes": 150,
+        "shipmentTerms": {
+          "mode": "FTL",
+          "loadId": "RS-1042",
+          "boundAt": "2026-09-11T21:48:06.859Z",
+          "boundBy": "synthetic-fixture"
+        },
+        "timingEvidence": {
+          "reason": "The facility GPS observations include yard time before dock check-in and after release; the reviewed ticket supplies dock service times.",
+          "document": {
+            "id": "882bd0d5-0130-4adb-8c85-31efd4d194d6",
+            "sha256": "b0e22368a8f1de5ef8fec1ced90ee13558db42999ac796f4bf6e985f66ac7b88",
+            "version": 4,
+            "filename": "synthetic-milton-dock-ticket.pdf",
+            "media_type": "application/pdf"
+          },
+          "observed": {
+            "arrivalAt": "2026-09-13T12:30:00.000Z",
+            "departureAt": "2026-09-13T15:15:00.000Z",
+            "arrivalEvent": "arrival",
+            "departureEvent": "departure"
+          },
+          "revision": 1,
+          "arrivalAt": "2026-09-13T12:40:00.000Z",
+          "provenance": "document-reviewed",
+          "recordedAt": "2026-09-11T21:49:18.023Z",
+          "reviewedBy": "preview-dispatcher",
+          "sourceNote": "Page 1: the synthetic facility desk ticket identifies RS-1042 at Milton yard, check-in 12:40 UTC and release 15:10 UTC.",
+          "departureAt": "2026-09-13T15:10:00.000Z",
+          "correctionId": "77ee6c23-2920-4510-b10a-85bbcd6236a7",
+          "previousRevisionId": null
+        },
+        "billableMinutes": 30,
+        "requiresEvidenceReview": true
+      },
+      "approved_by": null
+    },
+    {
+      "carrier_id": "dock-evidence-cloud-20260911",
+      "id": "261474bf-9586-401a-83bc-27de598397f4",
+      "visit_id": "02ec6df4-8a54-4af0-91b1-523407c2965a",
+      "revision": 4,
+      "contract_id": "demo-ftl",
+      "contract_version": 1,
+      "status": "approved",
+      "body": {
+        "review": {
+          "note": "Reviewed original GPS, the stored synthetic dock ticket, corrected times, same-stop identity and the configured free-time allowance.",
+          "recordedAt": "2026-09-11T21:49:19.055Z",
+          "reviewedBy": "preview-dispatcher",
+          "previousRevisionId": "6ccd6e06-b642-4787-90ff-e808eef96cbb",
+          "acknowledgeObservedSamples": true
+        },
+        "contract": {
+          "id": "demo-ftl",
+          "version": 1,
+          "currency": "CAD",
+          "carrier_id": "dock-evidence-cloud-20260911",
+          "provenance": "synthetic scenario terms",
+          "free_minutes": 120,
+          "rate_cents_per_hour": 10000
+        },
+        "currency": "CAD",
+        "evidence": [
+          "arrival",
+          "departure"
+        ],
+        "rounding": "whole-minute floor, nearest cent",
+        "automatic": false,
+        "precision": "reviewed_document_times",
+        "amountCents": 5000,
+        "visitPolicy": {
+          "id": "confidence-disk-split-v1",
+          "reentryRule": "A confidently outside observation closes the visit. A confident return starts a separate visit; no exit grace period.",
+          "boundaryRule": "Accuracy disk touching the fence holds the prior visit state; no inferred crossing time.",
+          "freeTimeScope": "each-observed-visit"
+        },
+        "dwellMinutes": 150,
+        "shipmentTerms": {
+          "mode": "FTL",
+          "loadId": "RS-1042",
+          "boundAt": "2026-09-11T21:48:06.859Z",
+          "boundBy": "synthetic-fixture"
+        },
+        "timingEvidence": {
+          "reason": "The facility GPS observations include yard time before dock check-in and after release; the reviewed ticket supplies dock service times.",
+          "document": {
+            "id": "882bd0d5-0130-4adb-8c85-31efd4d194d6",
+            "sha256": "b0e22368a8f1de5ef8fec1ced90ee13558db42999ac796f4bf6e985f66ac7b88",
+            "version": 4,
+            "filename": "synthetic-milton-dock-ticket.pdf",
+            "media_type": "application/pdf"
+          },
+          "observed": {
+            "arrivalAt": "2026-09-13T12:30:00.000Z",
+            "departureAt": "2026-09-13T15:15:00.000Z",
+            "arrivalEvent": "arrival",
+            "departureEvent": "departure"
+          },
+          "revision": 1,
+          "arrivalAt": "2026-09-13T12:40:00.000Z",
+          "provenance": "document-reviewed",
+          "recordedAt": "2026-09-11T21:49:18.023Z",
+          "reviewedBy": "preview-dispatcher",
+          "sourceNote": "Page 1: the synthetic facility desk ticket identifies RS-1042 at Milton yard, check-in 12:40 UTC and release 15:10 UTC.",
+          "departureAt": "2026-09-13T15:10:00.000Z",
+          "correctionId": "77ee6c23-2920-4510-b10a-85bbcd6236a7",
+          "previousRevisionId": null
+        },
+        "billableMinutes": 30,
+        "requiresEvidenceReview": false
+      },
+      "approved_by": "preview-dispatcher"
+    },
+    {
+      "carrier_id": "dock-evidence-cloud-20260911",
+      "id": "0c7e43bd-53f6-4b60-a38f-79016a72f006",
+      "visit_id": "02ec6df4-8a54-4af0-91b1-523407c2965a",
+      "revision": 5,
+      "contract_id": "demo-ftl",
+      "contract_version": 1,
+      "status": "draft",
+      "body": {
+        "contract": {
+          "id": "demo-ftl",
+          "version": 1,
+          "currency": "CAD",
+          "carrier_id": "dock-evidence-cloud-20260911",
+          "provenance": "synthetic scenario terms",
+          "free_minutes": 120,
+          "rate_cents_per_hour": 10000
+        },
+        "currency": "CAD",
+        "evidence": [
+          "arrival",
+          "departure"
+        ],
+        "rounding": "whole-minute floor, nearest cent",
+        "automatic": false,
+        "precision": "reviewed_document_times",
+        "amountCents": 5000,
+        "visitPolicy": {
+          "id": "confidence-disk-split-v1",
+          "reentryRule": "A confidently outside observation closes the visit. A confident return starts a separate visit; no exit grace period.",
+          "boundaryRule": "Accuracy disk touching the fence holds the prior visit state; no inferred crossing time.",
+          "freeTimeScope": "each-observed-visit"
+        },
+        "dwellMinutes": 150,
+        "shipmentTerms": {
+          "mode": "FTL",
+          "loadId": "RS-1042",
+          "boundAt": "2026-09-11T21:48:06.859Z",
+          "boundBy": "synthetic-fixture"
+        },
+        "timingEvidence": {
+          "reason": "The facility GPS observations include yard time before dock check-in and after release; the reviewed ticket supplies dock service times.",
+          "document": {
+            "id": "882bd0d5-0130-4adb-8c85-31efd4d194d6",
+            "sha256": "b0e22368a8f1de5ef8fec1ced90ee13558db42999ac796f4bf6e985f66ac7b88",
+            "version": 4,
+            "filename": "synthetic-milton-dock-ticket.pdf",
+            "media_type": "application/pdf"
+          },
+          "observed": {
+            "arrivalAt": "2026-09-13T12:30:00.000Z",
+            "departureAt": "2026-09-13T15:15:00.000Z",
+            "arrivalEvent": "arrival",
+            "departureEvent": "departure"
+          },
+          "revision": 1,
+          "arrivalAt": "2026-09-13T12:40:00.000Z",
+          "provenance": "document-reviewed",
+          "recordedAt": "2026-09-11T21:49:18.023Z",
+          "reviewedBy": "preview-dispatcher",
+          "sourceNote": "Page 1: the synthetic facility desk ticket identifies RS-1042 at Milton yard, check-in 12:40 UTC and release 15:10 UTC.",
+          "departureAt": "2026-09-13T15:10:00.000Z",
+          "correctionId": "77ee6c23-2920-4510-b10a-85bbcd6236a7",
+          "previousRevisionId": null
+        },
+        "billableMinutes": 30,
+        "requiresEvidenceReview": true
+      },
+      "approved_by": null
+    },
+    {
+      "carrier_id": "dock-evidence-cloud-20260911",
+      "id": "1a08e02b-22c7-42d3-84fa-7ee9675261c1",
+      "visit_id": "02ec6df4-8a54-4af0-91b1-523407c2965a",
+      "revision": 6,
+      "contract_id": "demo-ftl",
+      "contract_version": 1,
+      "status": "draft",
+      "body": {
+        "contract": {
+          "id": "demo-ftl",
+          "version": 1,
+          "currency": "CAD",
+          "carrier_id": "dock-evidence-cloud-20260911",
+          "provenance": "synthetic scenario terms",
+          "free_minutes": 120,
+          "rate_cents_per_hour": 10000
+        },
+        "currency": "CAD",
+        "evidence": [
+          "arrival",
+          "departure"
+        ],
+        "rounding": "whole-minute floor, nearest cent",
+        "automatic": false,
+        "precision": "reviewed_document_times",
+        "amountCents": 5000,
+        "visitPolicy": {
+          "id": "confidence-disk-split-v1",
+          "reentryRule": "A confidently outside observation closes the visit. A confident return starts a separate visit; no exit grace period.",
+          "boundaryRule": "Accuracy disk touching the fence holds the prior visit state; no inferred crossing time.",
+          "freeTimeScope": "each-observed-visit"
+        },
+        "dwellMinutes": 150,
+        "shipmentTerms": {
+          "mode": "FTL",
+          "loadId": "RS-1042",
+          "boundAt": "2026-09-11T21:48:06.859Z",
+          "boundBy": "synthetic-fixture"
+        },
+        "timingEvidence": {
+          "reason": "The facility GPS observations include yard time before dock check-in and after release; the reviewed ticket supplies dock service times.",
+          "document": {
+            "id": "882bd0d5-0130-4adb-8c85-31efd4d194d6",
+            "sha256": "b0e22368a8f1de5ef8fec1ced90ee13558db42999ac796f4bf6e985f66ac7b88",
+            "version": 4,
+            "filename": "synthetic-milton-dock-ticket.pdf",
+            "media_type": "application/pdf"
+          },
+          "observed": {
+            "arrivalAt": "2026-09-13T12:30:00.000Z",
+            "departureAt": "2026-09-13T15:15:00.000Z",
+            "arrivalEvent": "arrival",
+            "departureEvent": "departure"
+          },
+          "revision": 1,
+          "arrivalAt": "2026-09-13T12:40:00.000Z",
+          "provenance": "document-reviewed",
+          "recordedAt": "2026-09-11T21:49:18.023Z",
+          "reviewedBy": "preview-dispatcher",
+          "sourceNote": "Page 1: the synthetic facility desk ticket identifies RS-1042 at Milton yard, check-in 12:40 UTC and release 15:10 UTC.",
+          "departureAt": "2026-09-13T15:10:00.000Z",
+          "correctionId": "77ee6c23-2920-4510-b10a-85bbcd6236a7",
+          "previousRevisionId": null
+        },
+        "billableMinutes": 30,
+        "requiresEvidenceReview": true
+      },
+      "approved_by": null
+    }
+  ],
+  "unchangedObservationsVisitsResources": true
+}
