@@ -1,0 +1,33 @@
+{
+  "at": "2026-09-12T16:29:32.039Z",
+  "platform": "Android API35 emulator, x86_64",
+  "sha256": "5ea8d82529e1036ad00258b456e88eb8310cd9389d103274d2c88329dab5c27a",
+  "bytes": 25812290,
+  "auth": "Firebase",
+  "cleartextOptIn": false,
+  "debuggableOptIn": false,
+  "buildSeconds": {
+    "forcedBundle": 20,
+    "package": 3
+  },
+  "mobileTests": {
+    "passed": 44,
+    "failed": 0,
+    "skipped": 0,
+    "durationMs": 560.012826
+  },
+  "typechecks": [
+    "root",
+    "mobile"
+  ],
+  "ios": "Hermes export passed; native execution deferred",
+  "installedLoginVerified": "Firebase-only; local-demo card absent",
+  "previewRestored": {
+    "carrier": "native-current-20260911",
+    "driver": "D-02",
+    "truck": "T-102",
+    "load": "RS-1043",
+    "status": "accepted",
+    "tracking": "off; synthetic trip"
+  }
+}

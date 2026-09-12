@@ -1,0 +1,112 @@
+
+> @roadstar/mobile@0.1.0 test
+> node --test tests/*.test.ts
+
+(node:120956) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/tests/axle-review.test.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:120956) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+✔ native assessment requires current opened source and explicit acknowledgment, but retains failed results (7.996437ms)
+✔ native draft rejects changed vehicle/load/history/source and source from another shipment (1.353436ms)
+✔ blank, unsupported and malformed native inputs cannot create commands (0.965461ms)
+✔ axle draft and exact queued command survive SQLite restart, preserve original versions and stay scoped (161.417456ms)
+(node:120957) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/tests/billing-review.test.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ corrected billing requires source review, explicit acknowledgment and substantive note (3.584024ms)
+✔ new source version/hash, correction, visit, contract or late evidence blocks stale draft (0.586135ms)
+✔ latest invoice controls approval regardless of array order; original GPS requires no source (0.314484ms)
+(node:120959) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/tests/closure-review.test.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ native route approval binds trip/load/resource and closure evidence (1.232454ms)
+✔ native receipt requires the latest covered approval and no prior receipt (8.139501ms)
+✔ native route geometry keeps distinct recorded legs and rejects missing or malformed evidence (1.699179ms)
+(node:120964) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/tests/duty-clock.test.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ synthetic duty uses scenario occurrence time while live duty uses actual device time (1.182708ms)
+✔ missing scenario clocks and historical or unknown driver profiles never invent an occurrence (0.949241ms)
+✔ driver-scoped snapshots use the evaluated scenario HOS timestamp when scenario records are withheld (0.274787ms)
+(node:120975) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/tests/facilities.test.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ arrival instructions stay on the exact load and stop and require an actual review (1.399004ms)
+(node:120976) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/tests/planning.test.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ shared facility completion uses assignment and stop tuple and respects global pickup/delivery order (3.222451ms)
+✔ manifest review rejects changed global next stop, assignment revision and driver role (0.99058ms)
+✔ whole-manifest response uses leader revision; completed and stale groups cannot be accepted (0.749147ms)
+✔ planning approval enforces dispatcher role, snapshot input revisions and exact planning version (0.59428ms)
+✔ planning approvals require feasible road evidence and preserve unresolved-load disclosure (0.305435ms)
+(node:120983) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/tests/queue.test.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:120983) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+✔ offline acceptance survives database close/reopen and retries identical command after ambiguous response (149.390628ms)
+✔ stale approvals remain failed and are never rebased or automatically replayed (0.812288ms)
+✔ identities cannot view or flush another carrier cache, draft or commands (0.483397ms)
+✔ pending duplicate taps reuse one queue entry; rate limit preserves FIFO and payload (0.608838ms)
+✔ document registration and upload reconstruct from saved capture across restarts (192.529739ms)
+✔ background flush cannot execute a queued consequential command (1.163572ms)
+✔ concurrent same-ID callbacks retain one command and content collisions cannot cross scope (2.439409ms)
+(node:120989) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/tests/recovery.test.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ recovery retains the actual previous assignment after approval and distinguishes offer from acceptance (0.830262ms)
+✔ stale load or driver evidence prevents native approval while server remains authoritative (0.357656ms)
+(node:120998) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/tests/routes.test.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:120998) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+✔ route validation rejects missing evidence, wrong assignment, malformed geometry and unknown dimensions (1.129737ms)
+✔ cache key changes with stops and truck revision so an old vehicle profile is not reused (0.261933ms)
+✔ only transient responses permit a downloaded route; denied authorization invalidates it (1.508674ms)
+✔ verified route and evidence survive SQLite restart and remain scoped by carrier/user (139.203239ms)
+(node:121007) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/tests/secure-persistence.test.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ encrypted persistence supports large Unicode sessions and restores from a fresh adapter (3.035262ms)
+✔ interrupted chunk write preserves the prior complete session (0.794675ms)
+✔ serialized replacement stays intact and sign-out removes index and chunks (3.519481ms)
+(node:121017) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/tests/tracking-buffer.test.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:121017) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+✔ offline GPS and authorization cache survive SQLite reopen, retry identical samples and do not duplicate synced callbacks (187.297524ms)
+✔ expired, disabled, switched, synthetic and ended-session grants cannot retain GPS (1.591562ms)
+✔ offline declared duty changes are captured by occurrence time and later server denial is visible (3.779179ms)
+(node:121027) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/tests/tracking.test.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ background requires explicit current consent, native permission and unexpired authentication (1.163512ms)
+✔ server session end, changed carrier/driver and synthetic or reassigned trip block GPS (0.288122ms)
+✔ samples before consent, after expiry, unknown accuracy and future samples are withheld (0.222827ms)
+✔ completed trip can close only an existing visit while consent and work session remain active (0.428121ms)
+✔ emulator grant needs an explicit server capability and remains a synthetic trip (0.408323ms)
+(node:121050) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/tests/trips.test.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/mobile/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ acceptance and reordered synchronization keep selected active trip; replaced trips cannot remain actionable (0.862625ms)
+ℹ tests 44
+ℹ suites 0
+ℹ pass 44
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 560.012826

@@ -1,0 +1,12 @@
+{
+  "at": "2026-09-12T16:21:12.579Z",
+  "carrier": "native-axle-030df4b8-cc90-4ef6-baad-671f54ea4a79",
+  "assessmentCount": 2,
+  "assignments": 0,
+  "truckVersion": 3,
+  "interruption": {
+    "at": "2026-09-12T16:20:13.876Z",
+    "action": "interrupted-before-upstream",
+    "key": "e914d221-3f99-434f-a8a1-6136c309b53c"
+  }
+}

@@ -1,0 +1,28 @@
+# Native axle source review
+
+Accepted local Android API35 verification, September 12, 2026. The third visual pass is retained. This extends the configured static calculation described in [axle-assessment.md](axle-assessment.md), not Ontario legal certification.
+
+Dispatchers can select a load, truck and trailer in More → Axle loading evidence, inspect retained assessments, open the authenticated same-load source in the native PDF viewer, enter configuration and record a separate assessment. Inputs start blank; copying a prior assessment is explicit. Failed calculations remain recordable evidence and block dispatch through the existing API policy. Drivers have read-only evidence for their own assigned combinations.
+
+Drafts, selected resources and dated history use the existing API/carrier/user-scoped SQLite store. Opening a source verifies its SHA256. Source review acknowledgment is transient and must be renewed after restart. The confirmation callback rechecks current resource/load/source/history versions, foreground state and six-second freshness. The existing queue preserves the original command ID and expected version; recording does not dispatch a load.
+
+## Verification
+
+- All **44 mobile tests pass**, zero skips, including strict shared input validation, changed evidence, gross-pass/group-fail calculations and actual SQLite close/reopen plus exact queue replay. Root/mobile TypeScript and fixture syntax checks pass.
+- The final Android x86_64 release was explicitly rebundled in 20 seconds and packaged in 3 seconds. iOS Hermes export passes; this is not native iOS execution.
+- The actual emulator opened the readable stored PDF. Revision 1 had 28,515 kg gross within its configured 40,000 kg limit, but a 15,612 kg trailer group exceeding 14,000 kg. Moving only modeled cargo centre from 8 m to 5 m produced 11,257.5 kg on that group and passed all configured groups.
+- Changing the source from version 2 to 3 while the native confirmation was open blocked the old confirmation. PostgreSQL retained exactly one assessment. A fresh native review recorded revision 2 against source version 3.
+- A second native review was interrupted **before reaching the API** by a local fault proxy. PostgreSQL remained at two assessments. After force-stop/relaunch with the proxy unavailable, the selected combination, 5 m draft, dated history and pending version-3 command survived. The local-demo build requires explicitly selecting the same demo identity again; this check does not claim Firebase session persistence.
+- Restoring the proxy synchronized original command `e914d221-3f99-434f-a8a1-6136c309b53c` once as assessment revision 3. Its exact retry returned the retained result. Both prior assessments remain; no assignments were created. The synchronized draft cleared and the start-assessment control returned.
+- The unassigned native driver sees no assessment authoring controls or unrelated evidence. Direct unassigned-driver reads and driver recording both return 403. Assigned-driver axle-history execution and hosted migration-020 parity remain separate checks.
+- Screenshots of source, stale evidence, restored draft/history, pending queue, synchronized queue, draft cleanup and driver scope are retained in [evidence/native-axle-2026-09-12](evidence/native-axle-2026-09-12). Source, stale-warning and pending-queue images were directly inspected: text and limits are legible, and the pending command is visibly distinct from the older synchronized command.
+
+An initial outage attempt removed ADB forwarding but an established socket remained usable; that command synchronized normally as revision 2. It is **not** counted as offline proof. The successful test instead used the retained `fault-proxy.mjs`: forward emulator port4010 to host4011, arm `/tmp/roadstar-native-arm-offline` immediately before recording, then remove the arm file and request host4012 to restore service. The proxy interrupts the first assessment POST before upstream transmission and then refuses all requests. This proves an API transport outage, not loss of every Android radio.
+
+## Reproduction and boundaries
+
+Run `TEST_DATABASE_URL=postgresql://roadstar:local-roadstar-only@127.0.0.1:55432/roadstar node scripts/prepare-native-axle.ts` against the existing loopback database. It creates a new synthetic carrier, stores the readable loading sheet, seeds one failed assessment and writes the pointer under ignored `data/native-axle-fixture.json`, so a host restart does not lose it. Do not re-seed or replay assertions against the accepted carrier, which already has three assessments.
+
+The verification APK temporarily enabled local-demo identity buttons and loopback cleartext to the local API. A first Firebase packaging attempt reused the local-demo JS bundle (Gradle reported it up-to-date); checking the actual installed login screen caught this. `:app:createBundleReleaseJsAndAssets --rerun-tasks` forced the correct Firebase bundle before packaging again. The generated manifest was restored afterward; the final Firebase release has no cleartext/debuggable opt-in. APK hashes are recorded separately because the auth build configuration differs. No APK, credentials or signing material is committed. The final normal Firebase build is installed with app data retained.
+
+Cloud API/optimizer/web deployment is unchanged by this packet; migration020 and its hosted/native parity are still pending. Physical Android, native iOS and assigned-driver axle UI proof remain unverified. Native correction creation, late-GPS reconciliation and the combined recovery/demo journey remain open. No cloud resources, model calls or actual freight movements were created by this verification.

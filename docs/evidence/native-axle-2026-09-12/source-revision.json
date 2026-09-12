@@ -1,0 +1,15 @@
+{
+  "documentId": "48d89489-53bb-489b-a9a2-9a42fae0cff5",
+  "version": 3,
+  "reviewStatus": "reviewed",
+  "sourceSha256": "4b5717c3c3625532ac198493fec2747ae84f21215389e37abd33aa9532a6d503",
+  "modelFields": null,
+  "reviewedFields": {
+    "billNumber": null,
+    "signedBy": null,
+    "observedDate": null,
+    "notes": "Synthetic version change while native assessment confirmation is open."
+  },
+  "reason": "Verify native confirmation rejects changed supporting evidence.",
+  "reviewedBy": "demo-dispatcher"
+}
