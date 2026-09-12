@@ -29,6 +29,7 @@ import { Planning } from "./Planning";
 import { GroupManifest } from "./GroupManifest";
 import { Tracking } from "./Tracking";
 import {recoveryOutcome} from './recovery-outcome';
+import {recoveryWorkflowEvidence} from './recovery-workflow';
 const localDemo = import.meta.env.VITE_AUTH_MODE === "local-demo";
 const firebaseConfigured = !!import.meta.env.VITE_FIREBASE_API_KEY;
 function auth() {
@@ -1054,6 +1055,7 @@ function Recovery({
   const assignmentStart = resulting?.startAt || old?.startAt;
   const startCaption = assignmentStart ? `Assignment starts ${time(assignmentStart)} ET` : load ? `Planned load start ${time(load.startAt)} ET` : "Start time unavailable";
   const outcome=p.body.comparison?recoveryOutcome(p.body.comparison):null;
+  const workflow=recoveryWorkflowEvidence(p.body.candidates);
   const minuteResult=(value:number,positive:string,negative:string)=>value>0?`${value} min ${positive}`:value<0?`${Math.abs(value)} min ${negative}`:'No change';
   const deadheadResult=outcome?`${outcome.deadheadDeltaKm>0?'+':''}${outcome.deadheadDeltaKm.toFixed(1)} km`:'—';
   return (
@@ -1087,6 +1089,11 @@ function Recovery({
         </div>
         <p>Shipment revenue is not recorded in this scenario, so financial impact is not calculated. Detention billing remains a separate evidence-reviewed workflow.</p>
       </section>}
+      {workflow&&<div className="recovery-workflow-evidence" aria-label="Recovery workflow evidence">
+        <div><span>DECISION PACKET</span><strong>One request screened {workflow.combinationsScreened} resource combinations</strong></div>
+        <p>{workflow.feasibleCombinations} feasible · {workflow.rejectedCombinations} rejected · {workflow.retainedConstraintReasons} constraint reason{workflow.retainedConstraintReasons===1?'':'s'} retained</p>
+        <small>This receipt describes the stored recommendation request. It is not a human task-time or financial-savings claim.</small>
+      </div>}
       {!!p.body.candidates?.length&&<details className="recovery-candidates"><summary>{p.body.candidates.filter(candidate=>candidate.eligible).length} feasible · {p.body.candidates.filter(candidate=>!candidate.eligible).length} rejected alternative{p.body.candidates.length===2?'':'s'}</summary>{p.body.candidates.map((candidate,index)=><div key={`${candidate.driverId}-${candidate.truckId}-${candidate.trailerId}`} className={candidate.eligible?'is-feasible':'is-rejected'}><strong>#{index+1} · {name(candidate.driverId)}</strong><span>{candidate.truckId} · {candidate.trailerId}</span><small>{candidate.eligible?`${candidate.timing?.pickupLateMinutes??'—'} min pickup lateness · ${candidate.deadheadKm??'—'} km deadhead`:candidate.reasons.join(' ')||'Rejected by current constraints.'}</small></div>)}</details>}
       {p.status === "pending" ? <div className="decision-action">
         <p>{old ? "Replaces the current assignment." : "Creates a new driver offer."} Driver acceptance is still required.</p>
