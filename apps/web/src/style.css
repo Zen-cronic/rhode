@@ -1275,3 +1275,26 @@ h1,h2,h3,.brand,.metric>strong{font-family:Manrope,sans-serif}h1{font-weight:600
 
 .evidence-row:has(.open-visit-estimate) { flex-wrap: wrap; }
 .open-visit-estimate { flex: 1 1 100%; order: 1; min-width: 0; overflow-wrap: anywhere; margin-bottom: 0; }
+
+.recovery-outcome { margin-top:18px; border:1px solid #596152; border-top:3px solid #e65c32; border-radius:8px; background:#292d29; padding:17px; }
+.recovery-outcome-heading { display:flex; justify-content:space-between; align-items:start; gap:16px; padding-bottom:13px; border-bottom:1px solid #454c42; }
+.recovery-outcome-heading div { display:flex; flex-direction:column; gap:5px; }
+.recovery-outcome-heading span,.recovery-outcome-metrics span { font:10px 'IBM Plex Mono',monospace; letter-spacing:.5px; color:#b9c3b2; }
+.recovery-outcome-heading strong { font-size:18px; color:#f5f3ed; }
+.recovery-outcome-heading small { font:10px 'IBM Plex Mono',monospace; color:#d0a694; text-align:right; }
+.recovery-outcome-metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; padding:15px 0 13px; }
+.recovery-outcome-metrics>div { min-width:0; border-right:1px solid #454c42; padding-right:12px; display:flex; flex-direction:column; gap:5px; }
+.recovery-outcome-metrics>div:last-child { border-right:0; padding-right:0; }
+.recovery-outcome-metrics strong { font-size:18px; line-height:1.25; color:#fff0df; }
+.recovery-outcome-metrics small { font-size:11px; line-height:1.45; color:#bfc7b8; }
+.recovery-outcome>p { margin:0; padding-top:12px; border-top:1px solid #454c42; font-size:11px; line-height:1.55; color:#bfc7b8; }
+@media (max-width:620px) {
+  .recovery-outcome { padding:14px; margin-top:15px; }
+  .recovery-outcome-heading { display:block; }
+  .recovery-outcome-heading small { display:block; text-align:left; margin-top:7px; }
+  .recovery-outcome-metrics { grid-template-columns:1fr; gap:0; padding:8px 0; }
+  .recovery-outcome-metrics>div { border-right:0; border-bottom:1px solid #454c42; padding:10px 0; }
+  .recovery-outcome-metrics>div:last-child { border-bottom:0; }
+  .recovery-outcome-metrics strong { font-size:17px; }
+  .recovery-outcome>p { font-size:12px; }
+}

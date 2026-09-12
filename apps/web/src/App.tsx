@@ -28,6 +28,7 @@ import { Maintenance } from "./Maintenance";
 import { Planning } from "./Planning";
 import { GroupManifest } from "./GroupManifest";
 import { Tracking } from "./Tracking";
+import {recoveryOutcome} from './recovery-outcome';
 const localDemo = import.meta.env.VITE_AUTH_MODE === "local-demo";
 const firebaseConfigured = !!import.meta.env.VITE_FIREBASE_API_KEY;
 function auth() {
@@ -1052,6 +1053,9 @@ function Recovery({
   const resulting = p.status === "approved" ? state.assignments.find(assignment => assignment.loadId === p.load_id && assignment.driverId === p.body.driverId && !["superseded", "rejected"].includes(assignment.status)) : undefined;
   const assignmentStart = resulting?.startAt || old?.startAt;
   const startCaption = assignmentStart ? `Assignment starts ${time(assignmentStart)} ET` : load ? `Planned load start ${time(load.startAt)} ET` : "Start time unavailable";
+  const outcome=p.body.comparison?recoveryOutcome(p.body.comparison):null;
+  const minuteResult=(value:number,positive:string,negative:string)=>value>0?`${value} min ${positive}`:value<0?`${Math.abs(value)} min ${negative}`:'No change';
+  const deadheadResult=outcome?`${outcome.deadheadDeltaKm>0?'+':''}${outcome.deadheadDeltaKm.toFixed(1)} km`:'—';
   return (
     <article className="recovery-card decision-card">
       <div className="decision-heading">
@@ -1074,6 +1078,15 @@ function Recovery({
         {!!p.body.comparison.current?.reasons.length&&<span>Current constraints: {p.body.comparison.current.reasons.join(' ')}</span>}
         <span>Snapshot at {p.body.comparison.evaluatedAt?`${time(p.body.comparison.evaluatedAt)} ET`:'proposal creation'}. Assumes stated travel/service times and preceding delivery positions. Approval rechecks feasibility; this is not a live ETA or measured savings.</span>
       </div>}
+      {outcome&&<section className="recovery-outcome" aria-label="Modeled recovery payoff">
+        <div className="recovery-outcome-heading"><div><span>MODELED RECOVERY RECEIPT</span><strong>{outcome.proposedPickupLateMinutes===0&&outcome.currentPickupLateMinutes>0?'Pickup window recovered':'Alternative compared'}</strong></div><small>Same appointment · snapshot evidence</small></div>
+        <div className="recovery-outcome-metrics">
+          <div><span>Pickup risk</span><strong>{minuteResult(outcome.pickupMinutesRecovered,'recovered','later')}</strong><small>{outcome.currentPickupLateMinutes} min late → {outcome.proposedPickupLateMinutes===0?'on time':`${outcome.proposedPickupLateMinutes} min late`}</small></div>
+          <div><span>Completion</span><strong>{minuteResult(outcome.completionMinutesEarlier,'earlier','later')}</strong><small>Modeled route and service work</small></div>
+          <div><span>Added deadhead</span><strong>{deadheadResult}</strong><small>Replacement minus current plan</small></div>
+        </div>
+        <p>Shipment revenue is not recorded in this scenario, so financial impact is not calculated. Detention billing remains a separate evidence-reviewed workflow.</p>
+      </section>}
       {p.status === "pending" ? <div className="decision-action">
         <p>{old ? "Replaces the current assignment." : "Creates a new driver offer."} Driver acceptance is still required.</p>
         <button className="primary" disabled={disabled || stale} onClick={onApprove}>Review & approve →</button>
