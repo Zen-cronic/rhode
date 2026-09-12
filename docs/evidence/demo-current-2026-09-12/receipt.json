@@ -1,0 +1,36 @@
+{
+  "createdAt": "2026-09-12T21:31:56.921Z",
+  "base": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/web/public/demo/roadstar-demo.mp4",
+  "baseSha256": "329ebce920340ad1333be3d54f1c9285348331ca63de419c0a4c58aad8a77d3e",
+  "candidate": "/tmp/roadstar-demo-current/roadstar-demo-current.mp4",
+  "candidateSha256": "54d7eb79775a0c0eb51f35da2a8cc2f2aba6768100f20a6e350256d6438dfe77",
+  "replacement": {
+    "startSeconds": 36,
+    "endSeconds": 94,
+    "durationSeconds": 58,
+    "sources": [
+      {
+        "source": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/docs/evidence/3d-dock-2026-09-12/overview-desktop.png",
+        "durationSeconds": 10
+      },
+      {
+        "source": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/docs/evidence/3d-corridor-2026-09-12/movement-perspective-desktop.png",
+        "durationSeconds": 10
+      },
+      {
+        "source": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/docs/evidence/ranked-recovery-2026-09-12/recommendation-desktop.png",
+        "durationSeconds": 10
+      },
+      {
+        "source": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/docs/evidence/ranked-recovery-2026-09-12/recommendation-desktop.png",
+        "durationSeconds": 12
+      },
+      {
+        "source": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/docs/evidence/ranked-recovery-2026-09-12/approval-review.png",
+        "durationSeconds": 16
+      }
+    ]
+  },
+  "audio": "Copied byte-stream from the accepted four-minute film; narration and caption timings are unchanged.",
+  "scope": "Actual verified application captures replace the stale delay/recovery visuals. No UI values are altered and no new model or narration call is made."
+}

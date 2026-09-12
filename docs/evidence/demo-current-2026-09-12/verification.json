@@ -1,0 +1,55 @@
+{
+  "verifiedAt": "2026-09-12T21:35:21.363Z",
+  "currentSha256": "54d7eb79775a0c0eb51f35da2a8cc2f2aba6768100f20a6e350256d6438dfe77",
+  "priorSha256": "329ebce920340ad1333be3d54f1c9285348331ca63de419c0a4c58aad8a77d3e",
+  "packagedSha256": "54d7eb79775a0c0eb51f35da2a8cc2f2aba6768100f20a6e350256d6438dfe77",
+  "audioPacketSha256": "cdcdb40d7e251849e8e770e534a4050b31f5e52fc7b068e121a0721ce0700a99",
+  "captionsSha256": "f39241c893c0818500e4c498338bbf53002fe75b708a47c856ccfca605e7fedb",
+  "probe": {
+    "programs": [],
+    "streams": [
+      {
+        "index": 0,
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "r_frame_rate": "24/1"
+      },
+      {
+        "index": 1,
+        "codec_name": "aac",
+        "sample_rate": "48000",
+        "channels": 1,
+        "r_frame_rate": "0/0"
+      }
+    ],
+    "format": {
+      "duration": "240.096000",
+      "size": "17590568"
+    }
+  },
+  "visualReplacement": {
+    "startSeconds": 36,
+    "endSeconds": 94,
+    "scenes": [
+      "Acknowledged dock wait with on-duty hold and provisional detention",
+      "Recorded 3D corridor bound to acknowledged observations",
+      "Server-ranked recovery receipt",
+      "Feasible and HOS-rejected candidate disclosure",
+      "Dispatcher approval gate"
+    ],
+    "sourceEvidence": [
+      "docs/evidence/3d-dock-2026-09-12/",
+      "docs/evidence/3d-corridor-2026-09-12/",
+      "docs/evidence/ranked-recovery-2026-09-12/"
+    ]
+  },
+  "checks": [
+    "Public web asset and local submission package are byte-identical",
+    "Four-minute duration and H.264/AAC 1920x1080 24fps contract preserved",
+    "AAC packet stream is byte-identical to the previously accepted narration",
+    "Entire promoted film decodes without ffmpeg errors",
+    "Eight boundary/representative frames inspected, including the return to the existing driver scene"
+  ],
+  "limits": "The replacement uses still frames from actual verified application states. Other film scenes and the accepted narration/caption timings are retained. Human listening and live presentation rehearsal remain operator checks; public video-host acceptance remains unconfirmed."
+}
