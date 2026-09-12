@@ -1,0 +1,49 @@
+{
+  "verifiedAt": "2026-09-12T23:48:40.199Z",
+  "webBase": "http://127.0.0.1:5185",
+  "carrier": "corridor-compare-5660be04-04b8-4c5e-984c-5c41afd7746e",
+  "comparisonBasisHash": "2fcd8fdb8146bbabf3601e0e2ef15b30fdda3becde69893636b4d917269183de",
+  "branches": [
+    {
+      "kind": "baseline",
+      "assignmentId": "3a5d735f-7786-4cef-8277-9138d90d8829",
+      "runId": "a06e48f8-6026-49d9-a72e-69123dd0690d",
+      "eventCount": 2401,
+      "distanceKm": 40.97333333333395,
+      "conditionsHash": "cf997f3a65fae4cbe7fa4f320dada08e783dc78885780b7f528d45851a66f32c",
+      "modeledCompletionMs": 1789310707000,
+      "checkpointSha256": "4fa4b59d65d965a87657af34a60340b9c4c19a6fa980a392a777129cbd6754e9"
+    },
+    {
+      "kind": "road_slowdown",
+      "assignmentId": "f0f389f1-ac17-4a78-943d-1d1d14a8e403",
+      "runId": "f2cc803a-2502-4127-982a-192784eeaa7e",
+      "eventCount": 2401,
+      "distanceKm": 13.316333333333134,
+      "conditionsHash": "871d7037d01d3105a6c107ae8750f57af59a48d2b5850f95d66adf73dbf1e463",
+      "modeledCompletionMs": 1789312313000,
+      "checkpointSha256": "1ac7e90b8d5e61a3a52a0049bac440d578bf054859ce19964a90e4e1e2f0faec"
+    }
+  ],
+  "completionDeltaSeconds": 1606,
+  "progressGapKm": 27.657000000000814,
+  "requests": {
+    "total": 37,
+    "presentationPages": 12
+  },
+  "writes": [],
+  "errors": [],
+  "checks": [
+    "Compiled production artifact loads both carrier-scoped matched runs",
+    "Two carrier-scoped runs share one server-derived basis and retain distinct condition identities",
+    "2,401 exact acknowledged observations load for each branch",
+    "Shared timeline uses exact at-or-before events without interpolation",
+    "Slowdown boundary is selectable at T+00:10:00",
+    "At T+00:40:00 the baseline leads by 27.657km and modeled completion by 26m46s",
+    "Ivory baseline, signal-orange disruption and gap connector render in 3D and diagram modes",
+    "390px layout has no document overflow",
+    "Reduced motion disables autoplay; saved recording remains inspectable offline",
+    "No operational POST; operational collections, inventory and both checkpoint files remain byte-equivalent"
+  ],
+  "limits": "Local synthetic Highway 401 comparison on Valhalla truck geometry with software WebGL. Not live traffic, a physical-GPU benchmark, certified GPS, billing evidence, revenue impact, hosted simulator control or 131-vehicle rendering."
+}
