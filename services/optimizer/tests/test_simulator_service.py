@@ -94,7 +94,43 @@ def test_service_preserves_route_leg_boundaries_and_per_stop_waits(monkeypatch):
     data=sim.Start(assignment_id='a',carrier_id='c',start_time='2026-09-13T12:00:00Z',stop_wait_seconds=[0,7200,0],route={'locations':[{'lat':43.5,'lon':-79.9},{'lat':43.5,'lon':-79.902}],'truck':{'height':4.1,'width':2.6,'length':23,'weight':40,'axle_load':9,'hazmat':False,'evidence':'synthetic-scenario'}})
     result=asyncio.run(sim.create(data))
     assert result['stop_indices']==[0,1,2]
+    assert result['route_location_indices']==[0,1,2] and not result['route_egress']
     assert sim.runs[result['id']]['replay'].stop_wait_seconds==[0,7200,0]
+
+
+def test_service_selects_final_service_stop_before_retained_road_egress(monkeypatch):
+    install_run(monkeypatch)
+    async def routed(_):
+        return {'route':{'trip':{'legs':[{'shape':{'type':'LineString','coordinates':[[-79.9,43.5],[-79.901,43.5]]}},{'shape':{'type':'LineString','coordinates':[[-79.901,43.5],[-79.905,43.5]]}}]}}}
+    monkeypatch.setattr(sim,'valhalla_route',routed)
+    route={'locations':[{'lat':43.5,'lon':-79.9},{'lat':43.5,'lon':-79.901},{'lat':43.5,'lon':-79.905}],
+           'truck':{'height':4.1,'width':2.6,'length':23,'weight':40,'axle_load':9,'hazmat':False,'evidence':'synthetic-scenario'}}
+    data=sim.Start(assignment_id='a',carrier_id='c',start_time='2026-09-13T12:00:00Z',service_location_ordinals=[0,1],stop_wait_seconds=[0,3],route=route)
+    result=asyncio.run(sim.create(data));replay=sim.runs[result['id']]['replay']
+    assert result['route_location_indices']==[0,1,2] and result['stop_indices']==[0,1] and result['route_egress']
+    assert replay.stop_wait_seconds==[0,3] and replay.stop_indices[-1] < len(replay.coordinates)-1
+    replay.paused=False;events=replay.advance_samples(100)
+    dock=[event for event in events if event['position']=={'lng':-79.901,'lat':43.5}]
+    assert len(dock)==4 and any(event['phase']=='route_complete' for event in events)
+
+
+@pytest.mark.parametrize('ordinals',[[1,2],[0],[0,2,1],[0,3]])
+def test_service_rejects_invalid_service_location_ordinals(monkeypatch,ordinals):
+    install_run(monkeypatch)
+    async def routed(_):
+        return {'route':{'trip':{'legs':[{'shape':{'type':'LineString','coordinates':[[-79.9,43.5],[-79.901,43.5]]}},{'shape':{'type':'LineString','coordinates':[[-79.901,43.5],[-79.905,43.5]]}}]}}}
+    monkeypatch.setattr(sim,'valhalla_route',routed)
+    data=sim.Start(assignment_id='a',carrier_id='c',start_time='2026-09-13T12:00:00Z',service_location_ordinals=ordinals,route={'locations':[{'lat':43.5,'lon':-79.9},{'lat':43.5,'lon':-79.901},{'lat':43.5,'lon':-79.905}],'truck':{'height':4.1,'width':2.6,'length':23,'weight':40,'axle_load':9,'hazmat':False,'evidence':'synthetic-scenario'}})
+    with pytest.raises(sim.HTTPException,match='Service location ordinals'):
+        asyncio.run(sim.create(data))
+
+
+def test_service_location_ordinals_refuse_boolean_coercion():
+    from pydantic import ValidationError
+    route={'locations':[{'lat':43.5,'lon':-79.9},{'lat':43.5,'lon':-79.901}],
+           'truck':{'height':4.1,'width':2.6,'length':23,'weight':40,'axle_load':9,'hazmat':False,'evidence':'synthetic-scenario'}}
+    with pytest.raises(ValidationError):
+        sim.Start(assignment_id='a',carrier_id='c',start_time='2026-09-13T12:00:00Z',service_location_ordinals=[0,True],route=route)
 
 
 def test_pause_and_status_remain_responsive_during_a_slow_batch(monkeypatch):

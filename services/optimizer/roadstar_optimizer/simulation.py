@@ -44,8 +44,8 @@ class Replay:
         if not math.isfinite(self.slowdown_factor) or not 0 < self.slowdown_factor < 1:
             raise ValueError('Slowdown factor must be finite and strictly between zero and one')
         self.stop_indices = list(self.stop_indices) if self.stop_indices is not None else [0, len(self.coordinates)-1]
-        if not self.stop_indices or any(not isinstance(i, int) or i < 0 or i >= len(self.coordinates) for i in self.stop_indices) or self.stop_indices != sorted(set(self.stop_indices)) or self.stop_indices[0] != 0 or self.stop_indices[-1] != len(self.coordinates)-1:
-            raise ValueError('Ordered unique stop indices must include route start and end')
+        if len(self.stop_indices) < 2 or any(not isinstance(i, int) or i < 0 or i >= len(self.coordinates) for i in self.stop_indices) or self.stop_indices != sorted(set(self.stop_indices)) or self.stop_indices[0] != 0:
+            raise ValueError('Ordered unique stop indices must include the route start and at least one service stop')
         self.stop_wait_seconds = list(self.stop_wait_seconds) if self.stop_wait_seconds is not None else [self.dock_wait_seconds]+[0]*(len(self.stop_indices)-1)
         if len(self.stop_wait_seconds) != len(self.stop_indices) or any(not isinstance(v, int) or v < 0 for v in self.stop_wait_seconds):
             raise ValueError('One nonnegative dwell duration per stop required')
@@ -76,7 +76,7 @@ class Replay:
     def phase(self):
         if self._wait > 0:
             return 'dock_wait'
-        if self._next_stop >= len(self.stop_indices):
+        if self._next_stop >= len(self.stop_indices) and self._distance >= self._lengths[-1]:
             return 'route_complete'
         if self._held():
             return 'road_hold'
@@ -104,10 +104,14 @@ class Replay:
         before = self._distance
         if self._wait > 0:
             self._wait -= 1
-        elif self._next_stop < len(self.stop_indices) and not self._held():
-            target = self._lengths[self.stop_indices[self._next_stop]]
+        elif not self._held() and self._distance < self._lengths[-1]:
+            # After the final service stop, keep following retained road geometry
+            # until the route egress ends. This lets a confident outside sample
+            # close the facility visit instead of equating stop completion with
+            # a geofence departure timestamp.
+            target = self._lengths[self.stop_indices[self._next_stop]] if self._next_stop < len(self.stop_indices) else self._lengths[-1]
             self._distance = min(target, self._distance+self._speed()/3600)
-            if self._distance >= target:
+            if self._next_stop < len(self.stop_indices) and self._distance >= target:
                 self._wait = self.stop_wait_seconds[self._next_stop]
                 self._next_stop += 1
         self.elapsed_seconds += 1

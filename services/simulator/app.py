@@ -15,7 +15,7 @@ from hashlib import sha256
 from uuid import uuid4
 import httpx
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StrictInt
 from roadstar_optimizer.route_transition import replace_remaining_route
 from roadstar_optimizer.simulation import Replay
 from roadstar_optimizer.routing import RouteRequest, valhalla_route
@@ -117,6 +117,7 @@ class Start(BaseModel):
     start_time: datetime
     route: RouteRequest
     dock_wait_seconds: int = Field(default=0, ge=0, le=86400)
+    service_location_ordinals: list[StrictInt] | None = None
     stop_wait_seconds: list[int] | None = None
     disruption_seconds: int = Field(default=0, ge=0, le=86400)
     disruption_start_seconds: int = Field(default=60, ge=0, le=86400)
@@ -139,7 +140,7 @@ async def create(data: Start):
         routed = await valhalla_route(data.route)
     except (RuntimeError, ValueError, httpx.HTTPError) as error:
         raise HTTPException(503, str(error)) from error
-    coordinates, stops = [], [0]
+    coordinates, route_location_indices = [], [0]
     for leg in routed['route']['trip']['legs']:
         shape = leg['shape']
         if not isinstance(shape, dict) or shape.get('type') != 'LineString' or len(shape.get('coordinates', [])) < 2:
@@ -148,7 +149,15 @@ async def create(data: Start):
         if coordinates and any(abs(a-b) > 1e-6 for a, b in zip(coordinates[-1], points[0])):
             raise HTTPException(502, 'Disconnected route legs; no straight-line bridge is inferred')
         coordinates.extend(points[1:] if coordinates else points)
-        stops.append(len(coordinates)-1)
+        route_location_indices.append(len(coordinates)-1)
+    ordinals = data.service_location_ordinals
+    if ordinals is None:
+        stops = route_location_indices
+    elif (len(ordinals) < 2 or ordinals != sorted(set(ordinals)) or ordinals[0] != 0 or
+          any(not isinstance(index, int) or isinstance(index, bool) or index < 0 or index >= len(route_location_indices) for index in ordinals)):
+        raise HTTPException(400, 'Service location ordinals must be ordered, unique, start at zero and identify at least two routed locations')
+    else:
+        stops = [route_location_indices[index] for index in ordinals]
     try:
         replay = Replay(coordinates, int(data.start_time.timestamp()*1000), seed=data.seed, dock_wait_seconds=data.dock_wait_seconds, stop_indices=stops, stop_wait_seconds=data.stop_wait_seconds, disruption_seconds=data.disruption_seconds, disruption_start_seconds=data.disruption_start_seconds, slowdown_seconds=data.slowdown_seconds, slowdown_start_seconds=data.slowdown_start_seconds, slowdown_factor=data.slowdown_factor, route_evidence='valhalla-truck')
     except (ValueError, IndexError) as error:
@@ -156,7 +165,8 @@ async def create(data: Start):
     run_id = str(uuid4())
     runs[run_id] = {'run_id': run_id, 'api_origin': os.environ.get('ROADSTAR_API', 'http://127.0.0.1:4010').rstrip('/'), 'replay': replay, 'assignment_id': data.assignment_id, 'carrier_id': data.carrier_id, 'events': [], 'pending': None, 'emit_mode': None, 'closure_checks': True}
     save_run(runs[run_id])
-    return {'id': run_id, 'conditions_hash': replay.conditions_hash(), 'paused': True, 'route': routed, 'provenance': 'synthetic', 'stop_indices': stops}
+    return {'id': run_id, 'conditions_hash': replay.conditions_hash(), 'paused': True, 'route': routed, 'provenance': 'synthetic', 'stop_indices': stops, 'route_location_indices': route_location_indices,
+            'route_egress': stops[-1] < len(coordinates)-1}
 
 
 def get(run_id):

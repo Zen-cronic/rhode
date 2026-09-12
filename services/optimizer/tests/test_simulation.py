@@ -37,6 +37,24 @@ def test_acceleration_emits_identical_canonical_stop_and_road_events():
         assert len(at_stop)==14  # Arrival sample and all 13 seconds of dwell.
 
 
+def test_route_egress_after_final_service_stop_preserves_dwell_then_emits_departure_motion():
+    coordinates=[[-79.9,43.5],[-79.901,43.5],[-79.902,43.5],[-79.905,43.5]]
+    r=Replay(coordinates,1000,speed_kph=120,stop_indices=[0,2],stop_wait_seconds=[0,2],route_evidence='synthetic-test-route')
+    r.paused=False
+    events=r.advance_samples(20)
+    arrival=next(index for index,event in enumerate(events) if event['position']=={'lng':-79.902,'lat':43.5})
+    assert events[arrival]['phase']=='dock_wait' and events[arrival]['duty']=='on_duty'
+    assert events[arrival+1]['phase']=='dock_wait' and events[arrival+1]['position']==events[arrival]['position']
+    assert events[arrival+2]['phase']=='driving' and events[arrival+2]['speedKph']==0
+    assert events[arrival+3]['phase']=='driving' and events[arrival+3]['odometerKm']>events[arrival+2]['odometerKm']
+    completion=next(event for event in events if event['phase']=='route_complete')
+    assert completion['position']=={'lng':-79.905,'lat':43.5}
+    assert r.stop_indices[-1] < len(r.coordinates)-1
+    assert r.forecast_completion_ms(False)==completion['at_ms']
+    r.reset();r.paused=False
+    assert r.advance_samples(7)+r.advance_samples(13)==events
+
+
 def test_seed_changes_motion_and_odometer_matches_integrated_speed():
     first=replay(seed=42);second=replay(seed=43)
     first.paused=False;second.paused=False
@@ -60,6 +78,8 @@ def test_pause_emits_nothing_and_geometry_and_stops_are_validated():
     r=replay();assert r.advance_samples(100)==[];assert r.elapsed_seconds==0
     with pytest.raises(ValueError):
         Replay([[0,0],[1,1]],0,stop_indices=[0,0,1],route_evidence='synthetic-test-route')
+    with pytest.raises(ValueError):
+        Replay([[0,0],[1,1]],0,stop_indices=[0],route_evidence='synthetic-test-route')
     with pytest.raises(ValueError):
         Replay([[0,0],[float('nan'),1]],0,route_evidence='synthetic-test-route')
 
