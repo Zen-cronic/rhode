@@ -1,0 +1,137 @@
+{
+  "verifiedAt": "2026-09-12T21:24:08.076Z",
+  "carrier": "ranked-recovery-999688eb-0441-45b7-baf4-7f9e1c37fad0",
+  "delayId": "e2eceae3-171c-4f99-892f-a386447bdee4",
+  "recommendationId": "1075556c-4cb0-4446-a1ca-f0ba9150dc06",
+  "selected": {
+    "driverId": "D-02",
+    "truckId": "T-102",
+    "trailerId": "V-102"
+  },
+  "candidates": [
+    {
+      "driverId": "D-02",
+      "truckId": "T-102",
+      "trailerId": "V-102",
+      "eligible": true,
+      "reasons": [],
+      "deadheadKm": 138.9,
+      "timing": {
+        "evaluatedAt": "2026-09-13T12:00:00.000Z",
+        "availableAt": "2026-09-13T12:00:00.000Z",
+        "pickupArrivalAt": "2026-09-13T13:38:00.000Z",
+        "pickupReadyAt": "2026-09-13T16:15:00.000Z",
+        "pickupLateMinutes": 0,
+        "completionAt": "2026-09-13T18:39:00.000Z",
+        "travelMinutes": 99,
+        "serviceMinutes": 45
+      }
+    },
+    {
+      "driverId": "D-03",
+      "truckId": "T-102",
+      "trailerId": "V-102",
+      "eligible": false,
+      "reasons": [
+        "Current HOS evidence is missing or stale."
+      ],
+      "deadheadKm": 0,
+      "timing": {
+        "evaluatedAt": "2026-09-13T12:00:00.000Z",
+        "availableAt": "2026-09-13T12:00:00.000Z",
+        "pickupArrivalAt": "2026-09-13T12:00:00.000Z",
+        "pickupReadyAt": "2026-09-13T16:15:00.000Z",
+        "pickupLateMinutes": 0,
+        "completionAt": "2026-09-13T18:39:00.000Z",
+        "travelMinutes": 99,
+        "serviceMinutes": 45
+      }
+    }
+  ],
+  "comparison": {
+    "current": {
+      "eligible": false,
+      "reasons": [
+        "Resource reserved by RS-1042.",
+        "Driver cannot reach pickup after prior committed work under the current planning estimate."
+      ],
+      "deadheadKm": 0,
+      "note": "Truck-route travel times with declared work budgets. OSM restrictions and supplied dimensions require review; not certified ELD or legal clearance. Prior work: RS-1042: 105 min driving, 270 min on duty (full plan; current progress unavailable). Full service allowance retained; future waiting assumed on duty.",
+      "axle": {
+        "required": false,
+        "eligible": true,
+        "reasons": [],
+        "note": "Synthetic declared axle clearance only; no physical loading assessment."
+      },
+      "timing": {
+        "evaluatedAt": "2026-09-13T12:00:00.000Z",
+        "availableAt": "2026-09-13T17:00:00.000Z",
+        "pickupArrivalAt": "2026-09-13T17:00:00.000Z",
+        "pickupReadyAt": "2026-09-13T17:00:00.000Z",
+        "pickupLateMinutes": 45,
+        "completionAt": "2026-09-13T19:24:00.000Z",
+        "travelMinutes": 99,
+        "serviceMinutes": 45
+      },
+      "routeFingerprint": "d7bd4dc0c691066de3381fb550b01eb6b7d3cc45563ceddc986f44ebadc06ebc",
+      "routingEvidence": "valhalla-truck"
+    },
+    "proposed": {
+      "eligible": true,
+      "reasons": [],
+      "deadheadKm": 138.9,
+      "note": "Truck-route travel times with declared work budgets. OSM restrictions and supplied dimensions require review; not certified ELD or legal clearance.",
+      "axle": {
+        "required": false,
+        "eligible": true,
+        "reasons": [],
+        "note": "Synthetic declared axle clearance only; no physical loading assessment."
+      },
+      "timing": {
+        "evaluatedAt": "2026-09-13T12:00:00.000Z",
+        "availableAt": "2026-09-13T12:00:00.000Z",
+        "pickupArrivalAt": "2026-09-13T13:38:00.000Z",
+        "pickupReadyAt": "2026-09-13T16:15:00.000Z",
+        "pickupLateMinutes": 0,
+        "completionAt": "2026-09-13T18:39:00.000Z",
+        "travelMinutes": 99,
+        "serviceMinutes": 45
+      },
+      "routeFingerprint": "e140fbf6d3943f14453f2cb4ab03587eec753a518d2615743edf048b464577e7",
+      "routingEvidence": "valhalla-truck"
+    },
+    "evaluatedAt": "2026-09-13T12:00:00.000Z"
+  },
+  "approvedAssignmentId": "eea7f68d-b319-4b7b-8441-beb6943d577b",
+  "originalAssignmentStatus": "superseded",
+  "replacementAssignmentStatus": "accepted",
+  "records": {
+    "proposalCount": 1,
+    "approvalCount": 1,
+    "recommendationEvents": 1
+  },
+  "responses": [
+    {
+      "path": "/api/recommend",
+      "status": 200
+    },
+    {
+      "path": "/api/approve",
+      "status": 200
+    },
+    {
+      "path": "/api/respond",
+      "status": 200
+    }
+  ],
+  "checks": [
+    "One dispatcher action requested server-ranked alternate resources",
+    "Candidate ranking selected the feasible D-02 / T-102 / V-102 set",
+    "Rejected D-03 retained the missing or stale HOS reason",
+    "Dispatcher reviewed and approved the exact pending revision",
+    "Assigned replacement driver independently accepted the offer",
+    "Original assignment was superseded atomically and the replacement became accepted",
+    "Desktop and 390px views rendered without horizontal overflow or page errors"
+  ],
+  "limits": "Synthetic Southern Ontario fixture. Route and timing values are modeled with configured services. This records command count and workflow state, not human task time or financial savings."
+}
