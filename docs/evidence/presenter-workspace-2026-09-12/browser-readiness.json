@@ -1,0 +1,24 @@
+{
+  "verifiedAt": "2026-09-12T23:17:35.501Z",
+  "carrier": "presenter-recovery-44c12060-5617-419f-98b0-853e48a66dc5",
+  "webBase": "https://roadstar-web-739889188415.us-central1.run.app",
+  "currentAssignmentId": "746303f7-961d-4801-a1a1-992d9692eaa2",
+  "atRiskAssignmentId": "326d89a2-80f6-4abb-a86d-5a6113e292eb",
+  "delayId": "d020d4a0-7027-4f4c-9198-cfea0ec0ef8d",
+  "nextAction": "Rank recovery options",
+  "expectedLiveSequence": [
+    "recommend",
+    "approve",
+    "respond"
+  ],
+  "posts": [],
+  "errors": [],
+  "checks": [
+    "Hosted Firebase dispatcher opens the pre-recommendation recovery state",
+    "The staged delay is expanded and Rank recovery options is enabled",
+    "Replacement driver D-02 has no trip before dispatcher approval",
+    "Read-only browser inspection leaves the complete carrier state unchanged",
+    "No operational POST, page error or narrow horizontal overflow occurred"
+  ],
+  "limits": "Fresh synthetic presenter workspace. Readiness only; live recommendation, approval, driver acceptance and human rehearsal remain deliberately unconsumed."
+}

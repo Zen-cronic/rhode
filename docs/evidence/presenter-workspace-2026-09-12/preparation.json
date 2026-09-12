@@ -1,0 +1,35 @@
+{
+  "preparedAt": "2026-09-12T23:17:18.224Z",
+  "carrier": "presenter-recovery-44c12060-5617-419f-98b0-853e48a66dc5",
+  "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/api@sha256:5e451fa4f0ef5437f7a66232d7c70e80b41c8bfc0d8e4b0cac0157fef51861df",
+  "current": {
+    "id": "746303f7-961d-4801-a1a1-992d9692eaa2",
+    "loadId": "RS-1042",
+    "status": "accepted"
+  },
+  "atRisk": {
+    "id": "326d89a2-80f6-4abb-a86d-5a6113e292eb",
+    "loadId": "RS-1043",
+    "status": "offered"
+  },
+  "delay": {
+    "id": "d020d4a0-7027-4f4c-9198-cfea0ec0ef8d",
+    "assignmentId": "746303f7-961d-4801-a1a1-992d9692eaa2",
+    "expectedEnd": "2026-09-13T17:00:00Z",
+    "affectedAssignmentId": "326d89a2-80f6-4abb-a86d-5a6113e292eb"
+  },
+  "final": {
+    "proposals": 0,
+    "disruptions": 1,
+    "currentStatus": "accepted",
+    "atRiskStatus": "offered"
+  },
+  "checks": [
+    "A fresh isolated synthetic carrier was seeded through the existing Cloud Run job",
+    "RS-1042 is accepted by D-01 before the staged delay",
+    "RS-1043 is an offered follow-on commitment affected by the delay",
+    "No recovery proposal or approval exists; the next presenter action is Rank recovery options",
+    "The live sequence remains dispatcher recommendation, dispatcher approval and separate driver response"
+  ],
+  "limits": "Prepared cloud data only. No live-demo actions, human rehearsal, simulator Cloud Run service, real traffic, revenue or physical-device claim."
+}
