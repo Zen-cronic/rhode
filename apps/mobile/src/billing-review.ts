@@ -1,6 +1,6 @@
 export type BillingSource={id:string;version:number;sha256:string;media_type:string;filename?:string};
 export type BillingInvoice={id:string;revision:number;status:string;contract_version:number;body:any};
-export type BillingReview={visit:{id:string;assignment_id:string;load_id:string;stop_id:string;arrival:string;departure:string|null;arrival_event:string;departure_event:string|null;superseded_by?:string|null};reviewRequired:boolean;fingerprint:string;documents:BillingSource[];history:{id:string;revision:number;body:any}[];invoices:BillingInvoice[];neighbors:any[];terms:any[];effective:{arrivalAt:string;departureAt:string}};
+export type BillingReview={visit:{id:string;assignment_id:string;load_id:string;stop_id:string;arrival:string;departure:string|null;arrival_event:string;departure_event:string|null;superseded_by?:string|null};reviewRequired:boolean;fingerprint:string;expectedVersion?:number;documents:BillingSource[];history:{id:string;revision:number;body:any}[];invoices:BillingInvoice[];neighbors:any[];terms:any[];effective:{arrivalAt:string;departureAt:string}};
 export function billingDecision(data:BillingReview){
  const invoice=[...data.invoices].sort((a,b)=>b.revision-a.revision)[0],correction=[...data.history].sort((a,b)=>b.revision-a.revision)[0];
  const source:BillingSource|undefined=correction?.body.document;
