@@ -1,0 +1,46 @@
+{
+  "verifiedAt": "2026-09-12T22:47:34.414Z",
+  "carrier": "competing-approvals-416d040b-f2c0-401c-a106-9b78ff23a754",
+  "sharedResourceId": "T-101",
+  "attemptedLoads": [
+    "RS-1042",
+    "RS-1044"
+  ],
+  "winner": {
+    "side": "dispatcher A",
+    "loadId": "RS-1042",
+    "status": 200
+  },
+  "loser": {
+    "side": "dispatcher B",
+    "loadId": "RS-1044",
+    "status": 409,
+    "code": "INELIGIBLE",
+    "message": "Resource reserved by RS-1042."
+  },
+  "final": {
+    "assignments": [
+      {
+        "id": "fcab818c-40a6-4b33-9375-06725213968e",
+        "loadId": "RS-1042",
+        "driverId": "D-01",
+        "truckId": "T-101",
+        "trailerId": "V-101",
+        "status": "offered"
+      }
+    ],
+    "approvalCount": 1,
+    "activeReservationCount": 3,
+    "approvedProposalCount": 1,
+    "pendingProposalCount": 1
+  },
+  "checks": [
+    "Two independent dispatcher browser contexts opened different eligible pending proposals before either approval",
+    "Both approval commands were issued together for overlapping loads sharing T-101",
+    "Exactly one command succeeded and one returned a visible 409 INELIGIBLE reservation conflict",
+    "Final state contains one assignment, one approval and one approved proposal",
+    "The losing proposal remains pending with its original evidence; no conflicting assignment was created",
+    "Both browser contexts completed without page errors"
+  ],
+  "limits": "Local built web, API and PostgreSQL with synthetic loads. Browser processes share one machine and this is a controlled concurrency demonstration, not a distributed contention load test."
+}
