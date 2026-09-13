@@ -15,7 +15,7 @@ const C={graphite:'#191B1D',ivory:'#F5F3ED',ink:'#242729',muted:'#666962',orange
 const p=Presentation.create({slideSize:{width:1280,height:720}});
 const art=ROOT+'/apps/web/public/brand/road-sculpture.png';
 const captureFile=name=>new URL('./assets/'+name+'.png',import.meta.url).pathname;
-const captures={recovery:process.env.DECK_RECOVERY||captureFile('recovery'),approval:process.env.DECK_APPROVAL||captureFile('approval'),billing:process.env.DECK_BILLING||captureFile('billing'),planning:process.env.DECK_PLANNING||captureFile('planning'),mobile:process.env.DECK_MOBILE||captureFile('mobile')};
+const captures={recovery:process.env.DECK_RECOVERY||captureFile('recovery'),approval:process.env.DECK_APPROVAL||captureFile('approval'),billing:process.env.DECK_BILLING||captureFile('billing'),planning:process.env.DECK_PLANNING||captureFile('planning'),mobile:process.env.DECK_MOBILE||captureFile('mobile'),comparison:process.env.DECK_COMPARISON||ROOT+'/docs/evidence/3d-slowdown-comparison-2026-09-12/comparison-desktop.png'};
 const noteStrings=JSON.parse(await fs.readFile(new URL('./speaker-notes.json',import.meta.url),'utf8'));
 const durations=[35,45,80,65,65,60,55,50,50,55,40,120,180];
 function txt(s,value,x,y,w,h,size=30,bold=false,color=C.ink){const t=s.shapes.add({geometry:'textbox',position:{left:x,top:y,width:w,height:h},fill:'none',line:{fill:'none',width:0}});t.text=value;t.text.style={typeface:FONT,fontSize:size,bold,color,autoFit:'none'};return t;}
@@ -79,8 +79,8 @@ s=slide(true);await img(s,art,0,0,1280,720,'cover');txt(s,'Next carrier\nevaluat
 s=slide();title(s,'Concurrent approval');body(s,'A stable command key and expected version protect the same intent',67,140,1100,56,26);
 const nodes=[txt(s,'Command',68,278,260,52,32,true),txt(s,'Recheck',487,278,267,52,32,true),txt(s,'Commit',920,278,300,52,32,true,C.rust)];link(s,nodes[0],nodes[1],C.rule,4,'right','left');link(s,nodes[1],nodes[2],C.orange,4,'right','left');body(s,'Identity and version\nStable idempotency key',72,379,320,116,25);body(s,'Current availability\nResource exclusion constraints',491,379,349,116,25);body(s,'Atomic reservations\nCommit-ordered events',924,379,303,116,25);body(s,'A stale proposal conflicts before mutation. A repeated key returns its original result.',67,595,1110,66,25);
 
-// 13. Appendix: telemetry rules as clear comparison rows.
-s=slide(true);title(s,'Replay and telemetry evidence',1120,true);txt(s,'Replay conditions',65,204,526,60,33,true,C.ivory);txt(s,'Telemetry interpretation',701,204,529,60,33,true,C.ivory);body(s,'Recorded starting conditions\nDisclosed dock wait and road assumptions\nAn independent scenario clock',69,307,513,190,28,C.light);body(s,'Duplicate samples do not double-count\nOut-of-order samples retain history\nUncertain boundaries stay uncertain',704,307,517,190,28,C.light);body(s,'Operational outcomes remain separate from modeled savings.',68,586,1100,60,27,C.ivory);
+// 13. Appendix: matched replay proof from the actual application.
+s=slide(true);title(s,'Matched Highway 401 slowdown',1120,true);body(s,'Same route, seed, clock, dwell and source · only the road intervention changes',67,130,545,67,22,C.light);txt(s,'2,401 × 2',65,213,510,70,54,true,C.ivory);body(s,'acknowledged observations',69,285,490,38,22,C.light);txt(s,'+27.657 km',65,355,510,68,48,true,C.orange);body(s,'progress gap at T+40:00',69,425,490,38,22,C.light);txt(s,'+26m46s',65,493,510,68,48,true,C.ivory);body(s,'modeled finish delta',69,563,490,38,22,C.light);body(s,'Exact at-or-before samples · no interpolation\nSynthetic route and slowdown; no live-traffic claim.',69,625,510,60,18,C.light);await img(s,captures.comparison,647,139,548,540);
 
 await fs.mkdir(WORK+'/build/render',{recursive:true});await fs.mkdir(WORK+'/output',{recursive:true});
 const candidate=WORK+`/build/candidate-${REV}.pptx`;

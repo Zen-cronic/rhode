@@ -16,7 +16,7 @@ Fonts: Manrope Regular, Medium, SemiBold and Bold from the official Google Fonts
 
 The source uses the sibling product's `apps/web/public/brand/road-sculpture.png` and `roadstar-mark.svg`. These are illustrative brand art and branding, respectively. They are not geographic evidence.
 
-Set `ROADSTAR_ROOT` to the product repository if it differs from the authoring path. Override individual image paths with `DECK_RECOVERY`, `DECK_APPROVAL`, `DECK_MOBILE`, `DECK_BILLING`, and `DECK_PLANNING`. Use actual captures and preserve meaningful state labels. The default `assets/` images are the captures included in the final redesign. Do not treat static screenshots as new functional verification.
+Set `ROADSTAR_ROOT` to the product repository if it differs from the authoring path. Override individual image paths with `DECK_RECOVERY`, `DECK_APPROVAL`, `DECK_MOBILE`, `DECK_BILLING`, `DECK_PLANNING`, and `DECK_COMPARISON`. Use actual captures and preserve meaningful state labels. The first five defaults come from `assets/`; the comparison default uses the verified matched-slowdown evidence capture in the product tree. Do not treat static screenshots as new functional verification.
 
 ## Finalization
 
