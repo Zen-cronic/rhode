@@ -1,0 +1,66 @@
+{
+  "verifiedAt": "2026-09-13T03:48:59.373Z",
+  "webBase": "https://roadstar-web-739889188415.us-central1.run.app",
+  "webRevision": "roadstar-web-00070-rod",
+  "carrier": "presenter-recovery-44c12060-5617-419f-98b0-853e48a66dc5",
+  "checks": [
+    {
+      "uid": "preview-dispatcher",
+      "role": "dispatcher",
+      "driverId": null,
+      "viewportWidth": 1440,
+      "loginAndReadMilliseconds": 1298,
+      "roleNavigation": [
+        "Recovery",
+        "Planning",
+        "Tracking",
+        "Fleet",
+        "Evidence & billing",
+        "Imports",
+        "Activity"
+      ],
+      "signOutReturnedToLogin": true,
+      "horizontalOverflow": false
+    },
+    {
+      "uid": "preview-driver-1",
+      "role": "driver",
+      "driverId": "D-01",
+      "viewportWidth": 390,
+      "loginAndReadMilliseconds": 1237,
+      "roleNavigation": [
+        "Trips",
+        "Tracking",
+        "Fleet",
+        "Activity"
+      ],
+      "signOutReturnedToLogin": true,
+      "horizontalOverflow": false
+    },
+    {
+      "uid": "preview-driver-2",
+      "role": "driver",
+      "driverId": "D-02",
+      "viewportWidth": 390,
+      "loginAndReadMilliseconds": 1249,
+      "roleNavigation": [
+        "Trips",
+        "Tracking",
+        "Fleet",
+        "Activity"
+      ],
+      "signOutReturnedToLogin": true,
+      "horizontalOverflow": false
+    }
+  ],
+  "operationalPosts": [],
+  "errors": [],
+  "assertions": [
+    "Three fresh browser contexts authenticated with the staged dispatcher and two driver identities",
+    "Dispatcher and driver navigation matched their server-enforced roles",
+    "All contexts reached synchronized state, fit their target viewport and returned to login after sign-out",
+    "No operational API POST was issued and the staged recovery proposal remained unconsumed",
+    "The receipt contains no email address, password, Firebase token or browser storage state"
+  ],
+  "limits": "Read-only hosted credential readiness for the staged synthetic carrier. Credentials have not been delivered to judges, repository access has not been granted, and this is not portal or submission verification."
+}
