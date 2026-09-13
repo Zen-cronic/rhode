@@ -17,6 +17,8 @@ This evidence verifies the read-only 3D comparison bundled with the RoadStar web
 - `compiled-local-verification.json`: machine-readable verification receipt.
 - `compiled-local-desktop.png`: desktop Recovery view at intervention end.
 - `compiled-local-narrow.png`: narrow replay panel at intervention end.
+- `hosted-verification.json`: verification receipt for web revision `roadstar-web-00064-vuj`.
+- `hosted-desktop.png` and `hosted-narrow.png`: authenticated Cloud Run rendering at intervention end.
 - Packaged archive: `apps/web/public/demo/matched-401-replay.json`, 2,393,729 bytes, SHA-256 `aded08bfbaef7af1aa47dbd55468f7053ac26b42eb2c1e52f3fe94aaf6e264ae`.
 
 ## Claim boundary

@@ -1,10 +1,10 @@
 # Current hosted preview verification
 
-The approved seven-day preview now serves the ranked recovery build and matched-Highway-401 four-minute film from the existing RoadStar GCP project.
+The approved seven-day preview now serves the ranked recovery build, interactive read-only matched-Highway-401 replay and four-minute film from the existing RoadStar GCP project.
 
 ## Release
 
-- Web: `roadstar-web-00062-sab`
+- Web: `roadstar-web-00064-vuj`
 - Operational API: `roadstar-api-00036-woy`
 - Optimizer: `roadstar-optimizer-00015-vuk`
 - Document worker: `roadstar-documents-00021-tam`
@@ -19,11 +19,13 @@ An isolated Firebase-authenticated hosted scenario records a delayed RS-1042, id
 
 The hosted recovery view also renders the stored decision-packet receipt at desktop and 390 px. It exposes the one request, two screened combinations, one feasible candidate, one rejected candidate and one retained reason. This read-only check issued no recommendation, approval or driver command.
 
-Evidence and screenshots are in [`docs/evidence/cloud-ranked-recovery-2026-09-12`](evidence/cloud-ranked-recovery-2026-09-12/). The deployment receipt is in [`docs/evidence/cloud-current-demo-2026-09-12/deployment.json`](evidence/cloud-current-demo-2026-09-12/deployment.json).
+The same view exposes a packaged 3D comparison of two complete 2,401-observation simulator recordings. Both runs share their assignment basis, seed, route, scenario clock, stops, waits and speed profile; only the declared Highway 401 slowdown differs. At `T+40:00`, it displays the verified `+27.657 km` baseline progress advantage and modeled `+00:26:46` slowdown finish delta. Browser verification loaded one static archive, made no simulator presentation request and issued no operational write. The loaded replay remained inspectable offline and fit without horizontal overflow at 390 px.
+
+Evidence and screenshots are in [`docs/evidence/cloud-ranked-recovery-2026-09-12`](evidence/cloud-ranked-recovery-2026-09-12/) and [`docs/evidence/packaged-401-replay-2026-09-12`](evidence/packaged-401-replay-2026-09-12/). The deployment receipt is in [`docs/evidence/cloud-current-demo-2026-09-12/deployment.json`](evidence/cloud-current-demo-2026-09-12/deployment.json).
 
 ## Limits
 
-The scenario is synthetic. Route and schedule values are modeled with the configured services. It does not establish measured human task time, live traffic, revenue, or savings. Hosted simulator controls remain unavailable because a simulator Cloud Run resource was outside the approved cost estimate. The deployed web contains the 3D renderer, while its matched baseline-versus-401-slowdown source recording was verified locally and is shown in the hosted film. Physical Android and native iOS verification remain deferred.
+The scenario is synthetic. Route and schedule values are modeled with the configured services. It does not establish measured human task time, live traffic, revenue, or savings. Hosted simulator mutation controls remain unavailable because a simulator Cloud Run resource was outside the approved cost estimate. The packaged replay changes only its historical cursor and does not create or alter operational data. Physical Android and native iOS verification remain deferred.
 
 Reproduce the release checks with:
 
