@@ -49,6 +49,8 @@ const sources = [
   ["../submission/roadstar/live-presentation-plan.md", "LIVE-PRESENTATION-PLAN.md"],
   ["../submission/roadstar/demo-run-of-show.md", "VIDEO-RUN-OF-SHOW.md"],
   ["../submission/roadstar/DEMO-DAY-CUE-CARD.md", "DEMO-DAY-CUE-CARD.md"],
+  ["../submission/roadstar/IRL-DEMO-SCRIPT.md", "IRL-DEMO-SCRIPT.md"],
+  ["../submission/roadstar/VIDEO-DEMO-SCRIPT-CONVERSATIONAL.md", "VIDEO-DEMO-SCRIPT.md"],
   ["../submission/roadstar/FINAL-SUBMISSION-RUNBOOK.md", "FINAL-SUBMISSION-RUNBOOK.md"],
 ];
 
@@ -88,7 +90,7 @@ Generated ${generatedAt}. This folder contains no login credentials, Firebase co
 
 1. Open \`roadstar-pitch.pdf\` for the presentation.
 2. Play \`roadstar-demo.mp4\` if the hosted or local application is unavailable. The film is 240.096 seconds; \`roadstar-demo.srt\` contains captions.
-3. Use \`LIVE-PRESENTATION-PLAN.md\` for the 10-minute core and five-minute expandable technical section.
+3. Use \`IRL-DEMO-SCRIPT.md\` for the exact business-oriented 10-minute narration and click path. Keep \`DEMO-DAY-CUE-CARD.md\` beside it.
 4. Start with \`COMPLETION-AUDIT.md\` for the requirement-by-requirement proof map. Use \`SCENARIO-ACCEPTANCE.md\`, \`HOSTED-RECOVERY-EVIDENCE.md\` and the 3D evidence folders for deeper questions. \`matched-401-replay.json\` is the exact static archive served by the hosted preview.
 
 ## Application endpoints
@@ -134,7 +136,7 @@ const manifest = {
     "Every source file was copied byte-for-byte",
     "MP4, SRT, PDF and PPTX match the current hosted-artifact receipt",
     "No credential, private fixture, customer workbook or source document is included",
-    "The kit includes the final submission runbook, demo-day cue card, completion audit, live plan, video run-of-show, current S01-S20 evidence map, packaged replay archive, hosted public dock receipt and matched 3D slowdown proof",
+    "The kit includes the final submission runbook, exact in-person and video scripts, demo-day cue card, completion audit, live plan, current S01-S20 evidence map, packaged replay archive, hosted public dock receipt and matched 3D slowdown proof",
   ],
   limits:
     "Local file preparation only. Copy-media integrity, human film listening, venue playback, portal acceptance and judge access remain separate checks.",
