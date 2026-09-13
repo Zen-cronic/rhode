@@ -199,6 +199,24 @@ export type CorridorComparisonMetrics = {
   modeledCompletionDeltaSeconds: number
 }
 
+export type CorridorComparisonSpeedObservation = {
+  eventId: string
+  elapsedSeconds: number
+  sourceAgeSeconds: number
+  routeKey: string
+  position: { lat: number; lng: number }
+  speedKph: number | null
+}
+
+export type CorridorComparisonSpeedProfileEntry = {
+  sharedTimeSeconds: number
+  routeEpochIndex: number
+  routeOrdinal: number
+  startsRouteEpoch: boolean
+  baseline: CorridorComparisonSpeedObservation
+  disrupted: CorridorComparisonSpeedObservation
+}
+
 /** Read-only differences from exact source observations aligned at-or-before one shared clock. */
 export function corridorComparisonMetrics(left: CorridorRecording, right: CorridorRecording, elapsedSeconds: number): CorridorComparisonMetrics | null {
   if (!comparisonCompatibility(left, right).ok) return null
@@ -226,6 +244,126 @@ export function corridorComparisonMetrics(left: CorridorRecording, right: Corrid
     speedGapKph: baseline.sample.speedKph === null || disrupted.sample.speedKph === null ? null : baseline.sample.speedKph - disrupted.sample.speedKph,
     modeledCompletionDeltaSeconds: (disruptedRecording.modeled_completion_ms - baselineRecording.modeled_completion_ms) / 1000,
   }
+}
+
+/**
+ * Build a bounded speed profile from exact acknowledged observations. Each point
+ * names the at-or-before source events used at its shared scenario time; missing
+ * speeds stay null so a chart can render an honest gap instead of a stopped truck.
+ *
+ * Route revisions are independent recordings and therefore have different keys.
+ * Points are comparable only while both source events belong to the same route
+ * ordinal. `startsRouteEpoch` lets renderers break lines across a route change.
+ */
+export function corridorComparisonSpeedProfile(
+  left: CorridorRecording,
+  right: CorridorRecording,
+): CorridorComparisonSpeedProfileEntry[] {
+  if (!comparisonCompatibility(left, right).ok) return []
+  const baselineRecording = left.intervention.kind === 'baseline' ? left : right
+  const disruptedRecording = left.intervention.kind === 'baseline' ? right : left
+  const sharedStart = Math.max(
+    baselineRecording.events[0].elapsed_seconds,
+    disruptedRecording.events[0].elapsed_seconds,
+  )
+  const sharedEnd = Math.min(
+    baselineRecording.events.at(-1)?.elapsed_seconds ?? 0,
+    disruptedRecording.events.at(-1)?.elapsed_seconds ?? 0,
+  )
+  if (sharedStart > sharedEnd) return []
+
+  const interventionBoundaries = [
+    disruptedRecording.intervention.road_hold?.start_seconds,
+    disruptedRecording.intervention.road_hold
+      ? disruptedRecording.intervention.road_hold.start_seconds + disruptedRecording.intervention.road_hold.duration_seconds
+      : undefined,
+    disruptedRecording.intervention.road_slowdown?.start_seconds,
+    disruptedRecording.intervention.road_slowdown
+      ? disruptedRecording.intervention.road_slowdown.start_seconds + disruptedRecording.intervention.road_slowdown.duration_seconds
+      : undefined,
+  ].filter((value): value is number => finite(value) && value >= sharedStart && value <= sharedEnd)
+  const mandatoryTimes = new Set([sharedStart, sharedEnd, ...interventionBoundaries])
+  const candidateTimes = [...new Set([
+    ...baselineRecording.events.map(event => event.elapsed_seconds),
+    ...disruptedRecording.events.map(event => event.elapsed_seconds),
+    ...mandatoryTimes,
+  ])].filter(value => value >= sharedStart && value <= sharedEnd).sort((a, b) => a - b)
+  const baselineRoutes = new Map(baselineRecording.routes.map((route, index) => [route.key, { route, index }]))
+  const disruptedRoutes = new Map(disruptedRecording.routes.map((route, index) => [route.key, { route, index }]))
+
+  const candidates = candidateTimes.flatMap<CorridorComparisonSpeedProfileEntry>(sharedTimeSeconds => {
+    const baseline = eventAtOrBefore(baselineRecording, sharedTimeSeconds)
+    const disrupted = eventAtOrBefore(disruptedRecording, sharedTimeSeconds)
+    if (!baseline || !disrupted) return []
+    const baselineRoute = baselineRoutes.get(baseline.route_key)
+    const disruptedRoute = disruptedRoutes.get(disrupted.route_key)
+    if (!baselineRoute || !disruptedRoute || baselineRoute.index !== disruptedRoute.index ||
+        baselineRoute.route.ordinal !== disruptedRoute.route.ordinal) return []
+    return [{
+      sharedTimeSeconds,
+      routeEpochIndex: baselineRoute.index,
+      routeOrdinal: baselineRoute.route.ordinal,
+      startsRouteEpoch: false,
+      baseline: {
+        eventId: baseline.sample.id,
+        elapsedSeconds: baseline.elapsed_seconds,
+        sourceAgeSeconds: sharedTimeSeconds - baseline.elapsed_seconds,
+        routeKey: baseline.route_key,
+        position: { ...baseline.sample.position },
+        speedKph: baseline.sample.speedKph,
+      },
+      disrupted: {
+        eventId: disrupted.sample.id,
+        elapsedSeconds: disrupted.elapsed_seconds,
+        sourceAgeSeconds: sharedTimeSeconds - disrupted.elapsed_seconds,
+        routeKey: disrupted.route_key,
+        position: { ...disrupted.sample.position },
+        speedKph: disrupted.sample.speedKph,
+      },
+    }]
+  })
+  if (candidates.length <= 64) {
+    return candidates.map((entry, index) => ({
+      ...entry,
+      startsRouteEpoch: index === 0 || candidates[index - 1].routeEpochIndex !== entry.routeEpochIndex,
+    }))
+  }
+
+  // Keep intervention boundaries, the final shared time, and the first exact
+  // point of each route epoch. Fill the remaining budget by repeatedly choosing
+  // the point furthest in scenario time from those already retained.
+  const required = new Set<number>()
+  // Add fixed evidence boundaries before optional epoch starts so the shared end
+  // cannot be displaced even by an unusually revision-heavy recording.
+  for (const time of [sharedEnd, ...interventionBoundaries, sharedStart]) {
+    const index = candidates.findIndex(entry => entry.sharedTimeSeconds === time)
+    if (index >= 0) required.add(index)
+  }
+  candidates.forEach((entry, index) => {
+    if (required.size >= 64) return
+    if (index === 0 || (index > 0 && candidates[index - 1].routeEpochIndex !== entry.routeEpochIndex)) required.add(index)
+  })
+  const selected = new Set(required)
+  while (selected.size < 64) {
+    let bestIndex = -1
+    let bestDistance = -1
+    candidates.forEach((candidate, index) => {
+      if (selected.has(index)) return
+      const distance = Math.min(...[...selected].map(selectedIndex =>
+        Math.abs(candidate.sharedTimeSeconds - candidates[selectedIndex].sharedTimeSeconds)))
+      if (distance > bestDistance) {
+        bestIndex = index
+        bestDistance = distance
+      }
+    })
+    if (bestIndex < 0) break
+    selected.add(bestIndex)
+  }
+  const profile = [...selected].sort((a, b) => a - b).map(index => candidates[index])
+  return profile.map((entry, index) => ({
+    ...entry,
+    startsRouteEpoch: index === 0 || profile[index - 1].routeEpochIndex !== entry.routeEpochIndex,
+  }))
 }
 
 export function corridorComparisonMilestones(left: CorridorRecording, right: CorridorRecording) {
