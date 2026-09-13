@@ -46,7 +46,7 @@ try {
     verifiedAt: new Date().toISOString(),
     webBase,
     carrier: fixture.carrier,
-    revision: "roadstar-web-00060-zuz",
+    revision: "roadstar-web-00062-sab",
     image:
       "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:82b8125846782bec8ba11ecc4773a360a8b96169912928c684ed6b0f4137e80f",
     checks: [
