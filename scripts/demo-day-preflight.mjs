@@ -5,7 +5,7 @@ import path from "node:path";
 import process from "node:process";
 
 const productRoot = process.cwd();
-const submissionRoot = path.resolve(productRoot, "../submission/roadstar");
+const submissionRoot = path.resolve(productRoot, "../submission/rhode");
 const kitRoot = path.join(submissionRoot, "offline-demo-kit");
 const skipAndroid = process.argv.includes("--skip-android");
 const results = [];
@@ -35,7 +35,7 @@ async function request(url) {
 
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
-await check("Private release branch is clean and pushed", async () => {
+await check("Public release branch is clean and pushed", async () => {
   requireCheck(command("git", ["rev-parse", "--abbrev-ref", "HEAD"]) === "main", "current branch is not main");
   requireCheck(command("git", ["status", "--porcelain"]) === "", "product working tree is dirty");
   requireCheck(command("git", ["rev-parse", "HEAD"]) === command("git", ["rev-parse", "@{upstream}"]), "HEAD differs from upstream");
@@ -46,16 +46,20 @@ const hosted = [
   "https://roadstar-api-739889188415.us-central1.run.app/api/health",
   "https://roadstar-web-739889188415.us-central1.run.app/?view=dock-evidence",
   "https://roadstar-web-739889188415.us-central1.run.app/?view=matched-401",
-  "https://roadstar-web-739889188415.us-central1.run.app/demo/roadstar-demo.mp4",
-  "https://roadstar-web-739889188415.us-central1.run.app/demo/roadstar-pitch.pdf",
+  "https://roadstar-web-739889188415.us-central1.run.app/demo/rhode-demo.mp4",
+  "https://roadstar-web-739889188415.us-central1.run.app/demo/rhode-pitch.pdf",
 ];
 for (const url of hosted) await check(`Hosted ${new URL(url).pathname}${new URL(url).search}`, () => request(url));
 
 await check("Prepared local web fallback", async () => {
-  const candidates = ["http://127.0.0.1:5175/?view=dock-evidence", "http://127.0.0.1:5174/?view=dock-evidence"];
+  const candidates = [
+    "http://127.0.0.1:5176/?view=dock-evidence",
+    "http://127.0.0.1:5175/?view=dock-evidence",
+    "http://127.0.0.1:5174/?view=dock-evidence",
+  ];
   const settled = await Promise.allSettled(candidates.map(request));
   const ready = settled.flatMap((result, index) => (result.status === "fulfilled" ? [candidates[index]] : []));
-  requireCheck(ready.length > 0, "neither local web port 5175 nor 5174 responded");
+  requireCheck(ready.length > 0, "no prepared local web fallback responded on port 5176, 5175 or 5174");
   return ready.join(", ");
 });
 
