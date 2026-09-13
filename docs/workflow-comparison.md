@@ -24,7 +24,7 @@ The activation difference is six and the command-request difference is one for t
 - `OPTIMIZER_URL=http://127.0.0.1:4040 node scripts/prepare-workflow-comparison.ts` creates five new manual/ranked carrier pairs without modifying prior evidence fixtures.
 - `node scripts/verify-workflow-comparison.mjs` performs the two real browser paths through API4010 and the local optimizer, verifies matching selected resources and HOS rejection, and records the timings and activation/request counts.
 - Desktop and 390 px decision receipts were inspected directly. No page error or horizontal overflow occurred.
-- The Firebase-authenticated hosted receipt on `roadstar-web-00060-zuz` was rechecked at desktop and 390 px. It reports one request, two combinations, one feasible candidate, one rejected candidate and one retained constraint reason without issuing a new operational command.
+- The Firebase-authenticated hosted receipt on `roadstar-web-00062-sab` was rechecked at desktop and 390 px. It reports one request, two combinations, one feasible candidate, one rejected candidate and one retained constraint reason without issuing a new operational command.
 
 Evidence is in `docs/evidence/workflow-comparison-2026-09-12/verification.json` and `hosted-verification.json`. Captures include the manual HOS failure, manual feasible proposal, and ranked decision receipt locally and on the hosted preview at desktop and narrow widths.
 

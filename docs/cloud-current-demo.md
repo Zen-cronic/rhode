@@ -4,7 +4,7 @@ The approved seven-day preview now serves the ranked recovery build and matched-
 
 ## Release
 
-- Web: `roadstar-web-00060-zuz`
+- Web: `roadstar-web-00062-sab`
 - Operational API: `roadstar-api-00036-woy`
 - Optimizer: `roadstar-optimizer-00015-vuk`
 - Document worker: `roadstar-documents-00021-tam`
@@ -13,7 +13,7 @@ Every revision passed a zero-traffic tagged health check before receiving 100% t
 
 ## Judge-facing checks
 
-The public API reports PostgreSQL and Firebase authentication. The public web shell returns HTTP 200. The hosted MP4, SRT, PDF and editable PPTX are byte-identical to their tracked masters. The 240.096-second H.264/AAC film has SHA-256 `1b750bcbc18fde996648aab66a5d44357aaacd61755e259350e2784867787cb0`. The current PDF is `3a296462c2932d350760ba30fa6b9770aacd2cedeee4001053f11cf40861d006`; the editable PPTX is `bdbd5fa04f96a5d87fd04063b436f5780ba13a82664a38495afd1c7ba427b712`.
+The public API reports PostgreSQL and Firebase authentication. The public web shell returns HTTP 200. The hosted MP4, SRT, PDF and editable PPTX are byte-identical to their tracked masters. The 240.096-second H.264/AAC film has SHA-256 `1b750bcbc18fde996648aab66a5d44357aaacd61755e259350e2784867787cb0`. The current PDF is `bdd5f50db0da136e841f486380f8f42512e39b42c591b2c7198b50f130d929e1`; the editable PPTX is `075d497670bec0439518fd0c2069ffe53b8aae4b016a7fbfb0290a938be3e4a6`.
 
 An isolated Firebase-authenticated hosted scenario records a delayed RS-1042, identifies RS-1043 at risk, ranks Morgan with T-102/V-102 as feasible, and retains Taylor's missing/stale HOS evidence as a rejection. A dispatcher approves the pending revision; a separate driver accepts the resulting offer. A simulator-role approval returns 403 and a new approval against the applied proposal returns 409 without another mutation. The original assignment is superseded and the replacement is accepted.
 

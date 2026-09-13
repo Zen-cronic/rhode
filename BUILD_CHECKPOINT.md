@@ -522,6 +522,12 @@ Parallel organizer email draft prepared in suite research/organizer-submission-e
 - The four-minute film now replaces the prior frozen-corridor frame with the verified matched baseline-versus-Highway-401-slowdown comparison. The 0:36–1:34 evidence montage still uses actual verified application states; narration, AAC packet stream and caption timings are unchanged.
 - Current film SHA-256 is `1b750bcbc18fde996648aab66a5d44357aaacd61755e259350e2784867787cb0`; duration remains 240.096s, H.264/AAC, 1920x1080 at 24fps. Five representative frames were inspected, including the return to driver execution.
 - Web-only rollout `roadstar-web-00060-zuz` passed the zero-traffic tagged health check and receives 100% traffic. Hosted MP4/SRT/PDF/PPTX are byte-identical to tracked masters. API `00036-woy`, optimizer `00015-vuk` and documents `00021-tam` are unchanged; no new resource or model call was made.
+
+## 2026-09-12 — matched Highway 401 deck appendix
+
+- Appendix slide13 now presents the matched slowdown proof beside the actual application capture:2,401 acknowledged observations per branch,27.657km progress gap atT+40:00 and+26m46s modeled finish delta. The slide discloses the matched basis, exact at-or-before selection, no interpolation, synthetic route/slowdown and no live-traffic claim.
+- Editable PPTX validation passes13-slide package integrity, layout/heading fit, Manrope policy, first-party reimport and the retained native table with zero findings. Artifact Tool and LibreOffice PDF renders of slide13 were inspected without clipping or overlap. PowerPoint/Google Slides native rendering remains uninspected.
+- Current PPTX SHA-256 is `075d497670bec0439518fd0c2069ffe53b8aae4b016a7fbfb0290a938be3e4a6`; PDF is `bdd5f50db0da136e841f486380f8f42512e39b42c591b2c7198b50f130d929e1`. Web-only rollout `roadstar-web-00062-sab` passed the zero-traffic tagged health check and receives100% traffic; all four public artifacts match tracked masters. Other services and the unconsumed hosted presenter carrier are unchanged.
 - Commits `df5d508`, `d2020dc`, `2484a52` and `7e38875` are pushed to private `main`. No new persistent GCP resource or model call. Full goal remains active; human workflow observation, live rehearsal, judge access/portal completion and physical Android/native iOS remain outstanding. Final submission and organizer outreach remain separate actions.
 
 ## September 12 competing dispatcher approvals — PB-RS-COMPETING-APPROVALS-20260912

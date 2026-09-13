@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-09-13T00:03:42.612Z",
+  "verifiedAt": "2026-09-13T00:18:57.349Z",
   "project": "roadstar-2026-kzh",
   "region": "us-central1",
   "services": {
@@ -16,9 +16,9 @@
       "ready": "True"
     },
     "web": {
-      "revision": "roadstar-web-00060-zuz",
+      "revision": "roadstar-web-00062-sab",
       "trafficPercent": 100,
-      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:d4b4b701f61f314cc6b27463788eb621c92bfab800bf31aeb92a39647889fa8e",
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:da5dd5ff37a4195fe00535d25b87637beda9476e3dd070b68f3687a436a49b3d",
       "ready": "True"
     },
     "documents": {
@@ -59,15 +59,15 @@
         "name": "roadstar-pitch.pdf",
         "status": 200,
         "contentType": "application/pdf",
-        "bytes": 643985,
-        "sha256": "3a296462c2932d350760ba30fa6b9770aacd2cedeee4001053f11cf40861d006"
+        "bytes": 782452,
+        "sha256": "bdd5f50db0da136e841f486380f8f42512e39b42c591b2c7198b50f130d929e1"
       },
       {
         "name": "roadstar-pitch.pptx",
         "status": 200,
         "contentType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-        "bytes": 4260062,
-        "sha256": "bdbd5fa04f96a5d87fd04063b436f5780ba13a82664a38495afd1c7ba427b712"
+        "bytes": 4397454,
+        "sha256": "075d497670bec0439518fd0c2069ffe53b8aae4b016a7fbfb0290a938be3e4a6"
       }
     ],
     "film": {
