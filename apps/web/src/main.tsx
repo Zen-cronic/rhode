@@ -8,15 +8,16 @@ import "@fontsource/manrope/700.css";
 import "@fontsource/ibm-plex-mono/400.css";
 import { App } from "./App";
 import { StandaloneCorridorReplay } from "./StandaloneCorridorReplay";
+import { StandaloneDockEvidence } from "./StandaloneDockEvidence";
 import "./style.css";
 const client = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: true } },
 });
-const standaloneReplay = new URLSearchParams(window.location.search).get("view") === "matched-401";
+const publicView = new URLSearchParams(window.location.search).get("view");
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={client}>
-      {standaloneReplay ? <StandaloneCorridorReplay /> : <App />}
+      {publicView === "matched-401" ? <StandaloneCorridorReplay /> : publicView === "dock-evidence" ? <StandaloneDockEvidence /> : <App />}
     </QueryClientProvider>
   </React.StrictMode>,
 );
