@@ -6,7 +6,7 @@ import {mkdir,readFile,writeFile} from 'node:fs/promises';
 const project='roadstar-2026-kzh',region='us-central1';
 const web='https://roadstar-web-739889188415.us-central1.run.app';
 const api='https://roadstar-api-739889188415.us-central1.run.app';
-const expected={optimizer:'roadstar-optimizer-00015-vuk',api:'roadstar-api-00036-woy',web:'roadstar-web-00058-juc',documents:'roadstar-documents-00021-tam'};
+const expected={optimizer:'roadstar-optimizer-00015-vuk',api:'roadstar-api-00036-woy',web:'roadstar-web-00060-zuz',documents:'roadstar-documents-00021-tam'};
 const services={};
 for(const [component,revision] of Object.entries(expected)){
   const name='roadstar-'+component;
