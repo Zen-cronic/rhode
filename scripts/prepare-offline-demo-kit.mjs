@@ -36,6 +36,10 @@ const sources = [
   ["docs/evidence/packaged-401-replay-2026-09-12/hosted-verification.json", "evidence/packaged-401-replay-2026-09-12/hosted-verification.json"],
   ["docs/evidence/packaged-401-replay-2026-09-12/hosted-desktop.png", "evidence/packaged-401-replay-2026-09-12/hosted-desktop.png"],
   ["docs/evidence/packaged-401-replay-2026-09-12/hosted-narrow.png", "evidence/packaged-401-replay-2026-09-12/hosted-narrow.png"],
+  ["docs/evidence/public-401-replay-2026-09-12/README.md", "evidence/public-401-replay-2026-09-12/README.md"],
+  ["docs/evidence/public-401-replay-2026-09-12/hosted-verification.json", "evidence/public-401-replay-2026-09-12/hosted-verification.json"],
+  ["docs/evidence/public-401-replay-2026-09-12/hosted-desktop.png", "evidence/public-401-replay-2026-09-12/hosted-desktop.png"],
+  ["docs/evidence/public-401-replay-2026-09-12/hosted-narrow.png", "evidence/public-401-replay-2026-09-12/hosted-narrow.png"],
   ["../submission/roadstar/live-presentation-plan.md", "LIVE-PRESENTATION-PLAN.md"],
   ["../submission/roadstar/demo-run-of-show.md", "VIDEO-RUN-OF-SHOW.md"],
 ];
@@ -81,6 +85,7 @@ Generated ${generatedAt}. This folder contains no login credentials, Firebase co
 
 ## Application endpoints
 
+- Public matched replay: https://roadstar-web-739889188415.us-central1.run.app/?view=matched-401
 - Hosted dispatcher: https://roadstar-web-739889188415.us-central1.run.app
 - Local dispatcher on the prepared development laptop: http://localhost:5174
 - Private repository: https://github.com/Zen-cronic/roadstar
@@ -120,7 +125,7 @@ const manifest = {
     "Every source file was copied byte-for-byte",
     "MP4, SRT, PDF and PPTX match the current hosted-artifact receipt",
     "No credential, private fixture, customer workbook or source document is included",
-    "The kit includes a 10-minute live plan, video run-of-show, current S01-S20 evidence map, packaged replay archive and matched 3D slowdown proof",
+    "The kit includes a 10-minute live plan, video run-of-show, current S01-S20 evidence map, packaged replay archive and hosted public matched 3D slowdown proof",
   ],
   limits:
     "Local file preparation only. Copy-media integrity, human film listening, venue playback, portal acceptance and judge access remain separate checks.",

@@ -15,3 +15,5 @@ WEB_BASE=https://roadstar-web-739889188415.us-central1.run.app node scripts/veri
 ```
 
 The verifier checks desktop and 390 px rendering, matched metrics, archive byte identity, offline inspection after loading, absence of authentication fields, and zero operational API requests or writes. This is deterministic synthetic evidence rather than live traffic, operational telemetry, certified GPS or billing authority.
+
+Hosted verification passed on web revision `roadstar-web-00066-kig` at 100% traffic. The verifier loaded exactly one static replay archive, made no `/api/` request, issued no write, and reported no browser error. See `hosted-verification.json`, `hosted-desktop.png` and `hosted-narrow.png`.

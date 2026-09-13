@@ -4,7 +4,7 @@ The approved seven-day preview now serves the ranked recovery build, interactive
 
 ## Release
 
-- Web: `roadstar-web-00064-vuj`
+- Web: `roadstar-web-00066-kig`
 - Operational API: `roadstar-api-00036-woy`
 - Optimizer: `roadstar-optimizer-00015-vuk`
 - Document worker: `roadstar-documents-00021-tam`
@@ -19,9 +19,9 @@ An isolated Firebase-authenticated hosted scenario records a delayed RS-1042, id
 
 The hosted recovery view also renders the stored decision-packet receipt at desktop and 390 px. It exposes the one request, two screened combinations, one feasible candidate, one rejected candidate and one retained reason. This read-only check issued no recommendation, approval or driver command.
 
-The same view exposes a packaged 3D comparison of two complete 2,401-observation simulator recordings. Both runs share their assignment basis, seed, route, scenario clock, stops, waits and speed profile; only the declared Highway 401 slowdown differs. At `T+40:00`, it displays the verified `+27.657 km` baseline progress advantage and modeled `+00:26:46` slowdown finish delta. Browser verification loaded one static archive, made no simulator presentation request and issued no operational write. The loaded replay remained inspectable offline and fit without horizontal overflow at 390 px.
+The same comparison is also available without credentials at [the public matched Highway 401 replay](https://roadstar-web-739889188415.us-central1.run.app/?view=matched-401). It uses two complete 2,401-observation simulator recordings. Both runs share their assignment basis, seed, route, scenario clock, stops, waits and speed profile; only the declared Highway 401 slowdown differs. At `T+40:00`, it displays the verified `+27.657 km` baseline progress advantage and modeled `+00:26:46` slowdown finish delta. Browser verification loaded one static archive, made no operational API request and issued no write. The loaded replay remained inspectable offline and fit without horizontal overflow at 390 px.
 
-Evidence and screenshots are in [`docs/evidence/cloud-ranked-recovery-2026-09-12`](evidence/cloud-ranked-recovery-2026-09-12/) and [`docs/evidence/packaged-401-replay-2026-09-12`](evidence/packaged-401-replay-2026-09-12/). The deployment receipt is in [`docs/evidence/cloud-current-demo-2026-09-12/deployment.json`](evidence/cloud-current-demo-2026-09-12/deployment.json).
+Evidence and screenshots are in [`docs/evidence/cloud-ranked-recovery-2026-09-12`](evidence/cloud-ranked-recovery-2026-09-12/), [`docs/evidence/packaged-401-replay-2026-09-12`](evidence/packaged-401-replay-2026-09-12/) and [`docs/evidence/public-401-replay-2026-09-12`](evidence/public-401-replay-2026-09-12/). The deployment receipt is in [`docs/evidence/cloud-current-demo-2026-09-12/deployment.json`](evidence/cloud-current-demo-2026-09-12/deployment.json).
 
 ## Limits
 
