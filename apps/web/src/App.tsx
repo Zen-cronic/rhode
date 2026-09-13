@@ -145,8 +145,8 @@ function Login({ onLogin }: { onLogin: (session: Session) => void }) {
           Dispatcher approval stays at the center of every consequential change.
         </div>
         <div className="login-demo-links">
-          <a href="/demo/roadstar-demo.mp4" target="_blank" rel="noreferrer">Watch demonstration ↗</a>
-          <a href="/demo/roadstar-pitch.pdf" target="_blank" rel="noreferrer">View presentation ↗</a>
+          <a href="/demo/rhode-demo.mp4" target="_blank" rel="noreferrer">Watch demonstration ↗</a>
+          <a href="/demo/rhode-pitch.pdf" target="_blank" rel="noreferrer">View presentation ↗</a>
         </div>
       </div>
       <section className="login-form panel">

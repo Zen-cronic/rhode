@@ -6,7 +6,7 @@ Carrier dispatch and driver execution for Southern Ontario. Rehearse a dock dela
 
 ## Judge access
 
-The fastest review path is the [four-minute recording](https://roadstar-web-739889188415.us-central1.run.app/demo/rhode-demo.mp4), followed by the credential-free [dock-to-recovery receipt](https://roadstar-web-739889188415.us-central1.run.app/?view=dock-evidence), [matched Highway 401 replay](https://roadstar-web-739889188415.us-central1.run.app/?view=matched-401), and temporary judge workspace. The repository is public under the MIT License. No password is needed for the synthetic judge demo.
+The fastest review path is the [four-minute recording](https://roadstar-web-739889188415.us-central1.run.app/demo/rhode-demo.mp4), followed by the credential-free [dock-to-recovery receipt](https://roadstar-web-739889188415.us-central1.run.app/?view=dock-evidence), [matched Highway 401 replay](https://roadstar-web-739889188415.us-central1.run.app/?view=matched-401), and temporary judge workspace. The repository is prepared for public release under the MIT License. No password is needed for the synthetic judge demo.
 
 The staged dispatcher and both staged driver identities pass independent, storage-empty hosted-browser login, role-navigation and sign-out checks at desktop/390px. The redacted receipt records no email address, password, token or browser state and the verifier issues no operational POST. See [judge access readiness](docs/evidence/judge-access-readiness-2026-09-13/README.md). Credential delivery and private-repository invitations remain separate operator actions.
 

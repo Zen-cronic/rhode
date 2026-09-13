@@ -1,0 +1,376 @@
+1
+00:00:00,000 --> 00:00:03,626
+A delayed truck puts the next pickup at
+risk.
+
+2
+00:00:03,706 --> 00:00:07,570
+Rhode lets a dispatcher rehearse the
+recovery, approve a feasible
+
+3
+00:00:07,650 --> 00:00:11,449
+replacement, and keep the driver and
+detention evidence connected.
+
+4
+00:00:11,529 --> 00:00:13,920
+This is the working synthetic rehearsal.
+
+5
+00:00:14,000 --> 00:00:16,822
+A carrier is coordinating loads, drivers,
+trucks,
+
+6
+00:00:16,902 --> 00:00:19,528
+trailers, appointment windows, and duty
+time.
+
+7
+00:00:19,608 --> 00:00:23,842
+A dock delay changes several of those
+commitments at once.
+
+8
+00:00:23,922 --> 00:00:26,861
+Rhode brings that decision into one
+workspace.
+
+9
+00:00:26,941 --> 00:00:30,172
+The dispatcher can see the affected
+assignment and
+
+10
+00:00:30,252 --> 00:00:33,332
+compare a replacement before changing the
+plan.
+
+11
+00:00:33,412 --> 00:00:35,920
+Every demonstration shipment is explicitly
+synthetic.
+
+12
+00:00:36,000 --> 00:00:39,349
+Here, Alex is delayed on the first trip.
+
+13
+00:00:39,429 --> 00:00:43,634
+Recording the expected departure exposes
+the next assignment at risk.
+
+14
+00:00:43,714 --> 00:00:47,920
+The original commitment stays visible
+while we prepare a recovery.
+
+15
+00:00:48,000 --> 00:00:51,777
+We select Morgan with a different truck
+and trailer.
+
+16
+00:00:51,857 --> 00:00:53,912
+Rhode checks availability, equipment,
+
+17
+00:00:53,992 --> 00:00:56,491
+declared duty budgets, and truck-route
+travel time.
+
+18
+00:00:56,571 --> 00:00:59,377
+The route comes from Valhalla using
+Ontario
+
+19
+00:00:59,457 --> 00:01:02,491
+road data and the supplied vehicle
+dimensions.
+
+20
+00:01:02,571 --> 00:01:05,920
+Missing evidence or an infeasible choice
+stays visible.
+
+21
+00:01:06,000 --> 00:01:09,856
+The recovery review shows the existing
+assignment, the proposed
+
+22
+00:01:09,936 --> 00:01:13,442
+replacement, and the evidence used to make
+the comparison.
+
+23
+00:01:13,522 --> 00:01:15,532
+The dispatcher approves this revision.
+
+24
+00:01:15,612 --> 00:01:20,547
+At that moment, the server checks the
+current versions and availability again.
+
+25
+00:01:20,627 --> 00:01:25,144
+If the driver or resource evidence
+changed, approval returns a conflict.
+
+26
+00:01:25,224 --> 00:01:28,345
+A successful approval updates assignments,
+reservations,
+
+27
+00:01:28,425 --> 00:01:30,995
+and the driver offer in one database
+transaction.
+
+28
+00:01:31,075 --> 00:01:33,920
+Repeated commands retain their original
+idempotency key.
+
+29
+00:01:34,000 --> 00:01:36,648
+The driver receives a manifest with the
+next
+
+30
+00:01:36,728 --> 00:01:39,520
+action, stop instructions, and trip
+context.
+
+31
+00:01:39,600 --> 00:01:41,920
+Acceptance is recorded separately from
+dispatch.
+
+32
+00:01:42,000 --> 00:01:44,912
+On the Android emulator, we also tested
+losing connectivity:
+
+33
+00:01:44,992 --> 00:01:48,016
+acceptance stayed visibly pending,
+survived a force-stop, and
+
+34
+00:01:48,096 --> 00:01:51,120
+synchronized after reconnecting without
+another assignment.
+
+35
+00:01:51,200 --> 00:01:55,120
+The native app preserves downloaded work
+and encrypted sign-in state.
+
+36
+00:01:55,200 --> 00:01:57,520
+Tracking is an explicit work-session
+choice.
+
+37
+00:01:57,600 --> 00:01:59,667
+Physical phone background-location testing
+
+38
+00:01:59,747 --> 00:02:01,920
+and native iOS verification are still
+deferred.
+
+39
+00:02:02,000 --> 00:02:05,295
+The same shipment keeps its document and
+detention context.
+
+40
+00:02:05,375 --> 00:02:09,420
+This source PDF is stored privately,
+hashed, and extracted with Gemini.
+
+41
+00:02:09,500 --> 00:02:12,795
+A dispatcher reviews corrections without
+replacing the original extraction.
+
+42
+00:02:12,875 --> 00:02:15,045
+Reviewed arrival instructions retain their
+source.
+
+43
+00:02:15,125 --> 00:02:17,606
+Detention uses arrival and departure
+samples
+
+44
+00:02:17,686 --> 00:02:20,295
+for the same stop and configured contract
+terms.
+
+45
+00:02:20,375 --> 00:02:22,920
+The reviewer must acknowledge the
+observed-sample precision.
+
+46
+00:02:23,000 --> 00:02:26,670
+Approval creates a new invoice revision
+and preserves the draft.
+
+47
+00:02:26,750 --> 00:02:31,920
+It does not collect a payment or turn
+uncertain GPS into an exact timestamp.
+
+48
+00:02:32,000 --> 00:02:33,804
+Rhode also plans shared routes.
+
+49
+00:02:33,884 --> 00:02:36,819
+These two less-than-truckload shipments
+fit one selected vehicle.
+
+50
+00:02:36,899 --> 00:02:40,282
+OR-Tools uses actual truck-route matrices
+to order both pickups and
+
+51
+00:02:40,362 --> 00:02:43,978
+deliveries while checking the supported
+capacity and time constraints.
+
+52
+00:02:44,058 --> 00:02:46,616
+The dispatcher reviews the assumptions
+before approving.
+
+53
+00:02:46,696 --> 00:02:49,254
+The driver accepts one complete manifest,
+
+54
+00:02:49,334 --> 00:02:51,891
+and the app enforces its global stop
+order.
+
+55
+00:02:51,971 --> 00:02:55,282
+Vehicle reservations remain active until
+all deliveries are complete.
+
+56
+00:02:55,362 --> 00:02:57,953
+This preview discloses its synthetic
+pallet-capacity allowance.
+
+57
+00:02:58,000 --> 00:03:01,110
+The importer reconciled all five supplied
+workbook sheets: over fifteen
+
+58
+00:03:01,190 --> 00:03:04,451
+thousand source rows, including eighty-two
+exact duplicate dispatch rows.
+
+59
+00:03:04,531 --> 00:03:06,610
+Original rows, missing fields, historical
+dates,
+
+60
+00:03:06,690 --> 00:03:08,576
+and normalized records retain their
+lineage.
+
+61
+00:03:08,656 --> 00:03:10,295
+Customer data remains isolated locally.
+
+62
+00:03:10,375 --> 00:03:13,732
+The public preview uses synthetic
+scenarios for missing operational inputs.
+
+63
+00:03:13,812 --> 00:03:16,932
+Scenario replay has its own clock and
+identical starting conditions,
+
+64
+00:03:17,012 --> 00:03:19,920
+so modeled comparisons cannot overwrite
+live operational time.
+
+65
+00:03:20,000 --> 00:03:23,396
+The deployed platform uses Firebase
+identity, Cloud Run services,
+
+66
+00:03:23,476 --> 00:03:27,349
+PostgreSQL with PostGIS, private Cloud
+Storage, Cloud Tasks, and Vertex AI.
+
+67
+00:03:27,429 --> 00:03:30,020
+Database tests cover overlapping
+reservations, stale approvals,
+
+68
+00:03:30,097 --> 00:03:32,552
+repeated commands, role boundaries, and
+uncertain telemetry.
+
+69
+00:03:32,629 --> 00:03:35,996
+A cloud burst representing one hundred
+thirty-one drivers completed
+
+70
+00:03:36,076 --> 00:03:38,987
+without failed commands, but measured
+about five point four
+
+71
+00:03:39,067 --> 00:03:42,206
+seconds of synchronization lag at the
+ninety-fifth percentile.
+
+72
+00:03:42,286 --> 00:03:45,920
+That is a measured limit, not a two-second
+service guarantee.
+
+73
+00:03:46,000 --> 00:03:48,720
+Rhode connects recovery decisions to
+execution and evidence.
+
+74
+00:03:48,800 --> 00:03:51,050
+The next step is physical-device
+validation and
+
+75
+00:03:51,130 --> 00:03:53,270
+carrier evaluation of the complete
+workflow.
+
+76
+00:03:53,350 --> 00:03:56,948
+Open the preview to rehearse a recovery,
+inspect the assumptions,
+
+77
+00:03:57,028 --> 00:03:59,920
+and follow the approved change through to
+the driver.
