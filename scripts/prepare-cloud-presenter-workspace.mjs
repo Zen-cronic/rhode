@@ -151,7 +151,7 @@ const delay = await api(
     assignmentId: current.id,
     expectedEnd: "2026-09-13T17:00:00Z",
     observedAt: "2026-09-13T15:30:00Z",
-    reason: "Synthetic dock departure delay staged for the RoadStar presentation",
+    reason: "Synthetic dock departure delay staged for the Rhode presentation",
   },
   accepted.version,
   "preview-simulator",

@@ -1,7 +1,7 @@
 [project]
 name = "roadstar-optimizer"
 version = "0.1.0"
-description = "Bounded vehicle-aware planning worker for RoadStar"
+description = "Bounded vehicle-aware planning worker for Rhode"
 requires-python = ">=3.12,<3.14"
 dependencies = ["fastapi>=0.115,<1", "uvicorn>=0.34,<1", "ortools>=9.12,<10", "httpx>=0.28,<1", "pydantic>=2.10,<3"]
 [tool.poetry]

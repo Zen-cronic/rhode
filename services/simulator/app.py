@@ -37,7 +37,7 @@ async def lifespan(_):
         yield
 
 
-app = FastAPI(title='RoadStar independent simulator', lifespan=lifespan)
+app = FastAPI(title='Rhode independent simulator', lifespan=lifespan)
 runs: dict[str, dict] = {}
 lock = asyncio.Lock()
 presentation_cache: dict[str, dict] = {}

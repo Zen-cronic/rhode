@@ -42,13 +42,13 @@ export async function startBackgroundTracking(api:Api,scope:string,assignmentId:
  const current:TrackingGrant={emulator,id:Crypto.randomUUID(),scope,origin:api.origin,userId:api.identity.id,carrierId:api.identity.carrier,driverId,sessionId,assignmentId,startedAt:new Date().toISOString(),expiresAt:credential.expiresAt,enabled:true};
  const blocked=trackingBlock(current,state,Date.now(),true);if(blocked)throw new Error(blocked);
  await stopBackgroundTracking('Preparing authorized work-session tracking.');await SecureStore.setItemAsync(TOKEN_KEY,credential.token,{keychainAccessible:SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY});await (await control()).saveDraft('verified-session',JSON.stringify({grantId:current.id,state,verifiedAt:new Date().toISOString()}));await (await control()).saveDraft('grant',JSON.stringify(current));
- try{await Location.startLocationUpdatesAsync(TRACKING_TASK,{accuracy:Location.Accuracy.High,timeInterval:15000,distanceInterval:50,pausesUpdatesAutomatically:false,showsBackgroundLocationIndicator:true,foregroundService:{notificationTitle:'RoadStar work session',notificationBody:'Location is shared for your active trip. End sharing in RoadStar.',killServiceOnDestroy:true}});await note('Background tracking enabled for this active work session.');}catch(error){await stopBackgroundTracking(`Could not start background tracking: ${String(error)}`);throw error;}
+ try{await Location.startLocationUpdatesAsync(TRACKING_TASK,{accuracy:Location.Accuracy.High,timeInterval:15000,distanceInterval:50,pausesUpdatesAutomatically:false,showsBackgroundLocationIndicator:true,foregroundService:{notificationTitle:'Rhode work session',notificationBody:'Location is shared for your active trip. End sharing in Rhode.',killServiceOnDestroy:true}});await note('Background tracking enabled for this active work session.');}catch(error){await stopBackgroundTracking(`Could not start background tracking: ${String(error)}`);throw error;}
 }
 TaskManager.defineTask<{locations:Location.LocationObject[]}>(TRACKING_TASK,async({data,error})=>{
  const current=await grant();if(!current?.enabled)return;
  if(error){await stopBackgroundTracking(`Background location unavailable: ${error.message}`);return;}
  try{
-   const permission=await Location.getBackgroundPermissionsAsync();if(!permission.granted||Date.now()>=Date.parse(current.expiresAt)){await stopBackgroundTracking(!permission.granted?'Background location permission revoked.':'Sign-in token expired. Reopen RoadStar and enable tracking.');return;}
+   const permission=await Location.getBackgroundPermissionsAsync();if(!permission.granted||Date.now()>=Date.parse(current.expiresAt)){await stopBackgroundTracking(!permission.granted?'Background location permission revoked.':'Sign-in token expired. Reopen Rhode and enable tracking.');return;}
    const token=await SecureStore.getItemAsync(TOKEN_KEY);if(!token){await stopBackgroundTracking('Tracking credential unavailable. Sign in again.');return;}
    const queue=new Queue(await getDatabase(),current.scope);await queue.init();
    let saved=JSON.parse(await (await control()).draft('verified-session')||'null') as VerifiedTracking|null;

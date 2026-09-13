@@ -9,7 +9,7 @@ export async function importWorkbook(store:Store,actor:Actor,path:string){
   store.dispatcher(actor);const bytes=await readFile(path),hash=createHash('sha256').update(bytes).digest('hex');
   const workbook=new ExcelJS.Workbook();await workbook.xlsx.load(bytes as any);
   // Preserve every supplied sheet; expected-name validation is based on actual inventory.
-  demand(workbook.worksheets.length===5&&sheets.every(name=>workbook.getWorksheet(name)),'INVALID_WORKBOOK','RoadStar import expects all five source sheets.',400);
+  demand(workbook.worksheets.length===5&&sheets.every(name=>workbook.getWorksheet(name)),'INVALID_WORKBOOK','Rhode import expects all five source sheets.',400);
   const parsed=workbook.worksheets.map(sheet=>{
     const columns=sheet.getRow(1).values as ExcelJS.CellValue[];
     const headers=Array.from({length:sheet.columnCount},(_,i)=>String(columns[i+1]??`COLUMN_${i+1}`));

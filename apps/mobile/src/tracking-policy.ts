@@ -3,7 +3,7 @@ export type TrackingState={capabilities?:{emulatorTracking?:boolean};visits?:{as
 export function trackingBlock(grant:TrackingGrant,state:TrackingState,now:number,permissionGranted:boolean):string|null{
  if(!grant.enabled)return 'Tracking authorization was revoked.';
  if(!permissionGranted)return 'Background location permission was revoked.';
- if(!Number.isFinite(Date.parse(grant.expiresAt))||now>=Date.parse(grant.expiresAt))return 'Sign-in token expired. Open RoadStar to renew tracking.';
+ if(!Number.isFinite(Date.parse(grant.expiresAt))||now>=Date.parse(grant.expiresAt))return 'Sign-in token expired. Open Rhode to renew tracking.';
  if(state.actor?.role!=='driver'||state.actor.driverId!==grant.driverId||state.actor.carrierId!==grant.carrierId)return 'Driver identity or carrier changed.';
  if(!state.workSessions?.some(s=>s.id===grant.sessionId&&s.ended_at===null))return 'Work session ended.';
  const assignment=state.assignments.find(a=>a.id===grant.assignmentId&&a.driverId===grant.driverId&&(a.status==='accepted'||(a.status==='completed'&&state.visits?.some(v=>v.assignment_id===a.id&&v.departure===null))));

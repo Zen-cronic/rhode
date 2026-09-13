@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 import os
 import asyncio
-app = FastAPI(title='RoadStar planning worker')
+app = FastAPI(title='Rhode planning worker')
 @app.get('/health')
 def health():
     return {'ok': True, 'engine': 'OR-Tools', 'authority': 'proposal-only'}

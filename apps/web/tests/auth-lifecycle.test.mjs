@@ -65,7 +65,7 @@ for (const action of ["sign-out", "identity-change"]) {
         }
         await original.bringToFront();
         await original
-          .getByRole("heading", { name: "Sign in to RoadStar" })
+          .getByRole("heading", { name: "Sign in to Rhode" })
           .waitFor({ timeout: 10000 });
         assert.equal(
           await original

@@ -131,7 +131,7 @@ function Login({ onLogin }: { onLogin: (session: Session) => void }) {
     <main className="login">
       <div className="login-story">
         <div className="brand">
-          <BrandMark/><span>RoadStar</span>
+          <BrandMark/><span>Rhode</span>
         </div>
         <p className="eyebrow">CARRIER OPERATIONS</p>
         <h1>
@@ -151,7 +151,7 @@ function Login({ onLogin }: { onLogin: (session: Session) => void }) {
       </div>
       <section className="login-form panel">
         <p className="eyebrow">OPERATIONS WORKSPACE</p>
-        <h2>{localDemo || judgeDemo ? "Open the synthetic rehearsal" : "Sign in to RoadStar"}</h2>
+        <h2>{localDemo || judgeDemo ? "Open the synthetic rehearsal" : "Sign in to Rhode"}</h2>
         <p>
           {localDemo
             ? "Explicit local demo access. Every operational record is a labeled scenario."
@@ -430,7 +430,7 @@ export function App() {
         <a className="brand" href="#main">
           <BrandMark/>
           <span>
-            RoadStar<small>TRANSPORT / CONTROL</small>
+            Rhode<small>TRANSPORT / CONTROL</small>
           </span>
         </a>
         <label className="mobile-view-picker">
@@ -965,7 +965,7 @@ export function App() {
           )}
         </div>
         <footer>
-          RoadStar / Carrier operations
+          Rhode / Carrier operations
           <span>
             Operational metrics only · modeled savings are not reported
           </span>
@@ -1449,7 +1449,7 @@ function DelayPanel({
                 </span>
               </div>
               {affected.map((a) => (
-                <div key={a.id} className="delay-recommend"><p className="fine">{a.loadId} begins {time(a.startAt)} ET. Ask RoadStar to rank alternate resources using current route, duty and reservation evidence.</p><button disabled={disabled||busy||state.proposals.some(proposal=>proposal.load_id===a.loadId&&proposal.status==='pending')} onClick={async()=>{const load=state.loads.find(load=>load.id===a.loadId);if(!load)return;setBusy(true);setError('');const ok=await send('recommend',{loadId:a.loadId,reason:`Rank alternatives after ${trip?.loadId??'the prior trip'} dock delay.`},load.version);setBusy(false);if(!ok)setError('No ranked recommendation was created. Review Activity for current constraint evidence.');}}>{state.proposals.some(proposal=>proposal.load_id===a.loadId&&proposal.status==='pending')?'Recommendation ready':'Rank recovery options'}</button></div>
+                <div key={a.id} className="delay-recommend"><p className="fine">{a.loadId} begins {time(a.startAt)} ET. Ask Rhode to rank alternate resources using current route, duty and reservation evidence.</p><button disabled={disabled||busy||state.proposals.some(proposal=>proposal.load_id===a.loadId&&proposal.status==='pending')} onClick={async()=>{const load=state.loads.find(load=>load.id===a.loadId);if(!load)return;setBusy(true);setError('');const ok=await send('recommend',{loadId:a.loadId,reason:`Rank alternatives after ${trip?.loadId??'the prior trip'} dock delay.`},load.version);setBusy(false);if(!ok)setError('No ranked recommendation was created. Review Activity for current constraint evidence.');}}>{state.proposals.some(proposal=>proposal.load_id===a.loadId&&proposal.status==='pending')?'Recommendation ready':'Rank recovery options'}</button></div>
               ))}
             </div>
           );

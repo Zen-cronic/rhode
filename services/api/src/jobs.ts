@@ -45,7 +45,7 @@ export async function drainNotifications(db:pg.Pool){
  const {rows}=await db.query("SELECT * FROM outbox WHERE delivered_at IS NULL AND kind='driver.assignment' ORDER BY created_at LIMIT 50");let sent=0;
  for(const row of rows){const tokens=await db.query('SELECT p.token FROM push_tokens p JOIN memberships m ON m.carrier_id=p.carrier_id AND m.uid=p.uid WHERE p.carrier_id=$1 AND m.driver_id=ANY($2::text[])',[row.carrier_id,row.payload.notifyDriverIds??[row.payload.driverId]]);
   if(!tokens.rows.length)continue;
-  const messages=tokens.rows.map(r=>({to:r.token,title:'RoadStar trip update',body:'Your trip plan has an update. Open RoadStar to review.',data:{eventId:row.id},sound:'default'}));
+  const messages=tokens.rows.map(r=>({to:r.token,title:'Rhode trip update',body:'Your trip plan has an update. Open Rhode to review.',data:{eventId:row.id},sound:'default'}));
   const response=await fetch('https://exp.host/--/api/v2/push/send',{method:'POST',headers:{'Content-Type':'application/json',...(process.env.EXPO_ACCESS_TOKEN?{Authorization:`Bearer ${process.env.EXPO_ACCESS_TOKEN}`}:{})},body:JSON.stringify(messages)});
   demand(response.ok,'PUSH_FAILED','Push provider rejected request.',503);const result=await response.json() as any;
   demand(Array.isArray(result.data)&&result.data.length===messages.length&&result.data.every((x:any)=>x.status==='ok'),'PUSH_FAILED','Push provider has not accepted all messages.',503);

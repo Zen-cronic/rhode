@@ -94,7 +94,7 @@ if (!skipAndroid) {
     const device = "emulator-5556";
     requireCheck(command("adb", ["devices"]).split("\n").some((line) => line.startsWith(`${device}\tdevice`)), `${device} is unavailable`);
     const focus = command("adb", ["-s", device, "shell", "dumpsys", "window"]);
-    requireCheck(focus.includes("com.roadstar.carrier/.MainActivity"), "RoadStar is not foregrounded");
+    requireCheck(focus.includes("com.roadstar.carrier/.MainActivity"), "Rhode is not foregrounded");
     command("adb", ["-s", device, "shell", "uiautomator", "dump", "/sdcard/roadstar-preflight.xml"]);
     const hierarchy = command("adb", ["-s", device, "shell", "cat", "/sdcard/roadstar-preflight.xml"]);
     requireCheck(hierarchy.includes('text="Synced"'), "Android is not synchronized");

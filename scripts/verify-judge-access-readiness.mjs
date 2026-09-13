@@ -62,7 +62,7 @@ try {
         ? page.locator(".mobile-signout")
         : page.locator(".sidebar-bottom").getByRole("button", { name: "Sign out", exact: true });
       await signOut.click();
-      await page.getByRole("heading", { name: "Sign in to RoadStar", exact: true }).waitFor();
+      await page.getByRole("heading", { name: "Sign in to Rhode", exact: true }).waitFor();
       checks.push({
         uid: expected.uid,
         role: expected.role,

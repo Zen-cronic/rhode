@@ -1,4 +1,4 @@
-# RoadStar dispatcher web
+# Rhode dispatcher web
 
 React/Vite workspace implementing the approved blue/amber design, operational tables, recovery comparison and explicit dispatcher approvals. The browser reads authenticated API state; it does not seed or fabricate operational records.
 

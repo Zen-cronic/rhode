@@ -129,9 +129,9 @@ export function StandaloneDockEvidence() {
 
   return <main className="dock-proof-page">
     <header className="dock-proof-header">
-      <a className="dock-proof-brand" href="/" aria-label="RoadStar home">
+      <a className="dock-proof-brand" href="/" aria-label="Rhode home">
         <BrandMark />
-        <span><strong>RoadStar</strong><small>TRANSPORT / CONTROL</small></span>
+        <span><strong>Rhode</strong><small>TRANSPORT / CONTROL</small></span>
       </a>
       <div className="dock-proof-header-actions">
         <span>PUBLIC SYNTHETIC RECEIPT</span>
@@ -312,8 +312,8 @@ export function StandaloneDockEvidence() {
     </section>
 
     <footer className="dock-proof-footer">
-      <span>RoadStar / public synthetic evidence</span>
-      <nav aria-label="Public evidence links"><a href="/?view=matched-401">Matched Highway 401 replay</a><a href="/">Return to RoadStar</a></nav>
+      <span>Rhode / public synthetic evidence</span>
+      <nav aria-label="Public evidence links"><a href="/?view=matched-401">Matched Highway 401 replay</a><a href="/">Return to Rhode</a></nav>
     </footer>
   </main>
 }
