@@ -6,7 +6,7 @@ import {mkdir,readFile,writeFile} from 'node:fs/promises';
 const project='roadstar-2026-kzh',region='us-central1';
 const web='https://roadstar-web-739889188415.us-central1.run.app';
 const api='https://roadstar-api-739889188415.us-central1.run.app';
-const expected={optimizer:'roadstar-optimizer-00015-vuk',api:'roadstar-api-00036-woy',web:'roadstar-web-00068-jat',documents:'roadstar-documents-00021-tam'};
+const expected={optimizer:'roadstar-optimizer-00015-vuk',api:'roadstar-api-00036-woy',web:'roadstar-web-00070-rod',documents:'roadstar-documents-00021-tam'};
 const services={};
 for(const [component,revision] of Object.entries(expected)){
   const name='roadstar-'+component;
@@ -36,4 +36,19 @@ assert.equal(ranked.originalAssignmentStatus,'superseded');assert.equal(ranked.r
 const receipt={verifiedAt:new Date().toISOString(),project,region,services,publicChecks:{apiHealth:{status:healthResponse.status,body:health},web:{status:webResponse.status},publicReplay:{status:publicReplayResponse.status,url:web+'/?view=matched-401'},publicDockEvidence:{status:publicDockResponse.status,url:web+'/?view=dock-evidence'},artifacts,film:{...film,durationSeconds:240.096,video:'H.264 1920x1080 24fps',audio:'AAC'}},rankedRecovery:{carrier:ranked.carrier,recommendationId:ranked.recommendationId,selected:ranked.selected,originalAssignmentStatus:ranked.originalAssignmentStatus,replacementAssignmentStatus:ranked.replacementAssignmentStatus,forbiddenRoleStatus:ranked.forbiddenRoleStatus,staleApprovalStatus:ranked.staleApprovalStatus},checks:['All four latest created revisions are ready and receive 100% traffic','API reports PostgreSQL with Firebase authentication','Public web, matched replay and dock evidence receipt return the RoadStar application shell','Hosted MP4, SRT, PDF, PPTX and matched replay archive are byte-identical to their tracked masters','Hosted recovery preserves rejected HOS evidence, dispatcher approval and separate driver acceptance'],limits:'Approved seven-day GCP preview. Isolated synthetic scenario. Hosted simulator mutation controls remain intentionally unavailable because a simulator Cloud Run resource was not included in the approved cost estimate. The deployed web offers packaged matched-run and dock-evidence replays as read-only historical evidence. Physical Android and native iOS verification remain deferred.'};
 await mkdir('docs/evidence/cloud-current-demo-2026-09-12',{recursive:true});
 await writeFile('docs/evidence/cloud-current-demo-2026-09-12/deployment.json',JSON.stringify(receipt,null,2)+'\n');
+const submissionArtifacts={
+  verifiedAt:receipt.verifiedAt,
+  webRevision:expected.web,
+  artifacts:artifacts.filter(item=>item.name!=='matched-401-replay.json').map(item=>({
+    name:item.name,
+    url:`${web}/demo/${item.name}`,
+    httpStatus:item.status,
+    contentType:item.contentType,
+    bytes:item.bytes,
+    sha256:item.sha256,
+    matchesLocal:true,
+  })),
+  limits:'Direct artifact availability and byte equality only. Portal acceptance, judge access and human audio review remain unverified.',
+};
+await writeFile('../submission/roadstar/current-artifact-verification.json',JSON.stringify(submissionArtifacts,null,2)+'\n');
 console.log(JSON.stringify({services:Object.fromEntries(Object.entries(services).map(([key,value])=>[key,value.revision])),artifacts:Object.fromEntries(artifacts.map(item=>[item.name,item.sha256])),recovery:receipt.rankedRecovery.replacementAssignmentStatus}));
