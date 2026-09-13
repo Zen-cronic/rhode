@@ -1,7 +1,7 @@
 import {useEffect,useLayoutEffect,useMemo,useRef} from 'react';
 import {Canvas,useFrame,useThree} from '@react-three/fiber';
 import {Matrix4,Quaternion,Vector3,type InstancedMesh,type OrthographicCamera} from 'three';
-import type {CorridorEvent,CorridorRoute} from './corridor-replay-model';
+import type {CorridorComparisonSpeedProfileEntry,CorridorEvent,CorridorRoute} from './corridor-replay-model';
 
 export type CorridorCamera='overview'|'plan';
 
@@ -13,6 +13,7 @@ export interface CorridorSceneProps{
  playing:boolean;
  onUnavailable:()=>void;
  comparison?:{baseline:CorridorEvent;disrupted:CorridorEvent};
+ speedProfile?:CorridorComparisonSpeedProfileEntry[];
 }
 
 const ORANGE='#e65c32',IVORY='#f5f3ed',GRAPHITE='#242729';
@@ -35,11 +36,11 @@ function projectRoute(route:CorridorRoute):RouteProjection{
  return{points,latitude,longitude,longitudeScale,centreX,centreZ,scale};
 }
 
-function projectMarker(projection:RouteProjection,event:CorridorEvent):MarkerProjection{
+function projectPosition(projection:RouteProjection,value:{lat:number;lng:number}):MarkerProjection{
  const position:Point3=[
-  ((event.sample.position.lng-projection.longitude)*projection.longitudeScale-projection.centreX)*projection.scale,
+  ((value.lng-projection.longitude)*projection.longitudeScale-projection.centreX)*projection.scale,
   .32,
-  ((projection.latitude-event.sample.position.lat)-projection.centreZ)*projection.scale,
+  ((projection.latitude-value.lat)-projection.centreZ)*projection.scale,
  ];
  const nearest=projection.points.reduce((best,point,index)=>{
   const distance=(point[0]-position[0])**2+(point[2]-position[2])**2;
@@ -48,6 +49,10 @@ function projectMarker(projection:RouteProjection,event:CorridorEvent):MarkerPro
  const next=projection.points[Math.min(projection.points.length-1,nearest+1)]??projection.points[nearest];
  const previous=projection.points[Math.max(0,nearest-1)]??projection.points[nearest];
  return{position,heading:Math.atan2(next[0]-previous[0],next[2]-previous[2])};
+}
+
+function projectMarker(projection:RouteProjection,event:CorridorEvent):MarkerProjection{
+ return projectPosition(projection,event.sample.position);
 }
 
 function InstancedRail({points,width,height,color,y}:{points:Point3[];width:number;height:number;color:string;y:number}){
@@ -71,7 +76,34 @@ function InstancedRail({points,width,height,color,y}:{points:Point3[];width:numb
  </instancedMesh>;
 }
 
-function RouteObject({route,projection,marker,playing,comparison}:{route:CorridorRoute;projection:RouteProjection;marker:MarkerProjection;playing:boolean;comparison?:{baseline:MarkerProjection;disrupted:MarkerProjection}}){
+function InstancedSpeedFins({projection,profile,routeOrdinal}:{projection:RouteProjection;profile:CorridorComparisonSpeedProfileEntry[];routeOrdinal:number}){
+ const baselineRef=useRef<InstancedMesh>(null),disruptedRef=useRef<InstancedMesh>(null);
+ const values=useMemo(()=>profile.filter(entry=>entry.routeOrdinal===routeOrdinal).map(entry=>({
+  baseline:entry.baseline.speedKph===null?null:{marker:projectPosition(projection,entry.baseline.position),speedKph:entry.baseline.speedKph},
+  disrupted:entry.disrupted.speedKph===null?null:{marker:projectPosition(projection,entry.disrupted.position),speedKph:entry.disrupted.speedKph},
+ })),[projection,profile]);
+ const baseline=values.flatMap(value=>value.baseline?[value.baseline]:[]),disrupted=values.flatMap(value=>value.disrupted?[value.disrupted]:[]);
+ useLayoutEffect(()=>{
+  const place=(mesh:InstancedMesh|null,items:typeof baseline,side:number)=>{
+   if(!mesh)return;
+   const matrix=new Matrix4(),rotation=new Quaternion(),position=new Vector3(),scale=new Vector3();
+   items.forEach((item,index)=>{
+    const height=Math.max(.05,Math.min(1.18,item.speedKph/62));
+    const lateral=.32*side,perpendicularX=Math.cos(item.marker.heading),perpendicularZ=-Math.sin(item.marker.heading);
+    position.set(item.marker.position[0]+perpendicularX*lateral,.22+height/2,item.marker.position[2]+perpendicularZ*lateral);
+    scale.set(side<0?.07:.09,height,side<0?.07:.09);matrix.compose(position,rotation,scale);mesh.setMatrixAt(index,matrix);
+   });
+   mesh.instanceMatrix.needsUpdate=true;
+  };
+  place(baselineRef.current,baseline,-1);place(disruptedRef.current,disrupted,1);
+ },[baseline,disrupted]);
+ return <group>
+  {baseline.length>0&&<instancedMesh ref={baselineRef} args={[undefined,undefined,baseline.length]}><cylinderGeometry args={[1,1,1,8]}/><meshStandardMaterial color={IVORY} roughness={.68}/></instancedMesh>}
+  {disrupted.length>0&&<instancedMesh ref={disruptedRef} args={[undefined,undefined,disrupted.length]}><boxGeometry args={[1,1,1]}/><meshStandardMaterial color={ORANGE} roughness={.62}/></instancedMesh>}
+ </group>;
+}
+
+function RouteObject({route,projection,marker,playing,comparison,speedProfile}:{route:CorridorRoute;projection:RouteProjection;marker:MarkerProjection;playing:boolean;comparison?:{baseline:MarkerProjection;disrupted:MarkerProjection};speedProfile?:CorridorComparisonSpeedProfileEntry[]}){
  const stops=route.stop_indices.map(index=>projection.points[index]).filter(Boolean);
  return <group>
   <InstancedRail points={projection.points} width={.34} height={.12} y={.10} color="#434846"/>
@@ -80,6 +112,7 @@ function RouteObject({route,projection,marker,playing,comparison}:{route:Corrido
    <mesh rotation={[-Math.PI/2,0,0]} receiveShadow><cylinderGeometry args={[.32,.32,.07,24]}/><meshStandardMaterial color={index===stops.length-1?ORANGE:IVORY} roughness={.82}/></mesh>
    <mesh position={[0,.12,0]} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[.13,.2,20]}/><meshBasicMaterial color={GRAPHITE}/></mesh>
   </group>)}
+  {speedProfile?.length?<InstancedSpeedFins projection={projection} profile={speedProfile} routeOrdinal={route.ordinal}/>:null}
   {comparison?<>
    <InstancedRail points={[comparison.baseline.position,comparison.disrupted.position]} width={.035} height={.025} y={.34} color="#aeb1a9"/>
    <TruckMarker position={comparison.baseline.position} heading={comparison.baseline.heading} playing={false} tone="baseline"/>
@@ -139,7 +172,7 @@ export default function CorridorScene(props:CorridorSceneProps){
    <ambientLight intensity={1.25}/><directionalLight position={[8,14,9]} intensity={2.2} castShadow shadow-mapSize={[1024,1024]}/>
    <mesh rotation={[-Math.PI/2,0,0]} position={[0,-.06,0]} receiveShadow><planeGeometry args={[24,19]}/><meshStandardMaterial color="#2b2f30" roughness={.95}/></mesh>
    <gridHelper args={[22,14,'#464c48','#303533']} position={[0,-.045,0]}/>
-   <RouteObject route={props.route} projection={projection} marker={marker} playing={props.playing} comparison={comparison}/>
+   <RouteObject route={props.route} projection={projection} marker={marker} playing={props.playing} comparison={comparison} speedProfile={props.speedProfile}/>
    <CameraRig view={props.camera} reducedMotion={props.reducedMotion} position={marker.position}/><ContextWatch onUnavailable={props.onUnavailable}/>
   </Canvas>
  </div>;
