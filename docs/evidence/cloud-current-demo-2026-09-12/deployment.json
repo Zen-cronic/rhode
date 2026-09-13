@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-09-12T22:32:12.985Z",
+  "verifiedAt": "2026-09-13T00:03:42.612Z",
   "project": "roadstar-2026-kzh",
   "region": "us-central1",
   "services": {
@@ -16,9 +16,9 @@
       "ready": "True"
     },
     "web": {
-      "revision": "roadstar-web-00058-juc",
+      "revision": "roadstar-web-00060-zuz",
       "trafficPercent": 100,
-      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:82b8125846782bec8ba11ecc4773a360a8b96169912928c684ed6b0f4137e80f",
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:d4b4b701f61f314cc6b27463788eb621c92bfab800bf31aeb92a39647889fa8e",
       "ready": "True"
     },
     "documents": {
@@ -45,8 +45,8 @@
         "name": "roadstar-demo.mp4",
         "status": 200,
         "contentType": "video/mp4",
-        "bytes": 17590568,
-        "sha256": "54d7eb79775a0c0eb51f35da2a8cc2f2aba6768100f20a6e350256d6438dfe77"
+        "bytes": 17259528,
+        "sha256": "1b750bcbc18fde996648aab66a5d44357aaacd61755e259350e2784867787cb0"
       },
       {
         "name": "roadstar-demo.srt",
@@ -74,8 +74,8 @@
       "name": "roadstar-demo.mp4",
       "status": 200,
       "contentType": "video/mp4",
-      "bytes": 17590568,
-      "sha256": "54d7eb79775a0c0eb51f35da2a8cc2f2aba6768100f20a6e350256d6438dfe77",
+      "bytes": 17259528,
+      "sha256": "1b750bcbc18fde996648aab66a5d44357aaacd61755e259350e2784867787cb0",
       "durationSeconds": 240.096,
       "video": "H.264 1920x1080 24fps",
       "audio": "AAC"
