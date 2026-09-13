@@ -48,6 +48,8 @@ const sources = [
   ["docs/evidence/public-dock-evidence-2026-09-12/hosted-diagram.png", "evidence/public-dock-evidence-2026-09-12/hosted-diagram.png"],
   ["../submission/roadstar/live-presentation-plan.md", "LIVE-PRESENTATION-PLAN.md"],
   ["../submission/roadstar/demo-run-of-show.md", "VIDEO-RUN-OF-SHOW.md"],
+  ["../submission/roadstar/DEMO-DAY-CUE-CARD.md", "DEMO-DAY-CUE-CARD.md"],
+  ["../submission/roadstar/FINAL-SUBMISSION-RUNBOOK.md", "FINAL-SUBMISSION-RUNBOOK.md"],
 ];
 
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
@@ -132,7 +134,7 @@ const manifest = {
     "Every source file was copied byte-for-byte",
     "MP4, SRT, PDF and PPTX match the current hosted-artifact receipt",
     "No credential, private fixture, customer workbook or source document is included",
-    "The kit includes the final completion audit, 10-minute live plan, video run-of-show, current S01-S20 evidence map, packaged replay archive, hosted public dock receipt and matched 3D slowdown proof",
+    "The kit includes the final submission runbook, demo-day cue card, completion audit, live plan, video run-of-show, current S01-S20 evidence map, packaged replay archive, hosted public dock receipt and matched 3D slowdown proof",
   ],
   limits:
     "Local file preparation only. Copy-media integrity, human film listening, venue playback, portal acceptance and judge access remain separate checks.",
