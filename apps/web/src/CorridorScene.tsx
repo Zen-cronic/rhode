@@ -88,17 +88,17 @@ function InstancedSpeedFins({projection,profile,routeOrdinal}:{projection:RouteP
    if(!mesh)return;
    const matrix=new Matrix4(),rotation=new Quaternion(),position=new Vector3(),scale=new Vector3();
    items.forEach((item,index)=>{
-    const height=Math.max(.05,Math.min(1.18,item.speedKph/62));
-    const lateral=.32*side,perpendicularX=Math.cos(item.marker.heading),perpendicularZ=-Math.sin(item.marker.heading);
-    position.set(item.marker.position[0]+perpendicularX*lateral,.22+height/2,item.marker.position[2]+perpendicularZ*lateral);
-    scale.set(side<0?.07:.09,height,side<0?.07:.09);matrix.compose(position,rotation,scale);mesh.setMatrixAt(index,matrix);
+    const height=Math.max(.025,Math.min(.46,item.speedKph/180));
+    const lateral=.22*side,perpendicularX=Math.cos(item.marker.heading),perpendicularZ=-Math.sin(item.marker.heading);
+    position.set(item.marker.position[0]+perpendicularX*lateral,.19+height/2,item.marker.position[2]+perpendicularZ*lateral);
+    scale.set(side<0?.022:.028,height,side<0?.022:.028);matrix.compose(position,rotation,scale);mesh.setMatrixAt(index,matrix);
    });
    mesh.instanceMatrix.needsUpdate=true;
   };
   place(baselineRef.current,baseline,-1);place(disruptedRef.current,disrupted,1);
  },[baseline,disrupted]);
  return <group>
-  {baseline.length>0&&<instancedMesh ref={baselineRef} args={[undefined,undefined,baseline.length]}><cylinderGeometry args={[1,1,1,8]}/><meshStandardMaterial color={IVORY} roughness={.68}/></instancedMesh>}
+  {baseline.length>0&&<instancedMesh ref={baselineRef} args={[undefined,undefined,baseline.length]}><cylinderGeometry args={[1,1,1,6]}/><meshStandardMaterial color={IVORY} roughness={.68}/></instancedMesh>}
   {disrupted.length>0&&<instancedMesh ref={disruptedRef} args={[undefined,undefined,disrupted.length]}><boxGeometry args={[1,1,1]}/><meshStandardMaterial color={ORANGE} roughness={.62}/></instancedMesh>}
  </group>;
 }

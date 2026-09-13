@@ -1,0 +1,19 @@
+{
+  "verifiedAt": "2026-09-13T06:39:00Z",
+  "view": "matched Highway 401 replay at shared T+40:00",
+  "profilePairs": 64,
+  "changes": [
+    "3D pins use approximately one third of the former maximum height",
+    "3D pin footprints are less than half their former width and use tighter lateral spacing",
+    "Accessible diagram ticks use reduced height and thinner strokes",
+    "Labels describe speed pins and preserve relative recorded-speed semantics"
+  ],
+  "checks": [
+    "All exact paired observations remain available",
+    "Missing and route-incompatible evidence remains absent",
+    "Route and truck markers are visually dominant in the inspected perspective",
+    "Web TypeScript and production build pass",
+    "Four web tests pass"
+  ],
+  "limits": "Visual scale refinement only. No source observation, comparison metric, simulator state, assignment, invoice or telemetry record changed."
+}
