@@ -1,0 +1,49 @@
+{
+  "verifiedAt": "2026-09-13T02:38:38.852Z",
+  "webBase": "http://127.0.0.1:5187",
+  "url": "http://127.0.0.1:5187/?view=dock-evidence",
+  "label": "compiled-local",
+  "fixture": {
+    "load": "RS-1042",
+    "facility": "london-local-yard",
+    "arrival": "2026-09-13T12:30:00Z",
+    "exit": "2026-09-13T15:15:09Z",
+    "observedDwellMinutes": 165,
+    "freeMinutes": 120,
+    "billableMinutes": 45,
+    "draftCad": 75,
+    "replaySha256": "abc688b8652682b33cbcf0b813c4ad285b8c3132a779cead246ecb4eb63007d2"
+  },
+  "valueScenario": {
+    "organizerBriefRange": "$1,000–$7,000; currency unspecified",
+    "modeledCurrency": "CAD",
+    "defaultVariableCostCadPerKm": 1.25,
+    "addedDeadheadKm": 138.9,
+    "defaultAddedDeadheadCostCad": 173.63,
+    "exclusions": [
+      "labor and equipment cost",
+      "margin",
+      "recovery win probability",
+      "collection",
+      "uncollected detention draft"
+    ]
+  },
+  "requests": {
+    "total": 11,
+    "operationalApi": 0
+  },
+  "writes": [],
+  "errors": [],
+  "checks": [
+    "Public synthetic receipt opens without identity inputs",
+    "Five dock-to-recovery milestones render and remain interactive offline after load",
+    "Observed 165-minute dwell, 120-minute allowance, 45 billable minutes and CAD $75 draft remain distinct from approval",
+    "D-01 rejection exposes 40 on-duty minutes and D-02 as a separate recovery assignment",
+    "Supported 13h, 14h and 16h planning gates are shown without an ELD certification claim",
+    "Editable deadhead-cost scenario recalculates and discloses source currency ambiguity and material exclusions",
+    "3D scene has an operator-selectable diagram fallback",
+    "Desktop and 390px views render without horizontal overflow",
+    "No operational API request or write occurs"
+  ],
+  "limits": "Read-only retained synthetic fixture. Observations are not certified geofence crossing times. No operational carrier data, live traffic, live telematics, billing authority, ELD certification, surveyed facility geometry or measured commercial value."
+}
