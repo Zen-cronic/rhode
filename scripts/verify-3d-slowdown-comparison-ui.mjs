@@ -11,6 +11,8 @@ const headers={authorization:'Bearer demo-dispatcher','x-carrier-id':fixture.car
 const get=async path=>{const response=await fetch(`http://127.0.0.1:4010${path}`,{headers});const body=await response.json();assert.equal(response.status,200,JSON.stringify(body));return body;};
 const hash=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const runFiles=Object.fromEntries(await Promise.all(fixture.branches.map(async branch=>[branch.runId,await readFile(`data/simulator/${branch.runId}.json`,'utf8')])));
+const sceneSource=await readFile('apps/web/src/CorridorScene.tsx','utf8');
+assert.match(sceneSource,/frameloop=\"demand\"/);assert.match(sceneSource,/function InstancedSpeedFins/);
 const before={state:await get('/api/state'),inventory:await get('/api/simulator'),runFiles};
 const baseline=fixture.branches.find(branch=>branch.kind==='baseline'),slowdown=fixture.branches.find(branch=>branch.kind==='road_slowdown');
 assert.ok(baseline&&slowdown);assert.equal(before.inventory.runs.length,2);
@@ -35,10 +37,23 @@ try{
  await panel.getByRole('button',{name:'Compare 401 slowdown',exact:true}).click();
  await panel.getByText('Checking matched recording evidence',{exact:true}).waitFor();
  await panel.getByText('MODELED SYNTHETIC / MATCHED RUNS',{exact:true}).waitFor({timeout:20000});
+ const profileToggle=panel.getByRole('button',{name:'Speed profile',exact:true});
+ assert.equal(await profileToggle.getAttribute('aria-pressed'),'true');
+ await panel.getByRole('button',{name:'Restart',exact:true}).click();
+ await panel.getByText('1 / 64 exact pairs',{exact:true}).waitFor();
+ await panel.getByLabel('View pace').selectOption('120');
+ await panel.getByRole('button',{name:'Play view playback',exact:true}).click();
+ await page.waitForTimeout(600);
+ assert.ok(Number(await panel.getByLabel('Matched recording shared timeline').inputValue())>0);
+ await panel.getByRole('button',{name:'Pause view playback',exact:true}).click();
+ await profileToggle.click();assert.equal(await profileToggle.getAttribute('aria-pressed'),'false');
+ assert.equal(await panel.getByText(/exact pairs/).count(),0);
+ await profileToggle.click();assert.equal(await profileToggle.getAttribute('aria-pressed'),'true');
  await panel.getByRole('button',{name:/Intervention ends/}).click();
  await panel.getByText('+27.657',{exact:true}).waitFor();
  await panel.getByText('+00:26:46',{exact:true}).waitFor();
  await panel.getByText('5.9 / 58.8',{exact:true}).waitFor();
+ await panel.getByText('64 / 64 exact pairs',{exact:true}).waitFor();
  await page.waitForTimeout(700);
  await panel.screenshot({path:`${output}/comparison-desktop.png`});
 
@@ -50,7 +65,8 @@ try{
  await timeline.focus();await page.keyboard.press('End');assert.equal(Number(await timeline.inputValue()),2400);
 
  await panel.getByRole('button',{name:'Use diagram',exact:true}).click();
- await panel.getByText(/Ivory baseline · orange modeled disruption/).waitFor();
+ await panel.getByText(/Ivory cylinders \/ orange fins/).waitFor();
+ assert.equal(await panel.locator('.corridor-diagram-speed-tick').count(),64);
  await page.setViewportSize({width:390,height:960});await page.waitForTimeout(350);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  await panel.screenshot({path:`${output}/comparison-diagram-narrow.png`});
@@ -69,6 +85,6 @@ try{
  const baselinePage=await get(`/api/simulator/${baseline.runId}/presentation?offset=0&limit=1000`),slowdownPage=await get(`/api/simulator/${slowdown.runId}/presentation?offset=0&limit=1000`);
  assert.equal(baselinePage.comparison_basis_hash,slowdownPage.comparison_basis_hash);assert.equal(baselinePage.intervention.kind,'baseline');assert.equal(slowdownPage.intervention.kind,'road_slowdown');
  const completionDeltaSeconds=(slowdownPage.modeled_completion_ms-baselinePage.modeled_completion_ms)/1000;
- const proof={verifiedAt:new Date().toISOString(),webBase,carrier:fixture.carrier,comparisonBasisHash:fixture.comparisonBasisHash,branches:fixture.branches.map(branch=>({kind:branch.kind,assignmentId:branch.assignmentId,runId:branch.runId,eventCount:branch.eventCount,distanceKm:branch.distanceKm,conditionsHash:branch.conditionsHash,modeledCompletionMs:branch.modeledCompletionMs,checkpointSha256:hash(JSON.parse(runFiles[branch.runId]))})),completionDeltaSeconds,progressGapKm:baseline.distanceKm-slowdown.distanceKm,requests:{total:requests.length,presentationPages:requests.filter(request=>request.method==='GET'&&request.url.includes('/presentation?')).length},writes,errors,checks:['Compiled production artifact loads both carrier-scoped matched runs','Two carrier-scoped runs share one server-derived basis and retain distinct condition identities','2,401 exact acknowledged observations load for each branch','Shared timeline uses exact at-or-before events without interpolation','Slowdown boundary is selectable at T+00:10:00','At T+00:40:00 the baseline leads by 27.657km and modeled completion by 26m46s','Ivory baseline, signal-orange disruption and gap connector render in 3D and diagram modes','390px layout has no document overflow','Reduced motion disables autoplay; saved recording remains inspectable offline','No operational POST; operational collections, inventory and both checkpoint files remain byte-equivalent'],limits:'Local synthetic Highway 401 comparison on Valhalla truck geometry with software WebGL. Not live traffic, a physical-GPU benchmark, certified GPS, billing evidence, revenue impact, hosted simulator control or 131-vehicle rendering.'};
+ const proof={verifiedAt:new Date().toISOString(),webBase,carrier:fixture.carrier,comparisonBasisHash:fixture.comparisonBasisHash,speedProfile:{exactPairs:64,maximumInstances:128,addedDrawCalls:2,frameloop:'demand',missingSpeeds:'gaps'},branches:fixture.branches.map(branch=>({kind:branch.kind,assignmentId:branch.assignmentId,runId:branch.runId,eventCount:branch.eventCount,distanceKm:branch.distanceKm,conditionsHash:branch.conditionsHash,modeledCompletionMs:branch.modeledCompletionMs,checkpointSha256:hash(JSON.parse(runFiles[branch.runId]))})),completionDeltaSeconds,progressGapKm:baseline.distanceKm-slowdown.distanceKm,requests:{total:requests.length,presentationPages:requests.filter(request=>request.method==='GET'&&request.url.includes('/presentation?')).length},writes,errors,checks:['Compiled production artifact loads both carrier-scoped matched runs','Two carrier-scoped runs share one server-derived basis and retain distinct condition identities','2,401 exact acknowledged observations load for each branch','Shared timeline uses exact at-or-before events without interpolation','Slowdown boundary is selectable at T+00:10:00','At T+00:40:00 the baseline leads by 27.657km and modeled completion by 26m46s','Ivory baseline cylinders and signal-orange slowdown fins reveal up to 64 exact source pairs through the shared cursor in 3D and diagram modes','Speed profile toggles without changing the timeline and 120x playback advances the historical cursor','390px layout has no document overflow','Reduced motion disables autoplay; saved recording remains inspectable offline','No operational POST; operational collections, inventory and both checkpoint files remain byte-equivalent'],limits:'Local synthetic Highway 401 comparison on Valhalla truck geometry with software WebGL. Not live traffic, a physical-GPU benchmark, certified GPS, billing evidence, revenue impact, hosted simulator control or 131-vehicle rendering.'};
  assert.equal(completionDeltaSeconds,1606);await writeFile(`${output}/verification.json`,JSON.stringify(proof,null,2)+'\n');console.log(JSON.stringify({carrier:proof.carrier,events:proof.branches.map(branch=>branch.eventCount),progressGapKm:proof.progressGapKm,completionDeltaSeconds,writes:writes.length,errors:errors.length}));
 }finally{await browser.close();}

@@ -1,8 +1,15 @@
 {
-  "verifiedAt": "2026-09-12T23:48:40.199Z",
-  "webBase": "http://127.0.0.1:5185",
+  "verifiedAt": "2026-09-13T04:36:00.988Z",
+  "webBase": "http://127.0.0.1:5188",
   "carrier": "corridor-compare-5660be04-04b8-4c5e-984c-5c41afd7746e",
   "comparisonBasisHash": "2fcd8fdb8146bbabf3601e0e2ef15b30fdda3becde69893636b4d917269183de",
+  "speedProfile": {
+    "exactPairs": 64,
+    "maximumInstances": 128,
+    "addedDrawCalls": 2,
+    "frameloop": "demand",
+    "missingSpeeds": "gaps"
+  },
   "branches": [
     {
       "kind": "baseline",
@@ -28,8 +35,8 @@
   "completionDeltaSeconds": 1606,
   "progressGapKm": 27.657000000000814,
   "requests": {
-    "total": 37,
-    "presentationPages": 12
+    "total": 103,
+    "presentationPages": 11
   },
   "writes": [],
   "errors": [],
@@ -40,7 +47,8 @@
     "Shared timeline uses exact at-or-before events without interpolation",
     "Slowdown boundary is selectable at T+00:10:00",
     "At T+00:40:00 the baseline leads by 27.657km and modeled completion by 26m46s",
-    "Ivory baseline, signal-orange disruption and gap connector render in 3D and diagram modes",
+    "Ivory baseline cylinders and signal-orange slowdown fins reveal up to 64 exact source pairs through the shared cursor in 3D and diagram modes",
+    "Speed profile toggles without changing the timeline and 120x playback advances the historical cursor",
     "390px layout has no document overflow",
     "Reduced motion disables autoplay; saved recording remains inspectable offline",
     "No operational POST; operational collections, inventory and both checkpoint files remain byte-equivalent"
