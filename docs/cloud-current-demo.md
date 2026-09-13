@@ -4,7 +4,7 @@ The approved seven-day preview now serves the ranked recovery build, credential-
 
 ## Release
 
-- Web: `roadstar-web-00070-rod`
+- Web: `roadstar-web-00072-rew`
 - Operational API: `roadstar-api-00036-woy`
 - Optimizer: `roadstar-optimizer-00015-vuk`
 - Document worker: `roadstar-documents-00021-tam`
@@ -13,7 +13,7 @@ Every revision passed a zero-traffic tagged health check before receiving 100% t
 
 ## Judge-facing checks
 
-The public API reports PostgreSQL and Firebase authentication. The public web shell returns HTTP 200. The hosted MP4, SRT, PDF and editable PPTX are byte-identical to their tracked masters. The 240.096-second H.264/AAC film has SHA-256 `3654e535629d3c9e036604606d902e13a5b0976301d51a506efbaca3997cae0a`; its accepted audio packet and captions are unchanged. Its recovery section now includes the public receipt's bounded CAD value frame between the ranked result and feasibility/approval evidence. The current PDF is `bdd5f50db0da136e841f486380f8f42512e39b42c591b2c7198b50f130d929e1`; the editable PPTX is `075d497670bec0439518fd0c2069ffe53b8aae4b016a7fbfb0290a938be3e4a6`.
+The public API reports PostgreSQL and Firebase authentication. The public web shell returns HTTP 200. The hosted MP4, SRT, PDF and editable PPTX are byte-identical to their tracked masters. The 240.096-second H.264/AAC film has SHA-256 `3654e535629d3c9e036604606d902e13a5b0976301d51a506efbaca3997cae0a`; its accepted audio packet is unchanged. The sidecar preserves the narrated text while formatting it into 77 deterministic cues, with at most two 42-character lines and a measured maximum of 21.999 visible characters per second; its SHA-256 is `b814c74b8d0013b1d9d939bb4b8e3be13821062d5293bdc1764466d6395a3d43`. Its recovery section now includes the public receipt's bounded CAD value frame between the ranked result and feasibility/approval evidence. The current PDF is `bdd5f50db0da136e841f486380f8f42512e39b42c591b2c7198b50f130d929e1`; the editable PPTX is `075d497670bec0439518fd0c2069ffe53b8aae4b016a7fbfb0290a938be3e4a6`.
 
 An isolated Firebase-authenticated hosted scenario records a delayed RS-1042, identifies RS-1043 at risk, ranks Morgan with T-102/V-102 as feasible, and retains Taylor's missing/stale HOS evidence as a rejection. A dispatcher approves the pending revision; a separate driver accepts the resulting offer. A simulator-role approval returns 403 and a new approval against the applied proposal returns 409 without another mutation. The original assignment is superseded and the replacement is accepted.
 
