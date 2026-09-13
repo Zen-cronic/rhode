@@ -1,5 +1,6 @@
 import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
 import './standalone-dock-evidence.css'
+import { publicDockEvidence, publicDockHosDecision } from './public-dock-evidence'
 
 const DockScene = lazy(() => import('./DockScene'))
 
@@ -110,6 +111,8 @@ export function StandaloneDockEvidence() {
   const [reducedMotion, setReducedMotion] = useState(false)
   const [variableCost, setVariableCost] = useState('1.25')
   const active = milestones.find((item) => item.id === activeId) ?? milestones[0]
+  const hos = publicDockEvidence.hos
+  const hosDecision = publicDockHosDecision()
   const costPerKm = Number.parseFloat(variableCost)
   const addedDeadheadCost = Number.isFinite(costPerKm) && costPerKm >= 0 ? costPerKm * 138.9 : null
   const cad = (value: number) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(value)
@@ -139,7 +142,7 @@ export function StandaloneDockEvidence() {
 
     <section className="dock-proof-hero" aria-labelledby="dock-proof-title">
       <div>
-        <p className="dock-proof-eyebrow">RETAINED REPLAY / RS-1042 / COMPLETE</p>
+        <p className="dock-proof-eyebrow">RETAINED REPLAY / RS-1042 / LONDON COMPANION</p>
         <h1 id="dock-proof-title">The dock wait that<br/><em>changed the next move.</em></h1>
       </div>
       <div className="dock-proof-hero-note">
@@ -252,11 +255,26 @@ export function StandaloneDockEvidence() {
         <p>This fixture checks the supported daily planning gates together. It does not certify a logbook or determine legal compliance.</p>
       </div>
       <div className="dock-proof-gates">
-        <div><span>DRIVING GATE</span><strong>13h</strong><small>Remaining amount not retained in this receipt</small></div>
-        <div className="is-exact"><span>ON-DUTY GATE</span><strong>14h</strong><small><b>40 min remaining</b> at 11:20 ET</small></div>
-        <div><span>ELAPSED GATE</span><strong>16h</strong><small>Remaining amount not retained in this receipt</small></div>
+        <div><span>DRIVING GATE</span><strong>13h</strong><small><b>{hos.remaining.drivingMinutes} min remaining</b> at 11:20 ET</small></div>
+        <div className="is-exact"><span>ON-DUTY GATE</span><strong>14h</strong><small><b>{hos.remaining.onDutyMinutes} min remaining</b> at 11:20 ET</small></div>
+        <div><span>ELAPSED GATE</span><strong>16h</strong><small><b>{hos.remaining.elapsedMinutes} min remaining</b> at 11:20 ET</small></div>
       </div>
-      <p className="dock-proof-boundary-note"><strong>Exact bounded result:</strong> D-01 is rejected for insufficient on-duty time and reach. The receipt makes no additional driving or elapsed-headroom claim.</p>
+      <p className="dock-proof-boundary-note"><strong>Exact retained result:</strong> RS-1043 needs {hos.nextAssignment.drivingMinutes} min driving and {hos.nextAssignment.onDutyMinutes} min on duty including service. Driving and elapsed headroom pass; {hos.remaining.onDutyMinutes} &lt; {hos.nextAssignment.onDutyMinutes}. <strong>{hosDecision.bindingReason}</strong> D-01 also cannot reach pickup after its committed work.</p>
+      <details className="dock-proof-hos-basis">
+        <summary>Retained duty calculation</summary>
+        <div>
+          <span>PROFILE</span><strong>{hos.profile}</strong><small>Planning evidence · not a certified ELD</small>
+        </div>
+        <div>
+          <span>SOURCE WINDOW</span><strong>08:00 → 11:20 ET</strong><small>{hos.sourceObservations.toLocaleString('en-CA')} acknowledged observations</small>
+        </div>
+        <div>
+          <span>CONSUMED IN WINDOW</span><strong>{hos.consumed.drivingMinutes.toFixed(1)} / {hos.consumed.onDutyMinutes} / {hos.consumed.elapsedMinutes}</strong><small>driving / on-duty / elapsed minutes</small>
+        </div>
+        <div>
+          <span>OTHER RETAINED LIMITS</span><strong>{hos.remaining.cycleMinutes} min cycle</strong><small>Shift deadline 17:00 ET</small>
+        </div>
+      </details>
     </section>
 
     <section className="dock-proof-provenance" aria-labelledby="provenance-title">
@@ -269,6 +287,12 @@ export function StandaloneDockEvidence() {
         <article><span>EXIT OBSERVATION</span><strong>539ac67f...</strong><small>2026-09-13T15:15:09Z</small></article>
       </div>
       <details>
+        <summary>Scenario identity</summary>
+        <p>PUBLIC RECEIPT / LONDON COMPANION</p><code>165 observed · 45 billable · CAD $75 draft</code>
+        <p>FILM BILLING EXAMPLE / MILTON</p><code>167 observed · 47 billable · CAD $78.33 draft</code>
+        <p>Separate retained synthetic runs. Their facilities, timestamps and amounts are never combined.</p>
+      </details>
+      <details>
         <summary>Full replay fingerprint</summary>
         <p>SHA-256</p><code>{replayHash}</code>
       </details>
@@ -277,7 +301,8 @@ export function StandaloneDockEvidence() {
     <section className="dock-proof-limits" aria-label="Receipt limitations">
       <strong>READ THIS RECEIPT PRECISELY</strong>
       <ul>
-        <li>One exact retained synthetic replay; no database or network access.</li>
+        <li>One exact retained London synthetic replay; no database or network access.</li>
+        <li>The film billing frame is a separate Milton run; values are not combined.</li>
         <li>Observed samples, not certified arrival or departure crossing times.</li>
         <li>Schematic facility geometry; no surveyed location claim.</li>
         <li>Not a certified electronic logging device or compliance determination.</li>
