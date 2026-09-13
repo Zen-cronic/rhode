@@ -1,0 +1,40 @@
+{
+  "createdAt": "2026-09-13T03:24:31.703Z",
+  "base": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/web/public/demo/roadstar-demo.mp4",
+  "baseSha256": "1b750bcbc18fde996648aab66a5d44357aaacd61755e259350e2784867787cb0",
+  "candidate": "/tmp/roadstar-demo-value/roadstar-demo-current.mp4",
+  "candidateSha256": "3654e535629d3c9e036604606d902e13a5b0976301d51a506efbaca3997cae0a",
+  "replacement": {
+    "startSeconds": 36,
+    "endSeconds": 94,
+    "durationSeconds": 58,
+    "sources": [
+      {
+        "source": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/docs/evidence/3d-dock-2026-09-12/overview-desktop.png",
+        "durationSeconds": 10
+      },
+      {
+        "source": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/docs/evidence/3d-slowdown-comparison-2026-09-12/comparison-desktop.png",
+        "durationSeconds": 10
+      },
+      {
+        "source": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/docs/evidence/ranked-recovery-2026-09-12/recommendation-desktop.png",
+        "durationSeconds": 10
+      },
+      {
+        "source": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/docs/evidence/public-dock-evidence-2026-09-12/hosted-desktop.png",
+        "durationSeconds": 10
+      },
+      {
+        "source": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/docs/evidence/ranked-recovery-2026-09-12/recommendation-desktop.png",
+        "durationSeconds": 8
+      },
+      {
+        "source": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/docs/evidence/ranked-recovery-2026-09-12/approval-review.png",
+        "durationSeconds": 10
+      }
+    ]
+  },
+  "audio": "Copied byte-stream from the accepted four-minute film; narration and caption timings are unchanged.",
+  "scope": "Actual verified application captures replace the recovery visuals and add the bounded organizer-value scenario. No UI values are altered and no new model or narration call is made."
+}

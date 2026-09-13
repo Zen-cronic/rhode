@@ -76,7 +76,7 @@ The approved seven-day GCP preview has stop tasks scheduled for September17,2026
 
 [Four-minute recording](https://roadstar-web-739889188415.us-central1.run.app/demo/roadstar-demo.mp4) · [Presentation PDF](https://roadstar-web-739889188415.us-central1.run.app/demo/roadstar-pitch.pdf) · [Editable deck](https://roadstar-web-739889188415.us-central1.run.app/demo/roadstar-pitch.pptx). These are hosted on the seven-day preview. The ten-field submission draft remains local, with the private repository URL recorded; judge access, live portal checks and video-host acceptance remain unverified.
 
-The video is 240.096 seconds, 1920×1080, 24 fps, H.264/AAC. SHA-256: `1b750bcbc18fde996648aab66a5d44357aaacd61755e259350e2784867787cb0`.
+The video is 240.096 seconds, 1920×1080, 24 fps, H.264/AAC. Its recovery section shows the bounded organizer-value scenario after the matched route comparison and before the feasibility/approval evidence. SHA-256: `3654e535629d3c9e036604606d902e13a5b0976301d51a506efbaca3997cae0a`.
 
 
 ## Precision transport redesign

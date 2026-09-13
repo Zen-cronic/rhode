@@ -1,8 +1,8 @@
 {
-  "verifiedAt": "2026-09-12T23:59:58.045Z",
-  "currentSha256": "1b750bcbc18fde996648aab66a5d44357aaacd61755e259350e2784867787cb0",
+  "verifiedAt": "2026-09-13T03:26:09.872Z",
+  "currentSha256": "3654e535629d3c9e036604606d902e13a5b0976301d51a506efbaca3997cae0a",
   "priorSha256": "329ebce920340ad1333be3d54f1c9285348331ca63de419c0a4c58aad8a77d3e",
-  "packagedSha256": "1b750bcbc18fde996648aab66a5d44357aaacd61755e259350e2784867787cb0",
+  "packagedSha256": "3654e535629d3c9e036604606d902e13a5b0976301d51a506efbaca3997cae0a",
   "audioPacketSha256": "cdcdb40d7e251849e8e770e534a4050b31f5e52fc7b068e121a0721ce0700a99",
   "captionsSha256": "f39241c893c0818500e4c498338bbf53002fe75b708a47c856ccfca605e7fedb",
   "probe": {
@@ -25,7 +25,7 @@
     ],
     "format": {
       "duration": "240.096000",
-      "size": "17259528"
+      "size": "16974716"
     }
   },
   "visualReplacement": {
@@ -35,12 +35,14 @@
       "Acknowledged dock wait with on-duty hold and provisional detention",
       "Matched 3D baseline-versus-401-slowdown comparison at exact shared observations",
       "Server-ranked recovery receipt",
+      "Bounded organizer-value scenario with added deadhead cost",
       "Feasible and HOS-rejected candidate disclosure",
       "Dispatcher approval gate"
     ],
     "sourceEvidence": [
       "docs/evidence/3d-dock-2026-09-12/",
       "docs/evidence/3d-slowdown-comparison-2026-09-12/",
+      "docs/evidence/public-dock-evidence-2026-09-12/",
       "docs/evidence/ranked-recovery-2026-09-12/"
     ]
   },
@@ -49,7 +51,7 @@
     "Four-minute duration and H.264/AAC 1920x1080 24fps contract preserved",
     "AAC packet stream is byte-identical to the previously accepted narration",
     "Entire promoted film decodes without ffmpeg errors",
-    "Five boundary/representative frames inspected, including the return to the existing driver scene"
+    "Six recovery frames plus the return to the existing driver scene were inspected"
   ],
-  "limits": "The replacement uses still frames from actual verified application states. Other film scenes and the accepted narration/caption timings are retained. Human listening and live presentation rehearsal remain operator checks; public video-host acceptance remains unconfirmed."
+  "limits": "The replacement uses still frames from actual verified application states. The value frame models the organizer brief range as CAD and subtracts only the displayed variable deadhead cost; it is not measured revenue, savings or profit. Other film scenes and the accepted narration/caption timings are retained. Human listening and live presentation rehearsal remain operator checks; public video-host acceptance remains unconfirmed."
 }
