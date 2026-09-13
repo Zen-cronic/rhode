@@ -1,0 +1,28 @@
+{
+  "verifiedAt": "2026-09-13T01:07:29.963Z",
+  "webBase": "http://127.0.0.1:5186",
+  "label": "compiled-local",
+  "archive": {
+    "bytes": 2393729,
+    "sha256": "aded08bfbaef7af1aa47dbd55468f7053ac26b42eb2c1e52f3fe94aaf6e264ae",
+    "runs": 2,
+    "eventsPerRun": 2401
+  },
+  "requests": {
+    "archive": 1,
+    "presentationApi": 0
+  },
+  "writes": [],
+  "errors": [],
+  "checks": [
+    "Authenticated preview exposes the packaged matched Highway 401 replay",
+    "Both complete recordings assemble through the same page validator used by simulator-backed replay",
+    "3D comparison renders and selects intervention end at shared T+40:00",
+    "Displayed progress gap is +27.657km and modeled finish delta is +26m46s",
+    "390px view has no document overflow",
+    "Completed recording stays inspectable after network loss",
+    "Packaged archive bytes match the tracked master",
+    "No simulator presentation API request and no operational POST"
+  ],
+  "limits": "Synthetic read-only packaged replay. Historical view controls only; no hosted simulator mutation, live traffic, certified GPS, billing, revenue, physical-GPU or 131-vehicle rendering claim."
+}
