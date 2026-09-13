@@ -11,6 +11,7 @@
     "apps/*"
   ],
   "scripts": {
+    "demo:preflight": "node scripts/demo-day-preflight.mjs",
     "test": "node --test tests/*.test.ts",
     "typecheck": "tsc --noEmit",
     "api": "node services/api/src/server.ts",
