@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-09-13T01:13:13.990Z",
+  "verifiedAt": "2026-09-13T01:41:40.177Z",
   "project": "roadstar-2026-kzh",
   "region": "us-central1",
   "services": {
@@ -16,9 +16,9 @@
       "ready": "True"
     },
     "web": {
-      "revision": "roadstar-web-00064-vuj",
+      "revision": "roadstar-web-00066-kig",
       "trafficPercent": 100,
-      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:054ce3555f6d5e0848100b688bb19582843689449b21583323f32c5926954f73",
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:eede669284dd9bcb62162f4042f3093daccc7c9ee5630674962f9a5e4e26c730",
       "ready": "True"
     },
     "documents": {
@@ -39,6 +39,10 @@
     },
     "web": {
       "status": 200
+    },
+    "publicReplay": {
+      "status": 200,
+      "url": "https://roadstar-web-739889188415.us-central1.run.app/?view=matched-401"
     },
     "artifacts": [
       {
@@ -104,7 +108,7 @@
   "checks": [
     "All four latest created revisions are ready and receive 100% traffic",
     "API reports PostgreSQL with Firebase authentication",
-    "Public web returns RoadStar application shell",
+    "Public web and credential-free matched replay return the RoadStar application shell",
     "Hosted MP4, SRT, PDF, PPTX and matched replay archive are byte-identical to their tracked masters",
     "Hosted recovery preserves rejected HOS evidence, dispatcher approval and separate driver acceptance"
   ],

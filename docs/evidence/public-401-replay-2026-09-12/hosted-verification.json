@@ -1,0 +1,28 @@
+{
+  "verifiedAt": "2026-09-13T01:39:10.957Z",
+  "webBase": "https://roadstar-web-739889188415.us-central1.run.app",
+  "url": "https://roadstar-web-739889188415.us-central1.run.app/?view=matched-401",
+  "label": "hosted",
+  "archive": {
+    "bytes": 2393729,
+    "sha256": "aded08bfbaef7af1aa47dbd55468f7053ac26b42eb2c1e52f3fe94aaf6e264ae",
+    "runs": 2,
+    "eventsPerRun": 2401
+  },
+  "requests": {
+    "archive": 1,
+    "operationalApi": 0
+  },
+  "writes": [],
+  "errors": [],
+  "checks": [
+    "Public synthetic replay opens without Firebase or local-demo identity",
+    "Both complete matched recordings render through the shared 3D replay component",
+    "Intervention end reports +27.657km and +26m46s",
+    "Desktop and 390px views render without horizontal overflow",
+    "Loaded replay remains inspectable after network loss",
+    "Archive bytes match the tracked and authenticated-preview master",
+    "No operational API request or write occurs"
+  ],
+  "limits": "Public deterministic synthetic recording viewer. Read-only historical cursor; no operational carrier data, simulator mutation, live traffic, certified GPS or billing authority, physical-GPU proof or 131-vehicle rendering claim."
+}
