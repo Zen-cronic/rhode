@@ -1,0 +1,20 @@
+{
+  "verifiedAt": "2026-09-13T04:14:42.336Z",
+  "captionsSha256": "b814c74b8d0013b1d9d939bb4b8e3be13821062d5293bdc1764466d6395a3d43",
+  "normalizedTextSha256": "aeb5adacd385524208f080583331d355aceef03e58f2443bc976d99abf255d89",
+  "filmDurationSeconds": 240.096,
+  "cueCount": 77,
+  "maximumLinesPerCue": 2,
+  "maximumLineCharacters": 42,
+  "maximumCharactersPerSecond": 21.999,
+  "maximumGapMilliseconds": 80,
+  "captionCoveragePercent": 97.411,
+  "checks": [
+    "Cue indexes and timestamps are ordered and non-overlapping",
+    "Every cue uses at most two lines and every line is at most 42 characters",
+    "Every cue remains at or below 22 visible characters per second",
+    "The final cue ends within 250 milliseconds of the film and no inter-cue gap exceeds 250 milliseconds",
+    "Normalized caption text is hashed independently from line breaks and numbering"
+  ],
+  "limits": "Structural readability verification does not prove word-level audio alignment, correct pronunciation or player-specific rendering. Human playback with captions remains required before submission."
+}

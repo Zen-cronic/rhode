@@ -1,0 +1,38 @@
+{
+  "renderedAt": "2026-09-13T04:13:56.008Z",
+  "captionsSha256": "b814c74b8d0013b1d9d939bb4b8e3be13821062d5293bdc1764466d6395a3d43",
+  "contactSheetSha256": "5139879d808baac63456d0986600ab6fbe17c1f8796c9593c53b1e2eeb228125",
+  "contactSheetPixels": {
+    "width": 1920,
+    "height": 720
+  },
+  "samples": [
+    {
+      "name": "recovery",
+      "seconds": 42
+    },
+    {
+      "name": "offline",
+      "seconds": 104
+    },
+    {
+      "name": "capacity",
+      "seconds": 177
+    },
+    {
+      "name": "technical",
+      "seconds": 210.5
+    },
+    {
+      "name": "load-test",
+      "seconds": 220.5
+    }
+  ],
+  "renderStyle": "FontName=DejaVu Sans,FontSize=12,PrimaryColour=&H00F4F0E8,OutlineColour=&H00000000,BorderStyle=1,Outline=2,Shadow=0,Alignment=2,MarginV=24",
+  "checks": [
+    "Every sample is decoded from the promoted film with the promoted SRT sidecar",
+    "Input seeking preserves media timestamps so the subtitle filter receives the requested absolute time",
+    "The contact sheet supports manual checks for wrapping, clipping, contrast, and UI obstruction"
+  ],
+  "limits": "Five sampled frames do not prove every cue or browser-native caption renderer. Human end-to-end playback remains required before submission."
+}

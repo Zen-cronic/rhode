@@ -1,0 +1,12 @@
+{
+  "formattedAt": "2026-09-13T04:14:42.185Z",
+  "sourceSha256": "f39241c893c0818500e4c498338bbf53002fe75b708a47c856ccfca605e7fedb",
+  "formattedSha256": "b814c74b8d0013b1d9d939bb4b8e3be13821062d5293bdc1764466d6395a3d43",
+  "sourceCueCount": 54,
+  "formattedCueCount": 77,
+  "sourceNormalizedTextSha256": "aeb5adacd385524208f080583331d355aceef03e58f2443bc976d99abf255d89",
+  "formattedNormalizedTextSha256": "aeb5adacd385524208f080583331d355aceef03e58f2443bc976d99abf255d89",
+  "normalizedTextPreserved": true,
+  "maximumLineCharacters": 42,
+  "maximumCharactersPerSecond": 22
+}
