@@ -4,7 +4,7 @@ The approved seven-day preview now serves the ranked recovery build, credential-
 
 ## Release
 
-- Web: `roadstar-web-00072-rew`
+- Web: `roadstar-web-00074-cic`
 - Operational API: `roadstar-api-00036-woy`
 - Optimizer: `roadstar-optimizer-00015-vuk`
 - Document worker: `roadstar-documents-00021-tam`
@@ -19,7 +19,7 @@ An isolated Firebase-authenticated hosted scenario records a delayed RS-1042, id
 
 The hosted recovery view also renders the stored decision-packet receipt at desktop and 390 px. It exposes the one request, two screened combinations, one feasible candidate, one rejected candidate and one retained reason. This read-only check issued no recommendation, approval or driver command.
 
-The same comparison is also available without credentials at [the public matched Highway 401 replay](https://roadstar-web-739889188415.us-central1.run.app/?view=matched-401). It uses two complete 2,401-observation simulator recordings. Both runs share their assignment basis, seed, route, scenario clock, stops, waits and speed profile; only the declared Highway 401 slowdown differs. At `T+40:00`, it displays the verified `+27.657 km` baseline progress advantage and modeled `+00:26:46` slowdown finish delta. Browser verification loaded one static archive, made no operational API request and issued no write. The loaded replay remained inspectable offline and fit without horizontal overflow at 390 px.
+The same comparison is also available without credentials at [the public matched Highway 401 replay](https://roadstar-web-739889188415.us-central1.run.app/?view=matched-401). It uses two complete 2,401-observation simulator recordings. Both runs share their assignment basis, seed, route, scenario clock, stops, waits and speed profile; only the declared Highway 401 slowdown differs. At `T+40:00`, it displays the verified `+27.657 km` baseline progress advantage and modeled `+00:26:46` slowdown finish delta. A paired profile reveals up to 64 exact at-or-before speed observations: ivory cylinders for baseline and signal-orange fins for slowdown, with height equal to recorded km/h. Missing or mismatched evidence remains a visible gap; the browser does not interpolate it. Browser verification loaded one static archive, made no operational API request and issued no write. The loaded replay remained inspectable offline and fit without horizontal overflow at 390 px.
 
 The credential-free [dock-to-recovery receipt](https://roadstar-web-739889188415.us-central1.run.app/?view=dock-evidence) connects five retained milestones: the 08:30 ET inside-yard observation, the 120-minute contract boundary, the 11:15:09 ET outside-yard observation, an automatic CAD $75 detention draft, and the 11:20 ET rejection of D-01 with 40 on-duty minutes remaining before the separate D-02 recovery. It exposes the 13h/14h/16h planning gates without presenting RoadStar as an ELD. Its editable value scenario applies a disclosed CAD interpretation to the organizer brief's currency-unspecified $1,000–$7,000 load range, subtracts only modeled added-deadhead cost, and names the omitted costs. The page is read-only, stays interactive after network loss, provides a diagram fallback for its schematic 3D scene, and makes no operational API request or write.
 
