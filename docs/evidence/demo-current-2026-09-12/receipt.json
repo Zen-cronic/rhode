@@ -1,9 +1,9 @@
 {
-  "createdAt": "2026-09-12T21:31:56.921Z",
+  "createdAt": "2026-09-12T23:57:24.978Z",
   "base": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/apps/web/public/demo/roadstar-demo.mp4",
-  "baseSha256": "329ebce920340ad1333be3d54f1c9285348331ca63de419c0a4c58aad8a77d3e",
+  "baseSha256": "54d7eb79775a0c0eb51f35da2a8cc2f2aba6768100f20a6e350256d6438dfe77",
   "candidate": "/tmp/roadstar-demo-current/roadstar-demo-current.mp4",
-  "candidateSha256": "54d7eb79775a0c0eb51f35da2a8cc2f2aba6768100f20a6e350256d6438dfe77",
+  "candidateSha256": "1b750bcbc18fde996648aab66a5d44357aaacd61755e259350e2784867787cb0",
   "replacement": {
     "startSeconds": 36,
     "endSeconds": 94,
@@ -14,7 +14,7 @@
         "durationSeconds": 10
       },
       {
-        "source": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/docs/evidence/3d-corridor-2026-09-12/movement-perspective-desktop.png",
+        "source": "/home/zin-kg/code/hackathons/roadstar-2026/placeholder-1/docs/evidence/3d-slowdown-comparison-2026-09-12/comparison-desktop.png",
         "durationSeconds": 10
       },
       {
