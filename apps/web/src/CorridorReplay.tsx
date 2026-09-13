@@ -6,7 +6,8 @@ import './corridor-replay.css';
 
 const CorridorScene=lazy(()=>import('./CorridorScene'));
 export type ReplayRun={run_id:string;assignment_id:string;event_count:number;conditions_hash:string};
-export type CorridorReplayProps={run:ReplayRun;matchedRun?:ReplayRun|null;session:Session;online:boolean};
+export type RecordingLoader=(run:ReplayRun,onProgress:(progress:Progress)=>void)=>Promise<CorridorRecording>;
+export type CorridorReplayProps={run:ReplayRun;matchedRun?:ReplayRun|null;session:Session;online:boolean;recordingLoader?:RecordingLoader;initialOpen?:boolean;initialCompare?:boolean};
 type LoadState='idle'|'loading'|'ready'|'empty'|'error';
 type Progress={loaded:number;total:number|null};
 
@@ -41,32 +42,33 @@ function CorridorDiagram({recording,index,comparison}:{recording:CorridorRecordi
  </div>;
 }
 
-export function CorridorReplay({run,matchedRun,session,online}:CorridorReplayProps){
- const[open,setOpen]=useState(false),[recording,setRecording]=useState<CorridorRecording|null>(null),[loadState,setLoadState]=useState<LoadState>('idle'),[progress,setProgress]=useState<Progress>({loaded:0,total:null}),[error,setError]=useState(''),[reload,setReload]=useState(0),[cursor,setCursor]=useState(0),[playing,setPlaying]=useState(false),[pace,setPace]=useState(60),[camera,setCamera]=useState<CorridorCamera>('overview'),[diagram,setDiagram]=useState(false),[reduced,setReduced]=useState(false),[savedAt,setSavedAt]=useState<string|null>(null),[compareMode,setCompareMode]=useState(false),[matchedRecording,setMatchedRecording]=useState<CorridorRecording|null>(null),[matchedState,setMatchedState]=useState<LoadState>('idle'),[matchedProgress,setMatchedProgress]=useState<Progress>({loaded:0,total:null}),[matchedError,setMatchedError]=useState(''),[matchedReload,setMatchedReload]=useState(0);
+export function CorridorReplay({run,matchedRun,session,online,recordingLoader,initialOpen=false,initialCompare=false}:CorridorReplayProps){
+ const[open,setOpen]=useState(initialOpen),[recording,setRecording]=useState<CorridorRecording|null>(null),[loadState,setLoadState]=useState<LoadState>('idle'),[progress,setProgress]=useState<Progress>({loaded:0,total:null}),[error,setError]=useState(''),[reload,setReload]=useState(0),[cursor,setCursor]=useState(0),[playing,setPlaying]=useState(false),[pace,setPace]=useState(60),[camera,setCamera]=useState<CorridorCamera>('overview'),[diagram,setDiagram]=useState(false),[reduced,setReduced]=useState(false),[savedAt,setSavedAt]=useState<string|null>(null),[compareMode,setCompareMode]=useState(initialCompare),[matchedRecording,setMatchedRecording]=useState<CorridorRecording|null>(null),[matchedState,setMatchedState]=useState<LoadState>('idle'),[matchedProgress,setMatchedProgress]=useState<Progress>({loaded:0,total:null}),[matchedError,setMatchedError]=useState(''),[matchedReload,setMatchedReload]=useState(0);
+ const canLoad=online||!!recordingLoader;
  const sourceRevision=`${run.event_count}:${run.conditions_hash}`;
  const matchedRevision=matchedRun?`${matchedRun.run_id}:${matchedRun.event_count}:${matchedRun.conditions_hash}`:'';
  const cursorRef=useRef(cursor);cursorRef.current=cursor;
  useEffect(()=>{const media=matchMedia('(prefers-reduced-motion: reduce)'),update=()=>setReduced(media.matches);update();media.addEventListener('change',update);return()=>media.removeEventListener('change',update);},[]);
  useEffect(()=>{if(reduced)setPlaying(false);},[reduced]);
  useEffect(()=>{if(!open)setPlaying(false);},[open]);
- useEffect(()=>{setRecording(null);setCursor(0);setPlaying(false);setLoadState('idle');setProgress({loaded:0,total:null});setError('');setCompareMode(false);},[run.run_id,sourceRevision]);
+ useEffect(()=>{setRecording(null);setCursor(0);setPlaying(false);setLoadState('idle');setProgress({loaded:0,total:null});setError('');setCompareMode(initialCompare);},[run.run_id,sourceRevision,initialCompare]);
  useEffect(()=>{setMatchedRecording(null);setMatchedState('idle');setMatchedProgress({loaded:0,total:null});setMatchedError('');},[matchedRevision]);
  useEffect(()=>{
-  if(!open||!online)return;
+  if(!open||!canLoad)return;
   let active=true;setLoadState('loading');setError('');setProgress({loaded:0,total:null});setPlaying(false);
   void(async()=>{
-   try{const merged=await fetchRecording(run,session,value=>{if(active)setProgress(value);});
+   try{const merged=await (recordingLoader?recordingLoader(run,value=>{if(active)setProgress(value);}):fetchRecording(run,session,value=>{if(active)setProgress(value);}));
     if(!active||!merged)return;setRecording(merged);setCursor(0);setSavedAt(new Date().toISOString());setLoadState(merged.events.length?'ready':'empty');
    }catch(reason){if(!active)return;setRecording(null);setProgress({loaded:0,total:null});setLoadState('error');setError(reason instanceof ApiError&&reason.status===409?'Recording changed while loading. Partial pages were discarded.':reason instanceof Error?reason.message:'Recording unavailable.');}
  })();return()=>{active=false;};
- },[open,online,reload,run.run_id,sourceRevision,session.carrier,session.token,session.uid]);
+ },[open,canLoad,reload,run.run_id,sourceRevision,session.carrier,session.token,session.uid,recordingLoader]);
  useEffect(()=>{
-  if(!open||!compareMode||!online||!matchedRun)return;
+  if(!open||!compareMode||!canLoad||!matchedRun)return;
   let active=true;setMatchedState('loading');setMatchedError('');setMatchedProgress({loaded:0,total:null});setPlaying(false);
-  void(async()=>{try{const loaded=await fetchRecording(matchedRun,session,value=>{if(active)setMatchedProgress(value);});if(!active)return;setMatchedRecording(loaded);setMatchedState(loaded.events.length?'ready':'empty');}
+  void(async()=>{try{const loaded=await (recordingLoader?recordingLoader(matchedRun,value=>{if(active)setMatchedProgress(value);}):fetchRecording(matchedRun,session,value=>{if(active)setMatchedProgress(value);}));if(!active)return;setMatchedRecording(loaded);setMatchedState(loaded.events.length?'ready':'empty');}
    catch(reason){if(!active)return;setMatchedRecording(null);setMatchedState('error');setMatchedError(reason instanceof ApiError&&reason.status===409?'Matched recording changed while loading. Partial pages were discarded.':reason instanceof Error?reason.message:'Matched recording unavailable.');}
   })();return()=>{active=false;};
- },[open,compareMode,online,matchedReload,matchedRevision,session.carrier,session.token,session.uid]);
+ },[open,compareMode,canLoad,matchedReload,matchedRevision,session.carrier,session.token,session.uid,recordingLoader]);
  const compatibility=useMemo(()=>recording&&matchedRecording?comparisonCompatibility(recording,matchedRecording):null,[recording,matchedRecording]);
  const selected=recording?eventAt(recording,cursor):null,comparison=useMemo(()=>compareMode&&compatibility?.ok&&recording&&matchedRecording&&selected?corridorComparisonMetrics(recording,matchedRecording,selected.elapsed_seconds):null,[compareMode,compatibility,recording,matchedRecording,selected]);
  const route=recording?routeAt(recording,cursor):null,milestones=useMemo(()=>{if(!recording)return[];if(comparison&&matchedRecording)return corridorComparisonMilestones(recording,matchedRecording).map(item=>{const event=eventAtOrBefore(recording,item.elapsedSeconds);return{...item,index:event?recording.events.findIndex(candidate=>candidate.sample.id===event.sample.id):0};});return corridorMilestones(recording).map(item=>({...item,elapsedSeconds:recording.events[item.index].elapsed_seconds}));},[recording,matchedRecording,comparison]);
@@ -81,12 +83,12 @@ export function CorridorReplay({run,matchedRun,session,online}:CorridorReplayPro
  const fallback=recording?<CorridorDiagram recording={recording} index={cursor} comparison={visualComparison}/>:null,percentage=progress.total?Math.round(progress.loaded/progress.total*100):0,matchedPercentage=matchedProgress.total?Math.round(matchedProgress.loaded/matchedProgress.total*100):0;
  return <section className="corridor-replay" aria-label="Recorded corridor replay"><div className={`corridor-heading ${open?'is-open':''}`}><div className="corridor-heading-copy"><p className="eyebrow">RECORDED CORRIDOR / 02</p><h3>Read the wait. Then watch the road answer.</h3><p>{run.assignment_id} · acknowledged synthetic history</p></div><button className="primary" onClick={()=>setOpen(value=>!value)}>{open?'Close replay':'Open 3D corridor replay'}</button></div>{open&&<>
   {loadState==='loading'&&<div className="corridor-load" role="status"><span>Assembling one frozen recording</span><strong>{progress.total?`${progress.loaded.toLocaleString('en-CA')} / ${progress.total.toLocaleString('en-CA')}`:'Requesting first page'}</strong><div><i style={{width:`${percentage}%`}}/></div><small>Only acknowledged source events are loaded. The simulator clock is untouched.</small></div>}
-  {!online&&!recording&&<div className="corridor-state" role="status"><strong>Recording unavailable offline</strong><p>Connect before the first load. A completed recording remains available if the connection drops later.</p></div>}
-  {loadState==='error'&&<div className="corridor-state is-error" role="alert"><strong>Recording not assembled</strong><p>{error}</p><button disabled={!online} onClick={()=>setReload(value=>value+1)}>Reload from first page</button></div>}
-  {loadState==='empty'&&<div className="corridor-state"><strong>No acknowledged observations</strong><p>This run has no historical positions to display. Pending generated samples are excluded.</p><button disabled={!online} onClick={()=>setReload(value=>value+1)}>Check again</button></div>}
+  {!online&&!recording&&!recordingLoader&&<div className="corridor-state" role="status"><strong>Recording unavailable offline</strong><p>Connect before the first load. A completed recording remains available if the connection drops later.</p></div>}
+  {loadState==='error'&&<div className="corridor-state is-error" role="alert"><strong>Recording not assembled</strong><p>{error}</p><button disabled={!canLoad} onClick={()=>setReload(value=>value+1)}>Reload from first page</button></div>}
+  {loadState==='empty'&&<div className="corridor-state"><strong>No acknowledged observations</strong><p>This run has no historical positions to display. Pending generated samples are excluded.</p><button disabled={!canLoad} onClick={()=>setReload(value=>value+1)}>Check again</button></div>}
   {recording&&selected&&route&&<><div className="corridor-toolbar"><div role="group" aria-label="Corridor view"><button aria-pressed={!diagram&&camera==='overview'} onClick={()=>{setDiagram(false);setCamera('overview');}}>Perspective</button><button aria-pressed={!diagram&&camera==='plan'} onClick={()=>{setDiagram(false);setCamera('plan');}}>Plan</button><button aria-label={diagram?'Show 3D':'Use diagram'} aria-pressed={diagram} onClick={()=>setDiagram(value=>!value)}>Diagram</button></div>{matchedRun&&<button className="corridor-compare-toggle" aria-pressed={compareMode} onClick={()=>{setPlaying(false);setCompareMode(value=>!value);}}>{compareMode?'Exit comparison':'Compare 401 slowdown'}</button>}</div>
    {compareMode&&matchedState==='loading'&&<div className="corridor-load corridor-compare-load" role="status"><span>Checking matched recording evidence</span><strong>{matchedProgress.total?`${matchedProgress.loaded.toLocaleString('en-CA')} / ${matchedProgress.total.toLocaleString('en-CA')}`:'Requesting first page'}</strong><div><i style={{width:`${matchedPercentage}%`}}/></div><small>Comparison appears only after basis hash, route and scenario start time match.</small></div>}
-   {compareMode&&matchedState==='error'&&<div className="corridor-state is-error" role="alert"><strong>Matched recording not accepted</strong><p>{matchedError}</p><button disabled={!online} onClick={()=>setMatchedReload(value=>value+1)}>Reload matched recording</button></div>}
+   {compareMode&&matchedState==='error'&&<div className="corridor-state is-error" role="alert"><strong>Matched recording not accepted</strong><p>{matchedError}</p><button disabled={!canLoad} onClick={()=>setMatchedReload(value=>value+1)}>Reload matched recording</button></div>}
    {compareMode&&matchedState==='empty'&&<div className="corridor-state is-error" role="alert"><strong>Matched recording has no evidence</strong><p>Both runs need acknowledged synthetic observations.</p></div>}
    {compareMode&&compatibility&&!compatibility.ok&&<div className="corridor-state is-error" role="alert"><strong>Matched recording rejected</strong><p>{compatibility.reason}</p></div>}
    {!online&&<p className="corridor-saved" role="status">Offline · saved recording from {savedAt?stamp(savedAt):'this session'}. Historical values are frozen.</p>}

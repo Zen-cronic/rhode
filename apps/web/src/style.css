@@ -1251,6 +1251,10 @@ h1,h2,h3,.brand,.metric>strong{font-family:Manrope,sans-serif}h1{font-weight:600
 .simulator-controls { margin-bottom: 16px; }
 .simulator-controls > summary { cursor: pointer; font-weight: 650; padding: 16px 20px; }
 .simulator-content { padding: 0 20px 20px; }
+.packaged-corridor-demo { border-top: 3px solid #e65c32; }
+.packaged-corridor-demo > summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.packaged-corridor-demo > summary::after { content: 'READ ONLY'; font: 9px 'IBM Plex Mono',monospace; letter-spacing: 1px; color: #ac3716; }
+.packaged-replay-intro { max-width: 860px; line-height: 1.65; }
 .simulator-content select { width: 100%; }
 .simulator-metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; margin: 20px 0; }
 .simulator-metrics span,.simulator-metrics strong,.simulator-metrics small { display: block; }
