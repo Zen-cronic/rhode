@@ -1,9 +1,9 @@
 {
-  "verifiedAt": "2026-09-13T03:34:34.199Z",
+  "verifiedAt": "2026-09-13T04:42:26.821Z",
   "webBase": "https://roadstar-web-739889188415.us-central1.run.app",
   "carrier": "ranked-recovery-cloud-8ea0cc51-fe31-46ee-ae92-80463dcf5891",
-  "revision": "roadstar-web-00070-rod",
-  "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:ad996e02c2116d0e45b0e32bbb133234275e1826d5e4986b85e7ea7dbd61d77e",
+  "revision": "roadstar-web-00074-cic",
+  "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:912f8f7a46f95ee176bd377f330a3ab378625fd9ebe878d3214f4f4d5ae39753",
   "checks": [
     "Firebase dispatcher opened the retained hosted ranked-recovery record",
     "Hosted receipt reports one request, two combinations, one feasible, one rejected and one retained reason",
