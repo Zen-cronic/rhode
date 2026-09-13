@@ -19,7 +19,7 @@ import { Modal } from "./ReviewDialog";
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import type { Load } from "@roadstar/domain";
-import { ApiError, request } from "./api";
+import { ApiError, apiUrl, request } from "./api";
 import type { Command, Proposal, Resource, Session, State, Visit } from "./api";
 import { MapPanel } from "./MapPanel";
 import { Documents, downloadOriginal } from "./Documents";
@@ -31,6 +31,7 @@ import { Tracking } from "./Tracking";
 import {recoveryOutcome} from './recovery-outcome';
 import {recoveryWorkflowEvidence} from './recovery-workflow';
 const localDemo = import.meta.env.VITE_AUTH_MODE === "local-demo";
+const judgeDemo = import.meta.env.VITE_JUDGE_DEMO === "true";
 const firebaseConfigured = !!import.meta.env.VITE_FIREBASE_API_KEY;
 function auth() {
   const app =
@@ -112,6 +113,20 @@ function Login({ onLogin }: { onLogin: (session: Session) => void }) {
       setPending(false);
     }
   }
+  async function openJudgeDemo() {
+    setPending(true);
+    setError("");
+    try {
+      const response = await fetch(`${apiUrl}/api/judge-session`, { method: "POST" });
+      if (!response.ok) throw new Error("Judge demo is temporarily unavailable.");
+      const session = await response.json() as Session & { expiresAt: string };
+      onLogin({ carrier: session.carrier, token: session.token, uid: session.uid, label: session.label });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Judge demo is temporarily unavailable.");
+    } finally {
+      setPending(false);
+    }
+  }
   return (
     <main className="login">
       <div className="login-story">
@@ -136,14 +151,19 @@ function Login({ onLogin }: { onLogin: (session: Session) => void }) {
       </div>
       <section className="login-form panel">
         <p className="eyebrow">OPERATIONS WORKSPACE</p>
-        <h2>
-          {localDemo ? "Open the synthetic rehearsal" : "Sign in to RoadStar"}
-        </h2>
+        <h2>{localDemo || judgeDemo ? "Open the synthetic rehearsal" : "Sign in to RoadStar"}</h2>
         <p>
           {localDemo
             ? "Explicit local demo access. Every operational record is a labeled scenario."
-            : "Use your carrier account to access operational records."}
+            : judgeDemo
+              ? "No password required. Judges enter a temporary synthetic dispatcher workspace."
+              : "Use your carrier account to access operational records."}
         </p>
+        {judgeDemo && !localDemo && <div className="judge-demo-entry"><button type="button" className="primary" disabled={pending} onClick={() => void openJudgeDemo()}>{pending ? "Opening demo…" : "Open judge demo →"}</button><p className="fine">Synthetic data only · temporary dispatcher access · actions remain version checked and auditable.</p></div>}
+        {error && <p role="alert" className="error">{error}</p>}
+        {/* Password sign-in stays available so judge access can be disabled after the demo. */}
+        <details className={judgeDemo && !localDemo ? "private-sign-in" : undefined} open={!judgeDemo || localDemo}>
+          {judgeDemo && !localDemo && <summary>Private team access</summary>}
         <form onSubmit={submit}>
           <label>
             Carrier ID
@@ -192,11 +212,6 @@ function Login({ onLogin }: { onLogin: (session: Session) => void }) {
               </label>
             </>
           )}
-          {error && (
-            <p role="alert" className="error">
-              {error}
-            </p>
-          )}
           {!localDemo && !firebaseConfigured && (
             <p className="notice">
               Firebase sign-in is not configured for this deployment.
@@ -209,6 +224,7 @@ function Login({ onLogin }: { onLogin: (session: Session) => void }) {
             {pending ? "Connecting…" : "Open operations →"}
           </button>
         </form>
+        </details>
         <p className="fine">
           Tracking starts only with an explicit driver work session.
         </p>
@@ -310,7 +326,7 @@ export function App() {
       void client.invalidateQueries({ queryKey: ["state", scope] });
   }, [updates.data, snapshot.data, client, scope]);
   useEffect(() => {
-    if (!session || localDemo || !firebaseConfigured) return;
+    if (!session || localDemo || session.token.startsWith("judge.") || !firebaseConfigured) return;
     let active = true;
     const expectedUid = session.uid;
     const unsubscribe = auth().onIdTokenChanged(async (user) => {
@@ -335,7 +351,7 @@ export function App() {
       active = false;
       unsubscribe();
     };
-  }, [session?.uid, clearSession]);
+  }, [session?.uid, session?.token, clearSession]);
   async function execute(command: Command) {
     if (!session) return;
     const commandEpoch = sessionEpoch.current;
@@ -404,8 +420,9 @@ export function App() {
   const featuredProposals = pendingProposals.length ? pendingProposals : state?.proposals.slice(-1) ?? [];
   const historicalProposals = state?.proposals.filter(proposal => !featuredProposals.some(featured => featured.id === proposal.id)).slice().reverse() ?? [];
   const logout = async () => {
+    const wasJudgeSession = session.token.startsWith("judge.");
     clearSession();
-    if (!localDemo && firebaseConfigured) await signOut(auth());
+    if (!localDemo && !wasJudgeSession && firebaseConfigured) await signOut(auth());
   };
   return (
     <div className="app">

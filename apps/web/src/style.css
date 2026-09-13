@@ -15,6 +15,15 @@
   font-size: 14px;
   font-variant-numeric: tabular-nums;
 }
+
+.judge-demo-entry { display:grid; gap:10px; margin:28px 0 20px; }
+.judge-demo-entry .primary { width:100%; margin:0; }
+.judge-demo-entry .fine { margin:0; text-align:center; }
+.private-sign-in { border-top:1px solid #d8dccc; padding-top:18px; margin-top:18px; }
+.private-sign-in>summary { cursor:pointer; font-size:11px; font-weight:600; color:#596052; min-height:36px; padding:7px 0; }
+.private-sign-in[open]>summary { margin-bottom:4px; }
+.private-sign-in form { margin-top:20px; }
+.login-form>.error { margin:12px 0 0; }
 * {
   box-sizing: border-box;
 }

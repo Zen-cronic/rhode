@@ -1,6 +1,6 @@
 import {simulatorInventory,simulatorControl,simulatorPresentation} from './simulator-controls.ts';
 import {hosReviewSchema} from '../../../packages/domain/src/hos-import.ts';
-import {createHash} from 'node:crypto';
+import {createHash,createHmac,timingSafeEqual} from 'node:crypto';
 import {schemas} from '../../../packages/domain/src/commands.ts';
 import {OAuth2Client} from 'google-auth-library';
 import {claimDocumentJob,finishDocumentJob,drainOutbox,drainNotifications} from './jobs.ts';
@@ -14,14 +14,35 @@ import {Store} from './store.ts';
 import type {Actor,Command} from './store.ts';
 import {pool,migrate} from './db.ts';
 import {z} from 'zod';
-export function createApi(store:Store,options:{localDemo?:boolean;verifyToken?:(token:string)=>Promise<string>}={}){
+type JudgeDemoConfig={carrier:string;uid:string;secret:string;ttlSeconds?:number};
+type JudgeTokenPayload={carrier:string;uid:string;exp:number;purpose:'judge-demo'};
+const encode=(value:string)=>Buffer.from(value).toString('base64url');
+export function issueJudgeDemoToken(config:JudgeDemoConfig,now=Date.now()){
+  demand(config.secret.length>=32,'JUDGE_DEMO_UNCONFIGURED','Judge access is unavailable.',503);
+  const payload:JudgeTokenPayload={carrier:config.carrier,uid:config.uid,exp:Math.floor(now/1000)+(config.ttlSeconds??14400),purpose:'judge-demo'};
+  const body=encode(JSON.stringify(payload)),signature=createHmac('sha256',config.secret).update(body).digest('base64url');
+  return{token:`judge.${body}.${signature}`,expiresAt:new Date(payload.exp*1000).toISOString()};
+}
+export function verifyJudgeDemoToken(token:string,config:JudgeDemoConfig,carrier:string,now=Date.now()){
+  demand(config.secret.length>=32,'JUDGE_DEMO_UNCONFIGURED','Judge access is unavailable.',503);
+  const [prefix,body,signature,...extra]=token.split('.');
+  demand(prefix==='judge'&&!!body&&!!signature&&!extra.length,'UNAUTHENTICATED','Judge session expired. Reopen the demo.',401);
+  const expected=createHmac('sha256',config.secret).update(body).digest(),actual=Buffer.from(signature,'base64url');
+  demand(actual.length===expected.length&&timingSafeEqual(actual,expected),'UNAUTHENTICATED','Judge session expired. Reopen the demo.',401);
+  let payload:JudgeTokenPayload;
+  try{payload=JSON.parse(Buffer.from(body,'base64url').toString('utf8'));}catch{throw new DomainError('UNAUTHENTICATED','Judge session expired. Reopen the demo.',401);}
+  demand(payload.purpose==='judge-demo'&&payload.carrier===config.carrier&&payload.uid===config.uid&&carrier===payload.carrier&&payload.exp>Math.floor(now/1000),'UNAUTHENTICATED','Judge session expired. Reopen the demo.',401);
+  return payload;
+}
+export function createApi(store:Store,options:{localDemo?:boolean;verifyToken?:(token:string)=>Promise<string>;judgeDemo?:JudgeDemoConfig}={}){
   const app=Fastify({logger:process.env.NODE_ENV!=='test',bodyLimit:128000,trustProxy:false});
   app.register(cors,{origin:(process.env.WEB_ORIGIN??'http://localhost:5173').split(','),allowedHeaders:['Content-Type','Authorization','X-Carrier-Id','Idempotency-Key','If-Match']});
   const verifiedTokens=new Map<string,{uid:string;until:number}>();
   const auth=async(request:any):Promise<Actor>=>{
     const token=String(request.headers.authorization??'').replace(/^Bearer /,'');demand(token,'UNAUTHENTICATED','Sign in to continue.',401);
     let uid:string;
-    if(options.verifyToken)uid=await options.verifyToken(token);
+    if(options.judgeDemo&&token.startsWith('judge.'))uid=verifyJudgeDemoToken(token,options.judgeDemo,String(request.headers['x-carrier-id']??'')).uid;
+    else if(options.verifyToken)uid=await options.verifyToken(token);
     else if(options.localDemo){demand(['demo-dispatcher','demo-driver-1','demo-driver-2','demo-simulator'].includes(token),'UNAUTHENTICATED','Unknown local demo identity.',401);uid=token;}
     else {try{
       const fingerprint=createHash('sha256').update(token).digest('hex'),cached=verifiedTokens.get(fingerprint);
@@ -46,6 +67,12 @@ export function createApi(store:Store,options:{localDemo?:boolean;verifyToken?:(
   app.post('/internal/drain',async req=>{await internal(req);return {jobs:process.env.TASKS_QUEUE?await drainOutbox(store.db):{status:'unconfigured'},notifications:process.env.PUSH_ENABLED==='true'?await drainNotifications(store.db):{status:'disabled'}};});
 
   const files=new Files();
+  app.post('/api/judge-session',async(_req,reply)=>{
+    demand(options.judgeDemo,'NOT_FOUND','Judge access is unavailable.',404);
+    await store.membership(options.judgeDemo.uid,options.judgeDemo.carrier);
+    const session=issueJudgeDemoToken(options.judgeDemo);
+    return reply.header('Cache-Control','private, no-store').send({carrier:options.judgeDemo.carrier,uid:options.judgeDemo.uid,label:'Judge demo dispatcher',...session});
+  });
   app.addContentTypeParser(['image/jpeg','image/png','application/pdf'],{parseAs:'buffer',bodyLimit:12*1024*1024},(_req,body,done)=>done(null,body));
   app.put<{Params:{id:string}}>('/api/documents/:id/content',{bodyLimit:12*1024*1024},async req=>{
     const a=await auth(req);demand(Buffer.isBuffer(req.body),'INVALID_BODY','Raw document bytes required.',400);const version=req.headers['if-match'];demand(typeof version==='string'&&/^\d+$/.test(version),'INVALID_VERSION','Expected document version required.',400);return store.uploadDocument(a,{key:String(req.headers['idempotency-key']??''),expectedVersion:Number(version)},req.params.id,req.body,String(req.headers['content-type']??'').split(';')[0],files);
@@ -87,7 +114,9 @@ if(import.meta.main){
   const db=pool();if(process.env.AUTO_MIGRATE==='true')await migrate(db);
   const store=new Store(db),localDemo=process.env.AUTH_MODE==='local-demo';
   demand(!localDemo||!process.env.K_SERVICE,'UNSAFE_CONFIG','Local demo identities cannot run on Cloud Run.');
+  const judgeDemo=process.env.JUDGE_DEMO_ENABLED==='true'?{carrier:String(process.env.JUDGE_DEMO_CARRIER??''),uid:String(process.env.JUDGE_DEMO_UID??'preview-dispatcher'),secret:String(process.env.JUDGE_DEMO_SECRET??'')}:undefined;
+  if(judgeDemo)demand(judgeDemo.carrier&&judgeDemo.uid&&judgeDemo.secret.length>=32,'JUDGE_DEMO_UNCONFIGURED','Judge demo requires carrier, uid and a 32-character secret.',503);
   if(localDemo)await store.seed();
-  const app=createApi(store,{localDemo});await app.listen({port:Number(process.env.PORT??4010),host:localDemo?'127.0.0.1':'0.0.0.0'});
+  const app=createApi(store,{localDemo,judgeDemo});await app.listen({port:Number(process.env.PORT??4010),host:localDemo?'127.0.0.1':'0.0.0.0'});
   const stop=async()=>{await app.close();await db.end();};process.on('SIGTERM',stop);process.on('SIGINT',stop);
 }
