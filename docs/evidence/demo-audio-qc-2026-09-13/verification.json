@@ -1,0 +1,38 @@
+{
+  "verifiedAt": "2026-09-13T03:56:29.995Z",
+  "filmSha256": "3654e535629d3c9e036604606d902e13a5b0976301d51a506efbaca3997cae0a",
+  "captionsSha256": "f39241c893c0818500e4c498338bbf53002fe75b708a47c856ccfca605e7fedb",
+  "audioPacketSha256": "cdcdb40d7e251849e8e770e534a4050b31f5e52fc7b068e121a0721ce0700a99",
+  "probe": {
+    "codec": "aac",
+    "sampleRateHz": 48000,
+    "channels": 1,
+    "channelLayout": "mono",
+    "bitRate": 180235,
+    "audioDurationSeconds": 240.096,
+    "containerDurationSeconds": 240.096
+  },
+  "loudness": {
+    "integratedLufs": -16,
+    "loudnessRangeLu": 2.5,
+    "truePeakDbfs": -1.4,
+    "acceptedIntegratedRangeLufs": [
+      -18,
+      -14
+    ],
+    "maximumAcceptedRangeLu": 8,
+    "maximumAcceptedTruePeakDbfs": -1
+  },
+  "silence": {
+    "thresholdDbfs": -45,
+    "minimumReportedDurationSeconds": 0.8,
+    "intervals": []
+  },
+  "checks": [
+    "One AAC-LC mono 48 kHz stream spans the complete four-minute container",
+    "Integrated loudness, loudness range and true peak stay inside the declared narration targets",
+    "No silence interval at or above 0.8 seconds falls below -45 dBFS",
+    "The accepted film, caption and copied AAC packet hashes are retained for release comparison"
+  ],
+  "limits": "Signal-level verification cannot detect every pronunciation, pacing, semantic or subjective quality issue. One human end-to-end listen with captions remains required before submission."
+}
