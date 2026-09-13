@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-09-13T01:41:40.177Z",
+  "verifiedAt": "2026-09-13T02:43:13.199Z",
   "project": "roadstar-2026-kzh",
   "region": "us-central1",
   "services": {
@@ -16,9 +16,9 @@
       "ready": "True"
     },
     "web": {
-      "revision": "roadstar-web-00066-kig",
+      "revision": "roadstar-web-00068-jat",
       "trafficPercent": 100,
-      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:eede669284dd9bcb62162f4042f3093daccc7c9ee5630674962f9a5e4e26c730",
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:0f39c210a45fde3b3746d9b6e32ce9568fc4c77422b352cdb2516877a89efe30",
       "ready": "True"
     },
     "documents": {
@@ -43,6 +43,10 @@
     "publicReplay": {
       "status": 200,
       "url": "https://roadstar-web-739889188415.us-central1.run.app/?view=matched-401"
+    },
+    "publicDockEvidence": {
+      "status": 200,
+      "url": "https://roadstar-web-739889188415.us-central1.run.app/?view=dock-evidence"
     },
     "artifacts": [
       {
@@ -108,9 +112,9 @@
   "checks": [
     "All four latest created revisions are ready and receive 100% traffic",
     "API reports PostgreSQL with Firebase authentication",
-    "Public web and credential-free matched replay return the RoadStar application shell",
+    "Public web, matched replay and dock evidence receipt return the RoadStar application shell",
     "Hosted MP4, SRT, PDF, PPTX and matched replay archive are byte-identical to their tracked masters",
     "Hosted recovery preserves rejected HOS evidence, dispatcher approval and separate driver acceptance"
   ],
-  "limits": "Approved seven-day GCP preview. Isolated synthetic scenario. Hosted simulator mutation controls remain intentionally unavailable because a simulator Cloud Run resource was not included in the approved cost estimate. The deployed web offers the packaged matched-run replay as read-only historical evidence. Physical Android and native iOS verification remain deferred."
+  "limits": "Approved seven-day GCP preview. Isolated synthetic scenario. Hosted simulator mutation controls remain intentionally unavailable because a simulator Cloud Run resource was not included in the approved cost estimate. The deployed web offers packaged matched-run and dock-evidence replays as read-only historical evidence. Physical Android and native iOS verification remain deferred."
 }
