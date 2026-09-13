@@ -1,10 +1,10 @@
 # Current hosted preview verification
 
-The approved seven-day preview now serves the ranked recovery build, interactive read-only matched-Highway-401 replay and four-minute film from the existing RoadStar GCP project.
+The approved seven-day preview now serves the ranked recovery build, credential-free dock-to-recovery and matched-Highway-401 replays, and the four-minute film from the existing RoadStar GCP project.
 
 ## Release
 
-- Web: `roadstar-web-00066-kig`
+- Web: `roadstar-web-00068-jat`
 - Operational API: `roadstar-api-00036-woy`
 - Optimizer: `roadstar-optimizer-00015-vuk`
 - Document worker: `roadstar-documents-00021-tam`
@@ -21,11 +21,13 @@ The hosted recovery view also renders the stored decision-packet receipt at desk
 
 The same comparison is also available without credentials at [the public matched Highway 401 replay](https://roadstar-web-739889188415.us-central1.run.app/?view=matched-401). It uses two complete 2,401-observation simulator recordings. Both runs share their assignment basis, seed, route, scenario clock, stops, waits and speed profile; only the declared Highway 401 slowdown differs. At `T+40:00`, it displays the verified `+27.657 km` baseline progress advantage and modeled `+00:26:46` slowdown finish delta. Browser verification loaded one static archive, made no operational API request and issued no write. The loaded replay remained inspectable offline and fit without horizontal overflow at 390 px.
 
-Evidence and screenshots are in [`docs/evidence/cloud-ranked-recovery-2026-09-12`](evidence/cloud-ranked-recovery-2026-09-12/), [`docs/evidence/packaged-401-replay-2026-09-12`](evidence/packaged-401-replay-2026-09-12/) and [`docs/evidence/public-401-replay-2026-09-12`](evidence/public-401-replay-2026-09-12/). The deployment receipt is in [`docs/evidence/cloud-current-demo-2026-09-12/deployment.json`](evidence/cloud-current-demo-2026-09-12/deployment.json).
+The credential-free [dock-to-recovery receipt](https://roadstar-web-739889188415.us-central1.run.app/?view=dock-evidence) connects five retained milestones: the 08:30 ET inside-yard observation, the 120-minute contract boundary, the 11:15:09 ET outside-yard observation, an automatic CAD $75 detention draft, and the 11:20 ET rejection of D-01 with 40 on-duty minutes remaining before the separate D-02 recovery. It exposes the 13h/14h/16h planning gates without presenting RoadStar as an ELD. Its editable value scenario applies a disclosed CAD interpretation to the organizer brief's currency-unspecified $1,000–$7,000 load range, subtracts only modeled added-deadhead cost, and names the omitted costs. The page is read-only, stays interactive after network loss, provides a diagram fallback for its schematic 3D scene, and makes no operational API request or write.
+
+Evidence and screenshots are in [`docs/evidence/cloud-ranked-recovery-2026-09-12`](evidence/cloud-ranked-recovery-2026-09-12/), [`docs/evidence/packaged-401-replay-2026-09-12`](evidence/packaged-401-replay-2026-09-12/), [`docs/evidence/public-401-replay-2026-09-12`](evidence/public-401-replay-2026-09-12/) and [`docs/evidence/public-dock-evidence-2026-09-12`](evidence/public-dock-evidence-2026-09-12/). The deployment receipt is in [`docs/evidence/cloud-current-demo-2026-09-12/deployment.json`](evidence/cloud-current-demo-2026-09-12/deployment.json).
 
 ## Limits
 
-The scenario is synthetic. Route and schedule values are modeled with the configured services. It does not establish measured human task time, live traffic, revenue, or savings. Hosted simulator mutation controls remain unavailable because a simulator Cloud Run resource was outside the approved cost estimate. The packaged replay changes only its historical cursor and does not create or alter operational data. Physical Android and native iOS verification remain deferred.
+The scenario is synthetic. Route and schedule values are modeled with the configured services. It does not establish measured human task time, live traffic, revenue, profit or savings. Hosted simulator mutation controls remain unavailable because a simulator Cloud Run resource was outside the approved cost estimate. The public replays change only their inspection state and do not create or alter operational data. Physical Android and native iOS verification remain deferred.
 
 Reproduce the release checks with:
 

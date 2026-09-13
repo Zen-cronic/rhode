@@ -40,6 +40,11 @@ const sources = [
   ["docs/evidence/public-401-replay-2026-09-12/hosted-verification.json", "evidence/public-401-replay-2026-09-12/hosted-verification.json"],
   ["docs/evidence/public-401-replay-2026-09-12/hosted-desktop.png", "evidence/public-401-replay-2026-09-12/hosted-desktop.png"],
   ["docs/evidence/public-401-replay-2026-09-12/hosted-narrow.png", "evidence/public-401-replay-2026-09-12/hosted-narrow.png"],
+  ["docs/evidence/public-dock-evidence-2026-09-12/README.md", "evidence/public-dock-evidence-2026-09-12/README.md"],
+  ["docs/evidence/public-dock-evidence-2026-09-12/hosted-verification.json", "evidence/public-dock-evidence-2026-09-12/hosted-verification.json"],
+  ["docs/evidence/public-dock-evidence-2026-09-12/hosted-desktop.png", "evidence/public-dock-evidence-2026-09-12/hosted-desktop.png"],
+  ["docs/evidence/public-dock-evidence-2026-09-12/hosted-narrow.png", "evidence/public-dock-evidence-2026-09-12/hosted-narrow.png"],
+  ["docs/evidence/public-dock-evidence-2026-09-12/hosted-diagram.png", "evidence/public-dock-evidence-2026-09-12/hosted-diagram.png"],
   ["../submission/roadstar/live-presentation-plan.md", "LIVE-PRESENTATION-PLAN.md"],
   ["../submission/roadstar/demo-run-of-show.md", "VIDEO-RUN-OF-SHOW.md"],
 ];
@@ -81,10 +86,11 @@ Generated ${generatedAt}. This folder contains no login credentials, Firebase co
 1. Open \`roadstar-pitch.pdf\` for the presentation.
 2. Play \`roadstar-demo.mp4\` if the hosted or local application is unavailable. The film is 240.096 seconds; \`roadstar-demo.srt\` contains captions.
 3. Use \`LIVE-PRESENTATION-PLAN.md\` for the 10-minute core and five-minute expandable technical section.
-4. Use \`SCENARIO-ACCEPTANCE.md\`, \`HOSTED-RECOVERY-EVIDENCE.md\` and the two 3D evidence folders for judge questions about proof boundaries. \`matched-401-replay.json\` is the exact static archive served by the hosted preview.
+4. Use \`SCENARIO-ACCEPTANCE.md\`, \`HOSTED-RECOVERY-EVIDENCE.md\` and the 3D evidence folders for judge questions about proof boundaries. \`matched-401-replay.json\` is the exact static archive served by the hosted preview.
 
 ## Application endpoints
 
+- Public dock-to-recovery receipt: https://roadstar-web-739889188415.us-central1.run.app/?view=dock-evidence
 - Public matched replay: https://roadstar-web-739889188415.us-central1.run.app/?view=matched-401
 - Hosted dispatcher: https://roadstar-web-739889188415.us-central1.run.app
 - Local dispatcher on the prepared development laptop: http://localhost:5174
@@ -125,7 +131,7 @@ const manifest = {
     "Every source file was copied byte-for-byte",
     "MP4, SRT, PDF and PPTX match the current hosted-artifact receipt",
     "No credential, private fixture, customer workbook or source document is included",
-    "The kit includes a 10-minute live plan, video run-of-show, current S01-S20 evidence map, packaged replay archive and hosted public matched 3D slowdown proof",
+    "The kit includes a 10-minute live plan, video run-of-show, current S01-S20 evidence map, packaged replay archive, hosted public dock receipt and matched 3D slowdown proof",
   ],
   limits:
     "Local file preparation only. Copy-media integrity, human film listening, venue playback, portal acceptance and judge access remain separate checks.",
