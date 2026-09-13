@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-09-13T04:40:07.905Z",
+  "verifiedAt": "2026-09-13T05:09:09.348Z",
   "project": "roadstar-2026-kzh",
   "region": "us-central1",
   "services": {
@@ -16,9 +16,9 @@
       "ready": "True"
     },
     "web": {
-      "revision": "roadstar-web-00074-cic",
+      "revision": "roadstar-web-00076-piv",
       "trafficPercent": 100,
-      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:912f8f7a46f95ee176bd377f330a3ab378625fd9ebe878d3214f4f4d5ae39753",
+      "image": "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:6254837c3f0bf382f9c5d4aeff488e6fffedeabe461cf3d9fd9e08b9dff8b11b",
       "ready": "True"
     },
     "documents": {
