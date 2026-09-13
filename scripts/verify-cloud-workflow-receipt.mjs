@@ -46,9 +46,9 @@ try {
     verifiedAt: new Date().toISOString(),
     webBase,
     carrier: fixture.carrier,
-    revision: "roadstar-web-00070-rod",
+    revision: "roadstar-web-00072-rew",
     image:
-      "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:ad996e02c2116d0e45b0e32bbb133234275e1826d5e4986b85e7ea7dbd61d77e",
+      "us-central1-docker.pkg.dev/roadstar-2026-kzh/roadstar/web@sha256:27d6a3f9dcaadbb6d174f16146b77a8d87b6bda2c00d2655c9e64df8ef1baaed",
     checks: [
       "Firebase dispatcher opened the retained hosted ranked-recovery record",
       "Hosted receipt reports one request, two combinations, one feasible, one rejected and one retained reason",

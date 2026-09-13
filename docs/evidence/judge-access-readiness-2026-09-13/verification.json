@@ -1,7 +1,7 @@
 {
-  "verifiedAt": "2026-09-13T03:48:59.373Z",
+  "verifiedAt": "2026-09-13T04:19:19.761Z",
   "webBase": "https://roadstar-web-739889188415.us-central1.run.app",
-  "webRevision": "roadstar-web-00070-rod",
+  "webRevision": "roadstar-web-00072-rew",
   "carrier": "presenter-recovery-44c12060-5617-419f-98b0-853e48a66dc5",
   "checks": [
     {
@@ -9,7 +9,7 @@
       "role": "dispatcher",
       "driverId": null,
       "viewportWidth": 1440,
-      "loginAndReadMilliseconds": 1298,
+      "loginAndReadMilliseconds": 1283,
       "roleNavigation": [
         "Recovery",
         "Planning",
@@ -27,7 +27,7 @@
       "role": "driver",
       "driverId": "D-01",
       "viewportWidth": 390,
-      "loginAndReadMilliseconds": 1237,
+      "loginAndReadMilliseconds": 1298,
       "roleNavigation": [
         "Trips",
         "Tracking",
@@ -42,7 +42,7 @@
       "role": "driver",
       "driverId": "D-02",
       "viewportWidth": 390,
-      "loginAndReadMilliseconds": 1249,
+      "loginAndReadMilliseconds": 1229,
       "roleNavigation": [
         "Trips",
         "Tracking",

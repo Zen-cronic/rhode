@@ -89,7 +89,7 @@ await mkdir(evidenceDir, { recursive: true });
 const receipt = {
   verifiedAt: new Date().toISOString(),
   webBase,
-  webRevision: "roadstar-web-00070-rod",
+  webRevision: "roadstar-web-00072-rew",
   carrier: fixture.carrier,
   checks,
   operationalPosts: posts,
