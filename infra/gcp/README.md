@@ -37,7 +37,7 @@ Build with `infra/Dockerfile.api`, `.optimizer`, `.web`. Web build requires its 
 
 ## Current revisions and local operation
 
-September12 verified revisions: API00030-xek, optimizer00011-vog, web00048-fop and documents00015-kov serve100% traffic. Migration020, source-bound axle review, planned-wait duty accounting and native-to-web manifest acceptance are verified in [cloud-axle-review.md](../../docs/cloud-axle-review.md). Inspect current revisions before redeploying because later checkpoints may advance these values.
+September12 verified revisions: API`00036-woy`, optimizer`00015-vuk`, web`00070-rod` and documents`00021-tam` serve100% traffic. Migration020, source-bound axle review, planned-wait duty accounting and native-to-web manifest acceptance are verified in [cloud-axle-review.md](../../docs/cloud-axle-review.md). The current four-minute film includes the bounded organizer-value scenario and is byte-verified against the hosted artifact. Inspect current revisions before redeploying because later checkpoints may advance these values.
 
 Use `scripts/deploy-preview.sh` to rebuild and update the existing approved services. It builds every artifact first, probes each temporary tagged revision before switching traffic, and removes the rollout tag afterward. It does not provision projects, databases, identities or keys. Configuration changes and complete Terraform import remain separate work. Client keys are loaded from ignored apps/web/.env.production as public build arguments; private account passwords never enter the image.
 
