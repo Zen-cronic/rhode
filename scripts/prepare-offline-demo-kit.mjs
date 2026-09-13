@@ -23,6 +23,7 @@ const sources = [
   ["apps/web/public/demo/roadstar-pitch.pdf", "roadstar-pitch.pdf"],
   ["apps/web/public/demo/roadstar-pitch.pptx", "roadstar-pitch.pptx"],
   ["README.md", "PROJECT-README.md"],
+  ["docs/completion-audit-2026-09-12.md", "COMPLETION-AUDIT.md"],
   ["docs/scenario-acceptance.md", "SCENARIO-ACCEPTANCE.md"],
   ["docs/cloud-current-demo.md", "HOSTED-RECOVERY-EVIDENCE.md"],
   ["docs/3d-slowdown-comparison.md", "3d-slowdown-comparison.md"],
@@ -86,7 +87,7 @@ Generated ${generatedAt}. This folder contains no login credentials, Firebase co
 1. Open \`roadstar-pitch.pdf\` for the presentation.
 2. Play \`roadstar-demo.mp4\` if the hosted or local application is unavailable. The film is 240.096 seconds; \`roadstar-demo.srt\` contains captions.
 3. Use \`LIVE-PRESENTATION-PLAN.md\` for the 10-minute core and five-minute expandable technical section.
-4. Use \`SCENARIO-ACCEPTANCE.md\`, \`HOSTED-RECOVERY-EVIDENCE.md\` and the 3D evidence folders for judge questions about proof boundaries. \`matched-401-replay.json\` is the exact static archive served by the hosted preview.
+4. Start with \`COMPLETION-AUDIT.md\` for the requirement-by-requirement proof map. Use \`SCENARIO-ACCEPTANCE.md\`, \`HOSTED-RECOVERY-EVIDENCE.md\` and the 3D evidence folders for deeper questions. \`matched-401-replay.json\` is the exact static archive served by the hosted preview.
 
 ## Application endpoints
 
@@ -131,7 +132,7 @@ const manifest = {
     "Every source file was copied byte-for-byte",
     "MP4, SRT, PDF and PPTX match the current hosted-artifact receipt",
     "No credential, private fixture, customer workbook or source document is included",
-    "The kit includes a 10-minute live plan, video run-of-show, current S01-S20 evidence map, packaged replay archive, hosted public dock receipt and matched 3D slowdown proof",
+    "The kit includes the final completion audit, 10-minute live plan, video run-of-show, current S01-S20 evidence map, packaged replay archive, hosted public dock receipt and matched 3D slowdown proof",
   ],
   limits:
     "Local file preparation only. Copy-media integrity, human film listening, venue playback, portal acceptance and judge access remain separate checks.",
