@@ -1,8 +1,8 @@
 # Current four-minute demo film
 
-The accepted four-minute film now shows the current recovery evidence during its existing 0:36–1:34 delay and approval beats. The new visual sequence uses verified RoadStar application captures: the source-backed 3D dock rehearsal, the frozen acknowledged-observation corridor, the server-ranked recovery receipt, the retained HOS rejection and the consequential approval dialog.
+The accepted four-minute film now shows the current recovery evidence during its existing 0:36–1:34 delay and approval beats. The new visual sequence uses verified RoadStar application captures: the source-backed 3D dock rehearsal, the matched baseline-versus-Highway-401-slowdown corridor at exact shared observations, the server-ranked recovery receipt, the retained HOS rejection and the consequential approval dialog.
 
-The story now makes the operating chain visible before the existing Android driver scene: observe the dock consequence, inspect the recorded road history, request ranked resources, review feasible and rejected candidates, then approve the selected revision. The following driver beat still shows acceptance and synchronized execution as a separate action.
+The story now makes the operating chain visible before the existing Android driver scene: observe the dock consequence, compare the recorded baseline and slowdown from identical starting conditions, request ranked resources, review feasible and rejected candidates, then approve the selected revision. The following driver beat still shows acceptance and synchronized execution as a separate action.
 
 No narration was regenerated. The AAC packet stream and caption timings are byte-identical to the previously accepted film. The updated visual section uses still frames from actual verified application states; it does not fabricate live motion or alter displayed values. Other film scenes remain the approved third pass.
 

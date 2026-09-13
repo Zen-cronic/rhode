@@ -8,7 +8,7 @@ const font=`${root}docs/design/demo-source/fonts/IBMPlexMono-Regular.ttf`;
 const base=`${root}apps/web/public/demo/roadstar-demo.mp4`;
 const sources=[
   `${root}docs/evidence/3d-dock-2026-09-12/overview-desktop.png`,
-  `${root}docs/evidence/3d-corridor-2026-09-12/movement-perspective-desktop.png`,
+  `${root}docs/evidence/3d-slowdown-comparison-2026-09-12/comparison-desktop.png`,
   `${root}docs/evidence/ranked-recovery-2026-09-12/recommendation-desktop.png`,
   `${root}docs/evidence/ranked-recovery-2026-09-12/recommendation-desktop.png`,
   `${root}docs/evidence/ranked-recovery-2026-09-12/approval-review.png`,
@@ -19,7 +19,7 @@ const title=(value)=>`drawbox=x=0:y=0:w=1920:h=92:color=0x191b1d@0.94:t=fill,dra
 const fit=(duration,label)=>`scale=1660:900:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=0x191b1d,setsar=1,fps=24,${title(label)},trim=duration=${duration},setpts=PTS-STARTPTS`;
 const filters=[
   `[0:v]${fit(10,'01 / ACKNOWLEDGED DOCK WAIT')}[v0]`,
-  `[1:v]${fit(10,'02 / RECORDED CORRIDOR')}[v1]`,
+  `[1:v]${fit(10,'02 / MATCHED 401 SLOWDOWN')}[v1]`,
   `[2:v]crop=1440:900:0:650,${fit(10,'03 / SERVER-RANKED RECOVERY')}[v2]`,
   `[3:v]crop=1440:900:0:1280,${fit(12,'04 / FEASIBLE AND REJECTED OPTIONS')}[v3]`,
   `[4:v]${fit(16,'05 / REVIEW BEFORE COMMIT')}[v4]`,
