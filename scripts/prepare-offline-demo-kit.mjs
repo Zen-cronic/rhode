@@ -31,6 +31,11 @@ const sources = [
   ["docs/evidence/3d-slowdown-comparison-2026-09-12/slowdown-boundary-desktop.png", "evidence/3d-slowdown-comparison-2026-09-12/slowdown-boundary-desktop.png"],
   ["docs/evidence/3d-slowdown-comparison-2026-09-12/comparison-3d-narrow.png", "evidence/3d-slowdown-comparison-2026-09-12/comparison-3d-narrow.png"],
   ["docs/evidence/3d-slowdown-comparison-2026-09-12/comparison-diagram-narrow.png", "evidence/3d-slowdown-comparison-2026-09-12/comparison-diagram-narrow.png"],
+  ["apps/web/public/demo/matched-401-replay.json", "matched-401-replay.json"],
+  ["docs/evidence/packaged-401-replay-2026-09-12/README.md", "evidence/packaged-401-replay-2026-09-12/README.md"],
+  ["docs/evidence/packaged-401-replay-2026-09-12/hosted-verification.json", "evidence/packaged-401-replay-2026-09-12/hosted-verification.json"],
+  ["docs/evidence/packaged-401-replay-2026-09-12/hosted-desktop.png", "evidence/packaged-401-replay-2026-09-12/hosted-desktop.png"],
+  ["docs/evidence/packaged-401-replay-2026-09-12/hosted-narrow.png", "evidence/packaged-401-replay-2026-09-12/hosted-narrow.png"],
   ["../submission/roadstar/live-presentation-plan.md", "LIVE-PRESENTATION-PLAN.md"],
   ["../submission/roadstar/demo-run-of-show.md", "VIDEO-RUN-OF-SHOW.md"],
 ];
@@ -72,7 +77,7 @@ Generated ${generatedAt}. This folder contains no login credentials, Firebase co
 1. Open \`roadstar-pitch.pdf\` for the presentation.
 2. Play \`roadstar-demo.mp4\` if the hosted or local application is unavailable. The film is 240.096 seconds; \`roadstar-demo.srt\` contains captions.
 3. Use \`LIVE-PRESENTATION-PLAN.md\` for the 10-minute core and five-minute expandable technical section.
-4. Use \`SCENARIO-ACCEPTANCE.md\`, \`HOSTED-RECOVERY-EVIDENCE.md\` and \`3d-slowdown-comparison.md\` for judge questions about proof boundaries.
+4. Use \`SCENARIO-ACCEPTANCE.md\`, \`HOSTED-RECOVERY-EVIDENCE.md\` and the two 3D evidence folders for judge questions about proof boundaries. \`matched-401-replay.json\` is the exact static archive served by the hosted preview.
 
 ## Application endpoints
 
@@ -115,7 +120,7 @@ const manifest = {
     "Every source file was copied byte-for-byte",
     "MP4, SRT, PDF and PPTX match the current hosted-artifact receipt",
     "No credential, private fixture, customer workbook or source document is included",
-    "The kit includes a 10-minute live plan, video run-of-show, current S01-S20 evidence map and matched 3D slowdown proof",
+    "The kit includes a 10-minute live plan, video run-of-show, current S01-S20 evidence map, packaged replay archive and matched 3D slowdown proof",
   ],
   limits:
     "Local file preparation only. Copy-media integrity, human film listening, venue playback, portal acceptance and judge access remain separate checks.",
