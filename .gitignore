@@ -20,3 +20,10 @@ __pycache__/
 *.tfstate*
 *.tfplan
 *.tfvars
+
+# Private build and presentation working material.
+BUILD_CHECKPOINT.md
+docs/design-direction.md
+docs/design/references.md
+docs/design/demo-source/
+docs/design/deck-source/
