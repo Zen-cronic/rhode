@@ -41,6 +41,10 @@ try {
   await milestone(/Automatic draft POST-EXIT/, 'A CAD $75 draft is prepared');
   await milestone(/Recovery consequence 11:20 ET/, 'The next assignment changes');
 
+  await page.getByText('Retained duty calculation', {exact: true}).click();
+  await page.getByText('10,201 acknowledged observations', {exact: true}).waitFor();
+  await page.getByText('Scenario identity', {exact: true}).click();
+  await page.getByText('Separate retained synthetic runs. Their facilities, timestamps and amounts are never combined.', {exact: true}).waitFor();
   await page.getByText('Full replay fingerprint', {exact: true}).click();
   await page.getByText(replayHash, {exact: true}).waitFor();
 
@@ -51,6 +55,11 @@ try {
     'CAD $75 detention draft',
     'D-01 / REJECTED',
     '40 min on-duty',
+    '417 min remaining',
+    '340 min remaining',
+    '99 min driving and 144 min on duty',
+    '2.8 / 200 / 200',
+    'declared-budget-history',
     'D-02 / SEPARATE ASSIGNMENT',
     '138.9 km',
     '13h',
@@ -108,6 +117,22 @@ try {
       draftCad: 75,
       replaySha256: replayHash,
     },
+    hosEvidence: {
+      driver: 'D-01',
+      profile: 'declared-budget-history',
+      sourceObservations: 10201,
+      asOf: '2026-09-13T15:20:00Z',
+      remainingMinutes: {driving: 417, onDuty: 40, elapsed: 340, cycle: 700},
+      consumedMinutes: {driving: 2.8333333333333335, onDuty: 200, elapsed: 200},
+      nextAssignmentMinutes: {driving: 99, service: 45, onDuty: 144},
+      bindingReason: 'Insufficient on-duty budget.',
+      certifiedEld: false,
+    },
+    scenarioIdentity: {
+      publicReceipt: 'london-complete-replay: 165/45/CAD75',
+      filmBillingExample: 'milton-billing-review: 167/47/CAD78.33',
+      combined: false,
+    },
     valueScenario: {
       organizerBriefRange: '$1,000–$7,000; currency unspecified',
       modeledCurrency: 'CAD',
@@ -123,7 +148,9 @@ try {
       'Public synthetic receipt opens without identity inputs',
       'Five dock-to-recovery milestones render and remain interactive offline after load',
       'Observed 165-minute dwell, 120-minute allowance, 45 billable minutes and CAD $75 draft remain distinct from approval',
-      'D-01 rejection exposes 40 on-duty minutes and D-02 as a separate recovery assignment',
+      'D-01 rejection exposes exact 417 driving, 40 on-duty and 340 elapsed minutes remaining; 40 on-duty minutes cannot cover the next assignment’s 144 minutes',
+      'Retained duty basis exposes profile, source window, 10,201 observations and consumed minutes without an ELD certification claim',
+      'Public London receipt and separate Milton film billing example are explicitly identified and never combined',
       'Supported 13h, 14h and 16h planning gates are shown without an ELD certification claim',
       'Editable deadhead-cost scenario recalculates and discloses source currency ambiguity and material exclusions',
       '3D scene has an operator-selectable diagram fallback',
